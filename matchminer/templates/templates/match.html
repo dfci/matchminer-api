@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+</head>
+<body>
+Shows all matches for logged in user.
+<div id="result"></div>
+<script>
+$(document).ready(function() {
+    $.ajax({
+        url: 'http://localhost:5000/match?embedded={"VARIANTS": 1, "CLINICAL_ID": 1, "FILTER_ID": 1}'
+    }).then(function(data) {
+        // loop over each match and compress by patient.
+        var items = data['_items'];
+        var patients = new Array();
+        var size = items.length;
+        for(var i = 0; i < size; i++){
+            // simplify singleton variables.
+            var item = items[i];
+            var primary_diagnosis = item['CLINICAL_ID']['ONCOTREE_PRIMARY_DIAGNOSIS'];
+            var biopsy_site = item['CLINICAL_ID']['ONCOTREE_BIOPSY_SITE'];
+            var filter_name = item['FILTER_ID']['name'];
+
+            // simplify multiple variants.
+            var protein_change = item['VARIANTS'][0]['BESTEFFECT_PROTEIN_CHANGE'];
+            var hugo_gene_symbol = item['VARIANTS'][0]['BESTEFFECT_HUGO_SYMBOL'];
+            var variant_classification = item['VARIANTS'][0]['BESTEFFECT_VARIANT_CLASSIFICATION'];
+            var variant_effect = item['VARIANTS'][0]['VARIANT_TYPE'];
+
+            var txt = primary_diagnosis + " ," + biopsy_site + " ," + filter_name + " ,";
+            txt = txt + protein_change + " ," + hugo_gene_symbol + " ," + variant_classification + " ," + variant_effect;
+            txt + "<br/>";
+            $('#result').append(txt);
+        }
+
+
+        //$('#result').append(JSON.stringify(data, null, 2));
+    });
+});
+</script>
+</body>
+</html>

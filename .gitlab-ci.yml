@@ -1,0 +1,14 @@
+image: localhost:5000/pymatchminer-api:latest
+
+services:
+  - mongo:latest
+
+test:
+  script:
+    - nosetests test
+
+variables:
+  -MM_SETTINGS: "DEV"
+  -MONGO_HOST: "mongo"
+  -NO_AUTH: "True"
+  -API_PORT: "5555"

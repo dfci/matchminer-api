@@ -1,0 +1,85 @@
+age: Adults
+cancer_center_accrual_goal_upper: 1
+data_table4: Interventional
+site_list:
+  site: []
+short_title: ""
+protocol_target_accrual: 0
+staff_list:
+  protocol_staff: []
+sponsor_list:
+  sponsor: []
+protocol_type: ""
+disease_site_list:
+  disease_site:
+  - disease_site_code: '1'
+    disease_site_name: Test1
+  - disease_site_code: '2'
+    disease_site_name: Test2
+  - disease_site_code: '3'
+    disease_site_name: Test3
+  - disease_site_code: '4'
+    disease_site_name: Test4
+  - disease_site_code: '5'
+    disease_site_name: Test5
+drug_list:
+  drug:
+  - drug_name: TEST DRUG1
+  - drug_name: TEST DRUG2
+  - drug_name: TEST DRUG3
+long_title: Long title
+management_group_list:
+  management_group:
+  - is_primary: Y
+    management_group_name: Group 1
+  - is_primary: N
+    management_group_name: Group 2
+match:
+- clinical:
+    disease_status:
+    - Advanced
+    - Metastatic
+nct_id: XXX00000001
+nct_purpose: NCT Purpose
+oncology_group_list:
+  oncology_group:
+  - group_name: Group 1
+    is_primary: N
+  - group_name: Group 2
+    is_primary: N
+phase: I
+principal_investigator: PI 1
+prior_treatment_requirements:
+- Requirement 1
+- Requirement 2
+program_area_list:
+  program_area:
+  - is_primary: Y
+    program_area_name: Program 1
+protocol_id: 00001
+protocol_no: 00-001
+treatment_list:
+  step:
+  - arm:
+    - arm_code: DOSE
+      arm_description: DOSE LEVELS
+      arm_internal_id: 111
+      arm_suspended: N
+      dose_level:
+      - level_code: '1'
+        level_description: '1: 75 MG BID'
+        level_internal_id: 1
+        level_suspended: N
+        match:
+        - and:
+          - genomic:
+              hugo_symbol: EGFR
+              variant_category: Mutation
+              protein_change: p.L858R
+              exon: 19
+          - clinical:
+              age_numerical: '>=18'
+              oncotree_primary_diagnosis: _SOLID_
+    step_code: '1'
+    step_internal_id: 11111
+    step_type: Registration

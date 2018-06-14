@@ -1,0 +1,205 @@
+age: age
+cancer_center_accrual_goal_upper: 10
+data_table4: Interventional
+disease_site_list:
+  disease_site:
+  - disease_site_code: code
+    disease_site_name: name
+drug_list:
+  drug:
+  - drug_name: drug
+long_title: title
+management_group_list:
+  management_group:
+  - is_primary: Y
+    management_group_name: name
+  - is_primary: N
+    management_group_name: name
+nct_id: id
+nct_purpose: purpose
+oncology_group_list:
+  oncology_group:
+  - group_name: name
+    is_primary: N
+phase: I
+principal_investigator: PI
+program_area_list:
+  program_area:
+  - is_primary: Y
+    program_area_name: name
+protocol_id: 1000
+protocol_no: 00-003
+protocol_target_accrual: 10
+protocol_type: type
+short_title: title
+site_list:
+  site:
+  - coordinating_center: Y
+    site_name: name
+    site_status: OPEN TO ACCRUAL
+    uses_cancer_center_irb: Y
+  - coordinating_center: N
+    site_name: name
+    site_status: OPEN TO ACCRUAL
+    uses_cancer_center_irb: Y
+sponsor_list:
+  sponsor:
+  - is_principal_sponsor: Y
+    sponsor_name: sponsor
+    sponsor_protocol_no: sponsor
+    sponsor_roles: sponsor
+staff_list:
+  protocol_staff:
+  - email_address: ''
+    first_name: name
+    institution_name: name
+    last_name: name
+    middle_name: ''
+    npi: ''
+    phone_no: 000-00-0000
+    staff_role: role
+    start_date: 130
+    stop_date: 140
+status: OPEN TO ACCRUAL
+treatment_list:
+  step:
+  - arm:
+    - arm_code: code
+      arm_description: 'description'
+      arm_internal_id: 100
+      arm_suspended: Y
+      dose_level:
+      - level_code: code
+        level_description: 'description'
+        level_internal_id: 101
+        level_suspended: Y
+      - level_code: code
+        level_description: 'description'
+        level_internal_id: 102
+        level_suspended: Y
+      - level_code: code
+        level_description: 'description'
+        level_internal_id: 103
+        level_suspended: Y
+      - level_code: code
+        level_description: 'description'
+        level_internal_id: 104
+        level_suspended: Y
+      - level_code: code
+        level_description: 'description'
+        level_internal_id: 105
+        level_suspended: Y
+      - level_code: code
+        level_description: 'description'
+        level_internal_id: 106
+        level_suspended: Y
+      - level_code: code
+        level_description: 'description'
+        level_internal_id: 107
+        level_suspended: Y
+      - level_code: code
+        level_description: 'description'
+        level_internal_id: 108
+        level_suspended: Y
+    - arm_code: code
+      arm_description: 'description'
+      arm_internal_id: 109
+      arm_suspended: Y
+      dose_level:
+      - level_code: code
+        level_description: 'description'
+        level_internal_id: 110
+        level_suspended: Y
+      - level_code: code
+        level_description: 'description'
+        level_internal_id: 111
+        level_suspended: Y
+      - level_code: code
+        level_description: 'description'
+        level_internal_id: 112
+        level_suspended: Y
+      - level_code: code
+        level_description: 'description'
+        level_internal_id: 113
+        level_suspended: Y
+      - level_code: code
+        level_description: 'description'
+        level_internal_id: 114
+        level_suspended: Y
+      - level_code: code
+        level_description: 'description'
+        level_internal_id: 115
+        level_suspended: Y
+      - level_code: code
+        level_description: 'description'
+        level_internal_id: 116
+        level_suspended: Y
+      - level_code: code
+        level_description: 'description'
+        level_internal_id: 117
+        level_suspended: Y
+    step_code: '1'
+    step_internal_id: 118
+    step_type: type
+  - arm:
+    - arm_code: code
+      arm_description: 'description'
+      arm_internal_id: 119
+      arm_suspended: N
+      dose_level:
+      - level_code: code
+        level_description: 'description'
+        level_internal_id: 120
+        level_suspended: N
+    - arm_code: code
+      arm_description: 'description'
+      arm_internal_id: 120
+      arm_suspended: N
+      dose_level:
+      - level_code: code
+        level_description: 'description'
+        level_internal_id: 121
+        level_suspended: N
+      - level_code: code
+        level_description: 'description'
+        level_internal_id: 122
+        level_suspended: N
+      match:
+        - and:
+          - or:
+            - genomic:
+                hugo_symbol: MYC
+                variant_category: Copy Number Variation
+                cnv_call: High Amplification
+            - genomic:
+                hugo_symbol: MYC
+                variant_category: Structural Variation
+          - clinical:
+              oncotree_primary_diagnosis: '!Diffuse Large B-Cell Lymphoma'
+              age_numerical: '>=18'
+    - arm_code: code
+      arm_description: 'description'
+      arm_internal_id: 130
+      arm_suspended: N
+      dose_level:
+      - level_code: code
+        level_description: 'description'
+        level_internal_id: 131
+        level_suspended: N
+      - level_code: code
+        level_description: 'description'
+        level_internal_id: 132
+        level_suspended: N
+    step_code: code
+    step_internal_id: 133
+    step_type: type
+match:
+  - clinical:
+      disease_status:
+        - Advanced
+        - Metastatic
+        - Recurrent
+        - Refractory
+prior_treatment_requirements:
+  - none
+
