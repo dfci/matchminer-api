@@ -11,6 +11,7 @@ FILTER_MATCH_BODY = ""
 EMAIL_BLAST_RESPONSE_BODY = ""
 ACCOUNT_APPROVAL_BODY = ""
 FILTER_ACTIVITY_BODY = ""
+EAP_INQUIRY_BODY = ""
 
 with open(EMAIL_CONFIG) as fin:
     vars_ = json.load(fin)

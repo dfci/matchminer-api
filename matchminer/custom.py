@@ -20,6 +20,8 @@ from matchminer.services.filter import Filter
 from matchminer.services.match import Match
 from matchminer.cipher import AESCipher
 from matchminer.cipher_key import generate_secret_key
+from matchminer.templates.emails.emails import EAP_INQUIRY_BODY
+from matchminer.validation import check_valid_email_address
 
 import logging
 
@@ -174,6 +176,43 @@ def get_vip_clinical():
                     continue
 
     return json.dumps(clinical_ll)
+
+
+@blueprint.route('/api/eap_email', methods=['POST'])
+@nocache
+def eap_email():
+    """
+    Validates an email address, and, if passes, inserts an email object
+    into the database.
+    """
+
+    # skip authorization
+    data = request.get_json()
+    email_address = data['email_address']
+
+    # email address validation
+    if not check_valid_email_address(email_address):
+        return json.dumps({"success": False}), 403
+
+    # create object
+    subject = '[EAP] - New Inquiry from %s' % email_address,
+    body = '''<html><head></head><body>%s</body></html>''' % EAP_INQUIRY_BODY.format(email_address)
+    email = {
+        'email_from': settings.EMAIL_AUTHOR_PROTECTED,
+        'email_to': settings.EMAIL_AUTHOR_PROTECTED,
+        'subject': subject,
+        'body': body,
+        'cc': [],
+        'sent': False,
+        'num_failures': 0,
+        'errors': []
+    }
+
+    # insert into mongodb
+    email_conn = app.data.driver.db['email']
+    email_conn.insert(email)
+
+    return json.dumps({"success": True}), 201
 
 
 @blueprint.route('/epic', methods=['POST'])
