@@ -2,6 +2,7 @@ import tempfile
 import oncotreenx
 
 from matchminer.utilities import *
+from matchminer.validation import check_valid_email_address
 from tests.test_matchminer import TestMinimal
 from matchminer.trial_search import Autocomplete, expand_liquid_oncotree
 
@@ -263,3 +264,13 @@ class TestUtilities(TestMinimal):
         }]
         r = self.a._get_tumor_types_search(ct_suggest)
         assert r == ["_LIQUID_"]
+
+    def test_check_valid_email_address(self):
+
+        good_address = "demo@demo.demo"
+        bad_address = "demo"
+
+        res1 = check_valid_email_address(good_address)
+        res2 = check_valid_email_address(bad_address)
+        assert res1
+        assert not res2

@@ -37,6 +37,7 @@ pickleshare==0.5
 pkgconfig==1.1.0
 plotly==1.9.3
 ptyprocess==0.5
+pycrypto==2.6.1
 Pygments==2.0.2
 PyYAML==3.11
 pymongo==2.9.1

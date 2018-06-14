@@ -15,9 +15,11 @@ from matchminer import database
 from matchminer import settings
 from matchminer import data_model
 from matchminer.utilities import parse_resource_field, nocache, set_updated, run_matchengine
-from matchminer.security import TokenAuth
+from matchminer.security import TokenAuth, authorize_custom_request
 from matchminer.services.filter import Filter
 from matchminer.services.match import Match
+from matchminer.templates.emails.emails import EAP_INQUIRY_BODY
+from matchminer.validation import check_valid_email_address
 
 import logging
 
@@ -172,6 +174,82 @@ def get_vip_clinical():
                     continue
 
     return json.dumps(clinical_ll)
+
+
+@blueprint.route('/api/gi_patient_view', methods=['POST'])
+@nocache
+def gi_patient_view():
+    """
+    Inserts a GI patient_view document directly to the database.
+    """
+
+    # authorize request.
+    not_authed = authorize_custom_request(request)
+    if not_authed:
+        resp = Response(response="not authorized route",
+                        status=401,
+                        mimetype="application/json")
+        return resp
+
+    # create document
+    data = request.get_json()
+    all_protocol_nos = data['all_protocol_nos']
+    mrn = data['mrn']
+    documents = []
+    for protocol_no in all_protocol_nos:
+        document = {
+            'requires_manual_review': False,
+            'user_user_name': 'gi-automation',
+            'user_first_name': 'gi-automation',
+            'user_last_name': 'gi-automation',
+            'mrn': mrn,
+            'view_date': datetime.datetime.now(),
+            'protocol_no': protocol_no
+        }
+        documents.append(document)
+
+    # insert into mongodb
+    patient_view_conn = app.data.driver.db['patient_view']
+    patient_view_conn.insert(documents)
+
+    return json.dumps({"success": True}), 201
+
+
+@blueprint.route('/api/eap_email', methods=['POST'])
+@nocache
+def eap_email():
+    """
+    Validates an email address, and, if passes, inserts an email object
+    into the database.
+    """
+
+    # skip authorization
+    data = request.get_json()
+    email_address = data['email_address']
+
+    # email address validation
+    if not check_valid_email_address(email_address):
+        return json.dumps({"success": False}), 403
+
+    # create object
+    subject = '[EAP] - New Inquiry from %s' % email_address,
+    body = '''<html><head></head><body>%s</body></html>''' % EAP_INQUIRY_BODY.format(email_address)
+    email = {
+        'email_from': settings.EMAIL_AUTHOR_PROTECTED,
+        'email_to': settings.EMAIL_AUTHOR_PROTECTED,
+        'subject': subject,
+        'body': body,
+        'cc': [],
+        'sent': False,
+        'num_failures': 0,
+        'errors': []
+    }
+
+    # insert into mongodb
+    email_conn = app.data.driver.db['email']
+    email_conn.insert(email)
+
+    return json.dumps({"success": True}), 201
 
 
 @blueprint.route('/api/utility/count_match', methods=['GET'])

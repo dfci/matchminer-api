@@ -125,8 +125,8 @@ class TestMinimal(unittest.TestCase):
         self.initDB()
 
         # clear backup.
-        shutil.rmtree(BACKUP_DIR)
-        os.makedirs(BACKUP_DIR)
+        # shutil.rmtree(BACKUP_DIR)
+        # os.makedirs(BACKUP_DIR)
 
     def tearDown(self):
         del self.app
