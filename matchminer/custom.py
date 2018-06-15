@@ -250,7 +250,7 @@ def dispatch_epic():
 
 @blueprint.route('/epic_ctrial', methods=['POST'])
 @nocache
-def dispatch_epic():
+def dispatch_epic_clinical_trial():
     """
     Process request from EPIC, redirect to clinical trial page.
     :return:
