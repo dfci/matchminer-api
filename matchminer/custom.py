@@ -210,6 +210,10 @@ def gi_patient_view():
         }
         documents.append(document)
 
+    # insert into mongodb
+    patient_view_conn = app.data.driver.db['patient_view']
+    patient_view_conn.insert(documents)
+
     return json.dumps({"success": True}), 201
 
 
