@@ -9,14 +9,10 @@
 import logging
 import uuid
 import datetime
-from eve import Eve
 from eve.auth import TokenAuth
 from flask import current_app as app
-import pymongo
+from flask import Response
 
-from matchminer import settings
-
-# logging
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
 
 class TokenAuth(TokenAuth):
@@ -81,3 +77,27 @@ class TokenAuth(TokenAuth):
 
         # return results.
         return user
+
+
+def authorize_custom_request(request):
+    """
+    Authorize custom request
+    """
+
+    accounts = app.data.driver.db['user']
+    ta = TokenAuth()
+    not_authed = False
+    if request.authorization is not None:
+        token = request.authorization.username
+
+        # find the user.
+        user = accounts.find_one({'token': token})
+
+        # die on this request.
+        if user is None:
+            not_authed = True
+    else:
+        not_authed = True
+
+    # deal with bad request.
+    return not_authed
