@@ -1279,7 +1279,7 @@ patient_view_schema = {
     'user_email': {'type': 'string'},
     'num_views_match_list': {'type': 'integer'},
     'num_views_details_list': {'type': 'integer'},
-    'view_date': {'type': 'datetime'},
+    'view_date': {'allow_unknown': True},
     'filter_label': {'type': 'string', 'nullable': True},
     'filter_protocol_no': {'type': 'string', 'nullable': True},
     'requires_manual_review': {'type': 'boolean', 'default': False}
