@@ -1,3 +1,5 @@
+import re
+
 from eve.io.mongo import Validator as EveValidator
 from cerberus import Validator as CerberusValidator
 from cerberus1 import Validator
@@ -116,3 +118,18 @@ def check_consent(clinical):
             return False
 
         return True
+
+
+def check_valid_email_address(address):
+    """
+    Validates the provided email address.
+
+    Arguments:
+        address {str} -- Email address requiring validation.
+
+    Returns:
+        {bool} -- Either passes or fails validation.
+    """
+    valid_address_regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+    return re.match(valid_address_regex, address)
+

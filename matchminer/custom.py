@@ -18,6 +18,10 @@ from matchminer.utilities import parse_resource_field, nocache, set_updated, run
 from matchminer.security import TokenAuth
 from matchminer.services.filter import Filter
 from matchminer.services.match import Match
+from matchminer.cipher import AESCipher
+from matchminer.cipher_key import generate_secret_key
+from matchminer.templates.emails.emails import EAP_INQUIRY_BODY
+from matchminer.validation import check_valid_email_address
 
 import logging
 
@@ -172,6 +176,76 @@ def get_vip_clinical():
                     continue
 
     return json.dumps(clinical_ll)
+
+
+@blueprint.route('/api/eap_email', methods=['POST'])
+@nocache
+def eap_email():
+    """
+    Validates an email address, and, if passes, inserts an email object
+    into the database.
+    """
+
+    # skip authorization
+    data = request.get_json()
+    email_address = data['email_address']
+
+    # email address validation
+    if not check_valid_email_address(email_address):
+        return json.dumps({"success": False}), 403
+
+    # create object
+    subject = '[EAP] - New Inquiry from %s' % email_address,
+    body = '''<html><head></head><body>%s</body></html>''' % EAP_INQUIRY_BODY.format(email_address)
+    email = {
+        'email_from': settings.EMAIL_AUTHOR_PROTECTED,
+        'email_to': settings.EMAIL_AUTHOR_PROTECTED,
+        'subject': subject,
+        'body': body,
+        'cc': [],
+        'sent': False,
+        'num_failures': 0,
+        'errors': []
+    }
+
+    # insert into mongodb
+    email_conn = app.data.driver.db['email']
+    email_conn.insert(email)
+
+    return json.dumps({"success": True}), 201
+
+
+@blueprint.route('/epic', methods=['POST'])
+@nocache
+def dispatch_epic():
+    """
+    Process request from EPIC, redirect to patient page.
+    :return:
+    """
+    # Get EPIC encrypted data
+    # patientDataEncrypted = request.get_json().get('data')
+
+    # Data is encrypted with AES256 encryption with a custom 128 bit + padding key?! Decrypt
+    # pass_phrase = "PartnersTest"
+    # raw_text = "Field1|Field2|Field3|DSGGNCRASTKMSOXMR"
+
+    # secret_key = generate_secret_key(pass_phrase)
+    # cipher = AESCipher(secret_key)
+
+    # the encrypted text should look like:
+    # 18sQogCGwZUnIzVQvI7nNycKqth2t8RkiW3BPN14UJ/ZBkL4wEtuKq1ovZqotORO
+    # encrypt_text = cipher.encrypt(raw_text)
+
+    # decrypt_text = cipher.decrypt(patientDataEncrypted)
+
+    # convert EPIC mrn to Matchminer MRN
+
+    # grab trial_match[?] object from db
+    # db = app.data.driver.db
+    # patient = db.clinical.findOne({"MRN": epicMRN})
+
+    #redirect to patient view URL
+    return redirect('%s/#/dashboard/patients/%s?epic=true' % ('https://matchminer.dfci.harvard.edu:8443', '5ad4e83945a18d001835798f'), code=302)
 
 
 @blueprint.route('/api/utility/count_match', methods=['GET'])
