@@ -336,7 +336,21 @@ def count_query():
 
     else:
         # authorize request.
-        not_authed = authorize_custom_request(request)
+        ta = TokenAuth()
+        not_authed = False
+        if request.authorization is not None:
+            token = request.authorization.username
+
+            # find the user.
+            user = accounts.find_one({'token': token})
+
+            # die on this request.
+            if user is None:
+                not_authed = True
+        else:
+            not_authed = True
+
+        # deal with bad request.
         if not_authed:
             resp = Response(response="not authorized route",
             status=401,
