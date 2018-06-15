@@ -248,6 +248,17 @@ def dispatch_epic():
     return redirect('%s/#/dashboard/patients/%s?epic=true' % ('https://matchminer.dfci.harvard.edu:8443', '5ad4e83945a18d001835798f'), code=302)
 
 
+@blueprint.route('/epic_ctrial', methods=['POST'])
+@nocache
+def dispatch_epic():
+    """
+    Process request from EPIC, redirect to clinical trial page.
+    :return:
+    """
+
+    return redirect('https://matchminer.dfci.harvard.edu:8443/#/clinicaltrials?epic=true', code=302)
+
+
 @blueprint.route('/api/utility/count_match', methods=['GET'])
 @nocache
 def count_query():
