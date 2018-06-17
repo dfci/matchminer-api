@@ -21,8 +21,8 @@ from matchminer.services.filter import Filter
 from matchminer.services.match import Match
 from matchminer.templates.emails.emails import EAP_INQUIRY_BODY
 from matchminer.validation import check_valid_email_address
-from Crypto.Cipher import AES
-from Crypto.Util.Padding import pad, unpad
+from wincrypto import CryptCreateHash, CryptHashData, CryptDeriveKey, CryptEncrypt, CryptDecrypt
+from wincrypto.definitions import CALG_SHA1, CALG_AES_128
 import binascii
 
 import logging
@@ -257,6 +257,48 @@ def eap_email():
     return json.dumps({"success": True}), 201
 
 
+def generate_encryption_key_epic(shared_secret):
+    """
+    Create hashed key based on CryptDeriveKey from Microsoft Desktop Cryptography package.
+    :param shared_secret:
+    :return:
+    """
+    sha1_hasher = CryptCreateHash(CALG_SHA1)
+    CryptHashData(sha1_hasher, shared_secret)
+    aes_key = CryptDeriveKey(sha1_hasher, CALG_AES_128)
+    return aes_key
+
+
+def encrypt_epic(aes_key, unencrypted_data):
+    """
+    NOTE: This function is used for testing and to ensure that the encryption mechanism used in MM matches the encryption schema used in EPIC.
+    :param aes_key: <AES_128> An object created in the WinCrypto Library.
+    :param unencrypted_data: <str> Whatever text you would like to encrypt
+    :return:
+    """
+
+    encrypted = CryptEncrypt(aes_key, unencrypted_data)
+
+    # Display in human readable format
+    encrypted_readable = base64.b64encode(encrypted)
+    return encrypted_readable
+
+
+def decrypt_epic(aes_key, encrypted_data):
+    """
+    Decrypt string encrypted with AES128 ciphering algorithm using custom wincrypt hash key
+    :param aes_key: <AES_128> Object created by WinCrypto Library
+    :param encrypted_data: Raw string data
+    :return:
+    """
+    # Decode encrypted string
+    decoded = base64.b64decode(encrypted_data)
+
+    # Decrypt decoded string
+    decoded_readable = CryptDecrypt(aes_key, decoded)
+    return decoded_readable
+
+
 @blueprint.route('/epic', methods=['POST'])
 @nocache
 def dispatch_epic():
@@ -264,41 +306,64 @@ def dispatch_epic():
     Process request from EPIC, redirect to patient page.
     :return:
     """
-    data = request.get_json()
-    patientData = pad(data['data'], 128, 'pkcs7')
-    mrn = data['PatientID.SiteMRN']
+
     db = database.get_db()
+
+    # Get patient data off request body
+    body = request.get_json()
+    encrypted_patient_data = body['data']
+
+    # Generate valid encryption key
+    aes_key = generate_encryption_key_epic('PartnersTest')
+
+    # Decrypt encrypted string
+    decrypted = decrypt_epic(aes_key, encrypted_patient_data)
+
+    # JSON format data
+    epic_data = json.loads(decrypted)
+
+    # Get patient MRN
+    mrn = epic_data['PatientID.SiteMRN']
+
+    # Get user
+    user = db['user'].find_one({'user_name': epic_data['UserNID']})
 
     if mrn is not None:
         trial_match = db['clinical'].find_one({'MRN': mrn})
 
-        if trial_match is not None:
-            #DEV testing MRN - MB-0318
-            patient_url_id = str(trial_match["_id"])
-            # decryption code
-            # iv = '0000000000000000'
-            # cipher_key = '73FB225DE1361CA4A1232244EC4EA55A'
-            # cipher = AES.new(cipher_key, AES.MODE_CBC, iv)
-            # testEncrypt = cipher.encrypt(pad('Field1|Field2|Field3|DSGGNCRASTKMSOXMR', 128))
+        if trial_match is not None and user is not None:
+            # Set token. Must match token set in cookie
+            token = str(uuid.uuid4())
+            db['user'].update_one({'_id': user['_id']}, {
+                '$set': {'token': token, 'last_auth': datetime.datetime.now()}
+            })
 
-            # cipher2 = AES.new(cipher_key, AES.MODE_CBC, iv)
-            # testDecrypt = unpad(cipher2.decrypt(testEncrypt), 128)
+            # Build redirect URL
+            patient_url = str(trial_match["_id"])
+            url = FRONT_END_ADDRESS + 'dashboard/patients/' + patient_url
+            redirect_to_patient = redirect(url)
 
-            # print(binascii.hexlify(testEncrypt))
+            # Build response headers
+            response = app.make_response(redirect_to_patient)
+            response.headers.add('Authorization', 'Basic' + str(base64.b64encode(API_TOKEN + ':')))
+            response.headers.add('Last-Modified', datetime.datetime.now())
+            response.headers.add('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0')
+            response.headers.add('Pragma', 'no-cache')
+            response.headers.add('Content-Type', 'application/json')
+            response.headers.add('Location', url)
 
-            url = FRONT_END_ADDRESS + 'dashboard/patients/' + patient_url_id
-            headers = {
-                'Authorization': 'Basic' + str(base64.b64encode(API_TOKEN + ':')),
-                'Content-Type': 'application/json',
-                'Location': url
-            }
-            return Response(url, 302, headers)
-
+            # Set cookies
+            response.set_cookie('user_id', value=str(user['_id']), expires=0)
+            response.set_cookie('team_id', value=str(user['teams'][0]), expires=0)
+            response.set_cookie('token', value=token, expires=0)
+            return response
 
         else:
-            print('Redirecting to front-end error page. No trial_match found for MRN: ' + mrn) # TODO reroute to dedicated error page
+            logging.info('[EPIC] Error. Patient MRN: ' + mrn + 'UserID: ' + epic_data['UserNID'])
             error_url = FRONT_END_ADDRESS + 'dashboard?epic=true'
-            return redirect(error_url, code=302)
+            redirect_to_patient = redirect(error_url)
+            response = app.make_response(redirect_to_patient)
+            return response
 
 
 @blueprint.route('/epic_ctrial', methods=['POST'])
@@ -309,7 +374,7 @@ def dispatch_epic_clinical_trial():
     :return:
     """
 
-    return redirect('https://matchminer.dfci.harvard.edu:8443/#/clinicaltrials?epic=true', code=302)
+    return redirect(FRONT_END_ADDRESS + 'clinicaltrials?epic=true', code=302)
 
 
 @blueprint.route('/api/utility/count_match', methods=['GET'])
