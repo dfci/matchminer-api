@@ -11,7 +11,7 @@ class AESCipher(object):
             self.key = self._pad(key, block_size)
 
     def encrypt(self, raw, mode=AES.MODE_CBC):
-        raw = self._pad(raw, AES.block_size)
+        raw = self._pad(raw, 128)
 
         # Pycrypto's documentation is wrong. It says an initialization vector (IV) is not required for encryption/decryption... but it is.
         # See: https://stackoverflow.com/questions/14389336/why-does-pycrypto-not-use-the-default-iv
@@ -26,8 +26,15 @@ class AESCipher(object):
         cipher = AES.new(self.key, mode, iv)
         return self._unpad(cipher.decrypt(enc[AES.block_size:])).decode('utf-8')
 
-    def _pad(self, s, bs):
-        return s + (bs - len(s) % bs) * chr(bs - len(s) % bs)
+    def _pad(self, data, block_size):
+        """
+        Pad the input data to be a multiple of the cipher block size using PKCS7
+        :param data:
+        :param block_size:
+        :return:
+        """
+        return data + (block_size - len(data) % block_size) * chr(block_size - len(data) % block_size)
 
-    def _unpad(self, s):
-        return s[:-ord(s[len(s)-1:])]
+
+    def _unpad(self, data):
+        return data[:-ord(data[len(data) - 1:])]

@@ -261,29 +261,18 @@ def dispatch_epic():
     Process request from EPIC, redirect to patient page.
     :return:
     """
-    # Get EPIC encrypted data
-    # patientDataEncrypted = request.get_json().get('data')
+    from Crypto.Cipher import AES
+    from Crypto.Util.Padding import pad, unpad
+    ciphertext = request.get_json().get('data')
 
-    # Data is encrypted with AES256 encryption with a custom 128 bit + padding key?! Decrypt
-    # pass_phrase = "PartnersTest"
-    # raw_text = "Field1|Field2|Field3|DSGGNCRASTKMSOXMR"
+    cipher = AES.new('73FB225DE1361CA4A1232244EC4EA55A', AES.MODE_CBC, '0000000000000000')
+    testEncrypt = cipher.encrypt(pad('Test123', 128))
 
-    # secret_key = generate_secret_key(pass_phrase)
-    # cipher = AESCipher(secret_key)
+    cipher2 = AES.new('73FB225DE1361CA4A1232244EC4EA55A', AES.MODE_CBC, '0000000000000000')
+    testDecrypt = unpad(cipher2.decrypt(testEncrypt), 128)
 
-    # the encrypted text should look like:
-    # 18sQogCGwZUnIzVQvI7nNycKqth2t8RkiW3BPN14UJ/ZBkL4wEtuKq1ovZqotORO
-    # encrypt_text = cipher.encrypt(raw_text)
 
-    # decrypt_text = cipher.decrypt(patientDataEncrypted)
-
-    # convert EPIC mrn to Matchminer MRN
-
-    # grab trial_match[?] object from db
-    # db = app.data.driver.db
-    # patient = db.clinical.findOne({"MRN": epicMRN})
-
-    #redirect to patient view URL
+    print(testDecrypt)
     return redirect('%s/#/dashboard/patients/%s?epic=true' % ('https://matchminer.dfci.harvard.edu:8443', '5ad4e83945a18d001835798f'), code=302)
 
 
