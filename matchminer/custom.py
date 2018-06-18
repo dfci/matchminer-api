@@ -264,9 +264,10 @@ def dispatch_epic():
     import base64
     import binascii
 
-    patientData = pad(str(request.get_json().get('data')), 128, 'pkcs7')
+    patientData = pad(request.get_json().get('data'), 128, 'pkcs7')
     mrn = request.get_json().get('PatientID.SiteMRN')
     trial_match = app.data.driver.db['clinical'].find_one({'MRN': mrn})
+
     print('==========================================')
     print(trial_match)
     print('==========================================')
