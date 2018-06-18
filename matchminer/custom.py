@@ -20,6 +20,9 @@ from matchminer.services.filter import Filter
 from matchminer.services.match import Match
 from matchminer.templates.emails.emails import EAP_INQUIRY_BODY
 from matchminer.validation import check_valid_email_address
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
+import binascii
 
 import logging
 
@@ -259,13 +262,9 @@ def dispatch_epic():
     Process request from EPIC, redirect to patient page.
     :return:
     """
-    from Crypto.Cipher import AES
-    from Crypto.Util.Padding import pad, unpad
-    import base64
-    import binascii
-
     patientData = pad(request.get_json().get('data'), 128, 'pkcs7')
     mrn = request.get_json().get('PatientID.SiteMRN')
+    print('===db===')
     trial_match = app.data.driver.db['clinical'].find_one({'MRN': mrn})
 
     print('==========================================')
