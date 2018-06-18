@@ -262,8 +262,9 @@ def dispatch_epic():
     Process request from EPIC, redirect to patient page.
     :return:
     """
-    patientData = pad(request.get_json().get('data'), 128, 'pkcs7')
-    mrn = request.get_json().get('PatientID.SiteMRN')
+    data = request.get_json()
+    patientData = pad(data['data'], 128, 'pkcs7')
+    mrn = data['PatientID.SiteMRN']
     print('===db===')
     trial_match = app.data.driver.db['clinical'].find_one({'MRN': mrn})
 
