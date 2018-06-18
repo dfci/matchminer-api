@@ -241,7 +241,7 @@ def eap_email():
         'email_to': settings.EMAIL_AUTHOR_PROTECTED,
         'subject': subject,
         'body': body,
-        'cc': '',
+        'cc': [],
         'sent': False,
         'num_failures': 0,
         'errors': []
