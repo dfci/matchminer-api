@@ -237,7 +237,7 @@ def eap_email():
         return json.dumps({"success": False}), 403
 
     # create object
-    subject = '[EAP] - New Inquiry from %s' % email_address,
+    subject = '[EAP] - New Inquiry from %s' % email_address
     body = '''<html><head></head><body>%s</body></html>''' % EAP_INQUIRY_BODY.format(email_address)
     email = {
         'email_from': settings.EMAIL_AUTHOR_PROTECTED,
