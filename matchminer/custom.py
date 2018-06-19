@@ -1,6 +1,7 @@
 import os
 import uuid
 import datetime
+import base64
 from flask import Blueprint, current_app as app
 from flask import Response, request, render_template, redirect, session, make_response
 from flask_cors import CORS
@@ -30,6 +31,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
 
 API_ADDRESS = os.getenv('API_ADDRESS', None)
+FRONT_END_ADDRESS = os.getenv('FRONT_END_ADDRESS', None)
 API_TOKEN = os.getenv('API_TOKEN', None)
 
 blueprint = Blueprint('', __name__, template_folder="templates/templates")
@@ -262,29 +264,35 @@ def dispatch_epic():
     Process request from EPIC, redirect to patient page.
     :return:
     """
-    # data = request.get_json()
-    # patientData = pad(data['data'], 128, 'pkcs7')
-    # mrn = data['PatientID.SiteMRN']
-    # print('===db===')
-    # trial_match = app.data.driver.db['clinical'].find_one({'MRN': mrn})
-    #
-    # print('==========================================')
-    # print(trial_match)
-    # print('==========================================')
-    # print(trial_match['_id'])
-    #
-    # cipher = AES.new('73FB225DE1361CA4A1232244EC4EA55A', AES.MODE_CBC, '0000000000000000')
-    # testEncrypt = cipher.encrypt(pad('Field1|Field2|Field3|DSGGNCRASTKMSOXMR', 128))
-    #
-    # cipher2 = AES.new('73FB225DE1361CA4A1232244EC4EA55A', AES.MODE_CBC, '0000000000000000')
-    # testDecrypt = unpad(cipher2.decrypt(testEncrypt), 128)
-    #
-    # print('==========================================')
-    # print(binascii.hexlify(testEncrypt))
-    # print('==========================================')
-    # print(testDecrypt)
-    # print('==========================================')
-    return redirect('%s/#/dashboard/patients/%s?epic=true' % ('https://matchminer.dfci.harvard.edu:8443', '5ad4e83945a18d001835798f'), code=302)
+    data = request.get_json()
+    patientData = pad(data['data'], 128, 'pkcs7')
+    mrn = data['PatientID.SiteMRN']
+
+    if mrn is not None:
+        try:
+            trial_match = database['clinical'].find_one({'MRN': mrn})
+            if trial_match is not None:
+                #DEV testing MRN - MB-0318
+                patient_url_id = trial_match["_id"]
+                iv = '0000000000000000'
+                cipher_key = '73FB225DE1361CA4A1232244EC4EA55A'
+                cipher = AES.new(cipher_key, AES.MODE_CBC, iv)
+                testEncrypt = cipher.encrypt(pad('Field1|Field2|Field3|DSGGNCRASTKMSOXMR', 128))
+
+                cipher2 = AES.new(cipher_key, AES.MODE_CBC, iv)
+                testDecrypt = unpad(cipher2.decrypt(testEncrypt), 128)
+
+                print(binascii.hexlify(testEncrypt))
+                response = Response(headers={'Authorization': 'Basic' + str(base64.b64encode(API_TOKEN + ':'))},
+                                    is_redirect=True,
+                                    url=FRONT_END_ADDRESS + 'clinical/' + patient_url_id)
+
+                return response
+            else:
+                return redirect(FRONT_END_ADDRESS + 'dashboard?epic=true', code=302)
+        except:
+            print('No patient found with MRN: %s' % mrn)
+            return redirect(FRONT_END_ADDRESS + 'epic=true', code=302)
 
 
 @blueprint.route('/epic_ctrial', methods=['POST'])
