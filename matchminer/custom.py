@@ -197,6 +197,13 @@ def gi_patient_view():
     data = request.get_json()
     all_protocol_nos = data['all_protocol_nos']
     mrn = data['mrn']
+
+    # use the given view date if supplied in the POST body
+    if 'use_view_date' in data:
+        view_date = datetime.datetime.strptime(data['use_view_date'], '%Y-%m-%d %X')
+    else:
+        view_date = datetime.datetime.now()
+
     documents = []
     for protocol_no in all_protocol_nos:
         document = {
@@ -205,7 +212,7 @@ def gi_patient_view():
             'user_first_name': 'gi-automation',
             'user_last_name': 'gi-automation',
             'mrn': mrn,
-            'view_date': datetime.datetime.now(),
+            'view_date': view_date,
             'protocol_no': protocol_no
         }
         documents.append(document)
@@ -234,7 +241,7 @@ def eap_email():
         return json.dumps({"success": False}), 403
 
     # create object
-    subject = '[EAP] - New Inquiry from %s' % email_address,
+    subject = '[EAP] - New Inquiry from %s' % email_address
     body = '''<html><head></head><body>%s</body></html>''' % EAP_INQUIRY_BODY.format(email_address)
     email = {
         'email_from': settings.EMAIL_AUTHOR_PROTECTED,
