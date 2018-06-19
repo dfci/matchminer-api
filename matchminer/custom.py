@@ -267,32 +267,38 @@ def dispatch_epic():
     data = request.get_json()
     patientData = pad(data['data'], 128, 'pkcs7')
     mrn = data['PatientID.SiteMRN']
+    db = database.get_db()
 
     if mrn is not None:
-        try:
-            trial_match = database['clinical'].find_one({'MRN': mrn})
-            if trial_match is not None:
-                #DEV testing MRN - MB-0318
-                patient_url_id = trial_match["_id"]
-                iv = '0000000000000000'
-                cipher_key = '73FB225DE1361CA4A1232244EC4EA55A'
-                cipher = AES.new(cipher_key, AES.MODE_CBC, iv)
-                testEncrypt = cipher.encrypt(pad('Field1|Field2|Field3|DSGGNCRASTKMSOXMR', 128))
+        trial_match = db['clinical'].find_one({'MRN': mrn})
 
-                cipher2 = AES.new(cipher_key, AES.MODE_CBC, iv)
-                testDecrypt = unpad(cipher2.decrypt(testEncrypt), 128)
+        if trial_match is not None:
+            #DEV testing MRN - MB-0318
+            patient_url_id = str(trial_match["_id"])
+            # decryption code
+            # iv = '0000000000000000'
+            # cipher_key = '73FB225DE1361CA4A1232244EC4EA55A'
+            # cipher = AES.new(cipher_key, AES.MODE_CBC, iv)
+            # testEncrypt = cipher.encrypt(pad('Field1|Field2|Field3|DSGGNCRASTKMSOXMR', 128))
 
-                print(binascii.hexlify(testEncrypt))
-                response = Response(headers={'Authorization': 'Basic' + str(base64.b64encode(API_TOKEN + ':'))},
-                                    is_redirect=True,
-                                    url=FRONT_END_ADDRESS + 'clinical/' + patient_url_id)
+            # cipher2 = AES.new(cipher_key, AES.MODE_CBC, iv)
+            # testDecrypt = unpad(cipher2.decrypt(testEncrypt), 128)
 
-                return response
-            else:
-                return redirect(FRONT_END_ADDRESS + 'dashboard?epic=true', code=302)
-        except:
-            print('No patient found with MRN: %s' % mrn)
-            return redirect(FRONT_END_ADDRESS + 'epic=true', code=302)
+            # print(binascii.hexlify(testEncrypt))
+
+            url = FRONT_END_ADDRESS + 'dashboard/patients/' + patient_url_id
+            headers = {
+                'Authorization': 'Basic' + str(base64.b64encode(API_TOKEN + ':')),
+                'Content-Type': 'application/json',
+                'Location': url
+            }
+            return Response(url, 302, headers)
+
+
+        else:
+            print('Redirecting to front-end error page. No trial_match found for MRN: ' + mrn) # TODO reroute to dedicated error page
+            error_url = FRONT_END_ADDRESS + 'dashboard?epic=true'
+            return redirect(error_url, code=302)
 
 
 @blueprint.route('/epic_ctrial', methods=['POST'])
