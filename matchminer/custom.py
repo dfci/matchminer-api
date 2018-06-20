@@ -318,24 +318,27 @@ def dispatch_epic():
 
     # Get patient data off request body
     body = request.get_json()
-    encrypted_patient_data = body['data']
 
-    # Generate valid encryption key
-    aes_key = generate_encryption_key_epic('PartnersTest')
+    # For use in testing
+    if 'data' in body:
+        encrypted_patient_data = body['data']
 
-    # Decrypt encrypted string
-    decrypted = decrypt_epic(aes_key, encrypted_patient_data)
+        # Generate valid encryption key
+        aes_key = generate_encryption_key_epic('PartnersTest')
 
-    # JSON format data
-    epic_data = json.loads(decrypted)
+        # Decrypt encrypted string
+        decrypted = decrypt_epic(aes_key, encrypted_patient_data)
 
-    # Get patient MRN
-    mrn = epic_data['PatientID.SiteMRN']
+        # JSON format data
+        epic_data = json.loads(decrypted)
 
-    # Get user
-    user = db['user'].find_one({'user_name': epic_data['UserNID']})
+        # Get patient MRN
+        mrn = epic_data['PatientID.SiteMRN']
 
-    if mrn is not None:
+        # Get user
+        user = db['user'].find_one({'user_name': epic_data['UserNID']})
+
+        # Find patient
         trial_match = db['clinical'].find_one({'MRN': mrn})
 
         if trial_match is not None and user is not None:
@@ -366,12 +369,17 @@ def dispatch_epic():
             return response
 
         else:
-            logging.info('[EPIC] Error. Patient MRN: ' + mrn + 'UserID: ' + epic_data['UserNID'])
+            logging.info('[EPIC] Error. MRN: ' + mrn + '| UserID: ' + epic_data['UserNID'])
             error_url = FRONT_END_ADDRESS + 'dashboard?epic=true'
             redirect_to_patient = redirect(error_url)
             response = app.make_response(redirect_to_patient)
             return response
-
+    else:
+        logging.info('[EPIC] POST Request Error. No \'data\' field on body')
+        error_url = FRONT_END_ADDRESS + 'dashboard?epic=true'
+        redirect_to_patient = redirect(error_url)
+        response = app.make_response(redirect_to_patient)
+        return response
 
 @blueprint.route('/epic_ctrial', methods=['POST'])
 @nocache
