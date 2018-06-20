@@ -2,8 +2,10 @@
 import os
 import yaml
 import datetime
+import binascii
 from matchminer.utilities import set_curated, set_updated
 from matchminer.miner import prepare_criteria
+from matchminer.custom import generate_encryption_key_epic, encrypt_epic, decrypt_epic
 
 from tests.test_matchminer import TestMinimal
 
@@ -212,3 +214,19 @@ class TestCustom(TestMinimal):
                 }
             ]
         }
+
+
+    # Values taken from EPIC's encryption tool
+    # See: https://open.epic.com/Tech/TechSpec?spec=Epic.EncryptionValidator.exe&specType=tools
+    def test_generate_epic_key(self):
+        shared_secret = 'PartnersTest'
+        key = generate_encryption_key_epic(shared_secret).key
+        assert binascii.hexlify(key).upper() == '73FB225DE1361CA4A1232244EC4EA55A'
+
+    def test_encrypt_epic(self):
+        key = generate_encryption_key_epic('PartnersTest')
+        assert encrypt_epic(key, 'Field1|Field2|Field3|DSGGNCRASTKMSOXMR') == '18sQogCGwZUnIzVQvI7nNycKqth2t8RkiW3BPN14UJ/ZBkL4wEtuKq1ovZqotORO'
+
+    def test_decrypt_epic(self):
+        key = generate_encryption_key_epic('PartnersTest')
+        assert decrypt_epic(key, '18sQogCGwZUnIzVQvI7nNycKqth2t8RkiW3BPN14UJ/ZBkL4wEtuKq1ovZqotORO') == 'Field1|Field2|Field3|DSGGNCRASTKMSOXMR'
