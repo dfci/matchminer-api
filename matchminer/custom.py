@@ -203,7 +203,7 @@ def gi_patient_view():
 
     # use the given view date if supplied in the POST body
     if 'use_view_date' in data:
-        view_date = datetime.datetime.strptime(data['use_view_date'], '%-m/%-d/%y')
+        view_date = datetime.datetime.strptime(data['use_view_date'], '%Y-%m-%d %X')
     else:
         view_date = datetime.datetime.now()
 
