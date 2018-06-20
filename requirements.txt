@@ -56,5 +56,6 @@ terminado==0.5
 tornado==4.3
 traitlets==4.1.0b1
 urllib3==1.15.1
+wincrypto==0.2
 Werkzeug==0.10.4
 wheel==0.24.0
