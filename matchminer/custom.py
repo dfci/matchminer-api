@@ -321,66 +321,61 @@ def dispatch_epic():
     body = request.get_json()
 
     # For use in testing
-    if 'data' in body:
-        encrypted_patient_data = body['data']
+    encrypted_patient_data = body['data']
 
-        # Generate valid encryption key
-        aes_key = generate_encryption_key_epic('PartnersTest')
+    # Generate valid encryption key
+    aes_key = generate_encryption_key_epic('PartnersTest')
 
-        # Decrypt encrypted string
-        decrypted = decrypt_epic(aes_key, encrypted_patient_data)
+    # Decrypt encrypted string
+    decrypted = decrypt_epic(aes_key, encrypted_patient_data)
 
-        # JSON format data
-        epic_data = json.loads(decrypted)
+    # JSON format data
+    epic_data = json.loads(decrypted)
 
-        # Get patient MRN
-        mrn = epic_data['PatientID.SiteMRN']
+    # Get patient MRN
+    mrn = epic_data['PatientID.SiteMRN']
 
-        # Get user
-        user = db['user'].find_one({'user_name': epic_data['UserNID']})
+    # Get user
+    user = db['user'].find_one({'user_name': epic_data['UserNID']})
 
-        # Find patient
-        trial_match = db['clinical'].find_one({'MRN': mrn})
+    # Find patient
+    trial_match = db['clinical'].find_one({'MRN': mrn})
 
-        if trial_match is not None and user is not None:
-            # Set token. Must match token set in cookie
-            token = str(uuid.uuid4())
-            db['user'].update_one({'_id': user['_id']}, {
-                '$set': {'token': token, 'last_auth': datetime.datetime.now()}
-            })
+    if trial_match is not None and user is not None:
+        # Set token. Must match token set in cookie
+        token = str(uuid.uuid4())
+        db['user'].update_one({'_id': user['_id']}, {
+            '$set': {'token': token, 'last_auth': datetime.datetime.now()}
+        })
 
-            # Build redirect URL
-            patient_url = str(trial_match["_id"])
-            url = FRONT_END_ADDRESS + 'dashboard/patients/' + patient_url
-            redirect_to_patient = redirect(url)
+        # Build redirect URL
+        patient_url = str(trial_match["_id"])
+        url = FRONT_END_ADDRESS + 'dashboard/patients/' + patient_url
+        redirect_to_patient = redirect(url)
+        logging.info('[EPIC] redirect to URL: ' + url)
 
-            # Build response headers
-            response = app.make_response(redirect_to_patient)
-            response.headers.add('Authorization', 'Basic' + str(base64.b64encode(API_TOKEN + ':')))
-            response.headers.add('Last-Modified', datetime.datetime.now())
-            response.headers.add('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0')
-            response.headers.add('Pragma', 'no-cache')
-            response.headers.add('Content-Type', 'application/json')
-            response.headers.add('Location', url)
+        # Build response headers
+        response = app.make_response(redirect_to_patient)
+        response.headers.add('Authorization', 'Basic' + str(base64.b64encode(API_TOKEN + ':')))
+        response.headers.add('Last-Modified', datetime.datetime.now())
+        response.headers.add('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0')
+        response.headers.add('Pragma', 'no-cache')
+        response.headers.add('Content-Type', 'application/json')
+        response.headers.add('Location', url)
 
-            # Set cookies
-            response.set_cookie('user_id', value=str(user['_id']), expires=0)
-            response.set_cookie('team_id', value=str(user['teams'][0]), expires=0)
-            response.set_cookie('token', value=token, expires=0)
-            return response
+        # Set cookies
+        response.set_cookie('user_id', value=str(user['_id']), expires=0)
+        response.set_cookie('team_id', value=str(user['teams'][0]), expires=0)
+        response.set_cookie('token', value=token, expires=0)
+        return response
 
-        else:
-            logging.info('[EPIC] Error. MRN: ' + mrn + '| UserID: ' + epic_data['UserNID'])
-            error_url = FRONT_END_ADDRESS + 'dashboard?epic=true'
-            redirect_to_patient = redirect(error_url)
-            response = app.make_response(redirect_to_patient)
-            return response
     else:
-        logging.info('[EPIC] POST Request Error. No \'data\' field on body')
+        logging.info('[EPIC] Error. MRN: ' + mrn + '| UserID: ' + epic_data['UserNID'])
         error_url = FRONT_END_ADDRESS + 'dashboard?epic=true'
         redirect_to_patient = redirect(error_url)
         response = app.make_response(redirect_to_patient)
         return response
+
 
 @blueprint.route('/epic_ctrial', methods=['POST'])
 @nocache
