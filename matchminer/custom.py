@@ -373,7 +373,7 @@ def dispatch_epic():
     # Redirect to error page if user is not authorized
     if user is None:
         logging.error('[EPIC] Error: No user found in db. UserID: ' + epic_data['UserNID'])
-        error_url = FRONT_END_ADDRESS + 'dashboard?epic=true&epic_unauthorized=true'
+        error_url = FRONT_END_ADDRESS + 'epic-auth-error'
         redirect_to_patient = redirect(error_url)
         response = app.make_response(redirect_to_patient)
         response.headers.add('Location', error_url)
@@ -388,7 +388,7 @@ def dispatch_epic():
     # Redirect to error page if no patient record in db
     if trial_match is None:
         logging.error('[EPIC] Error: No clinical document found matching MRN: ' + mrn)
-        error_url = FRONT_END_ADDRESS + 'dashboard?epic=true'
+        error_url = FRONT_END_ADDRESS + 'epic-mrn-error'
         redirect_to_patient = redirect(error_url)
         response = app.make_response(redirect_to_patient)
         response.headers.add('Location', error_url)
