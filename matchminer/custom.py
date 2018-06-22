@@ -368,7 +368,7 @@ def dispatch_epic():
     logging.info('[EPIC] Data: ' + str(epic_data))
 
     # Get user
-    user = db['user'].find_one({'user_name': epic_data['UserNID']})
+    user = db['user'].find_one({'user_name': str(epic_data['UserNID']).lower()})
 
     # Redirect to error page if user is not authorized
     if user is None:
