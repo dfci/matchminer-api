@@ -324,7 +324,7 @@ def build_redirect_url_epic(user, trial_match):
 
     # Build redirect URL
     patient_url = str(trial_match["_id"])
-    url = FRONT_END_ADDRESS + 'dashboard/patients/' + patient_url
+    url = FRONT_END_ADDRESS + 'dashboard/patients/' + patient_url + '?epic=true'
     redirect_to_patient = redirect(url)
     logging.info('[EPIC] redirect to URL: ' + url)
 
@@ -341,7 +341,6 @@ def build_redirect_url_epic(user, trial_match):
     response.set_cookie('user_id', value=str(user['_id']), expires=0)
     response.set_cookie('team_id', value=str(user['teams'][0]), expires=0)
     response.set_cookie('token', value=token, expires=0)
-    response.set_cookie('epic', value='true', expires=0)
     return response
 
 
