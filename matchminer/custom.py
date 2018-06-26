@@ -361,6 +361,7 @@ def dispatch_epic():
 
     # Decrypt encrypted string
     decrypted = decrypt_epic(aes_key, encrypted_patient_data)
+    logging.info('[EPIC] Decrypted: ' + str(decrypted))
 
     # JSON format data
     epic_data = json.loads(decrypted)
