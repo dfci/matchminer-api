@@ -355,9 +355,10 @@ def dispatch_epic():
 
     # Get patient data off request body
     encrypted_patient_data = str(request.form['data'])
+    logging.info('[EPIC] Encrypted: ' + str(encrypted_patient_data))
 
     # Generate valid encryption key
-    aes_key = generate_encryption_key_epic('***REMOVED***')
+    aes_key = generate_encryption_key_epic('PartnersTest')
 
     # Decrypt encrypted string
     decrypted = decrypt_epic(aes_key, encrypted_patient_data)
