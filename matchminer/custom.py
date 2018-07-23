@@ -352,6 +352,7 @@ def dispatch_epic():
     :return:
     """
     db = database.get_db()
+    logging.info('[EPIC] ' + str(request.remote_addr))
 
     # Get patient data off request body
     encrypted_patient_data = str(request.form['data'])
