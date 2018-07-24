@@ -359,7 +359,7 @@ def dispatch_epic():
     logging.info('[EPIC] Encrypted: ' + str(encrypted_patient_data))
 
     # Generate valid encryption key
-    aes_key = generate_encryption_key_epic('PartnersTest')
+    aes_key = generate_encryption_key_epic('***REMOVED***')
 
     # Decrypt encrypted string
     decrypted = decrypt_epic(aes_key, encrypted_patient_data)
