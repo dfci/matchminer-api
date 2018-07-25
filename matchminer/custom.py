@@ -386,7 +386,6 @@ def dispatch_epic():
 
     # Get patient MRN
     mrn = epic_data['PatientID.SiteMRN']
-    logging.info(type(mrn))
 
     # Find patient
     trial_match = db['clinical'].find_one({'MRN': mrn})
@@ -404,13 +403,15 @@ def dispatch_epic():
     return response
 
 
-@blueprint.route('/epic_ctrial', methods=['POST'])
+@blueprint.route('/epic_ctrial', methods=['POST', 'GET'])
 @nocache
 def dispatch_epic_clinical_trial():
     """
     Process request from EPIC, redirect to clinical trial page.
     :return:
     """
+    if request.method == 'GET':
+        return 'Method unsupported'
 
     url = FRONT_END_ADDRESS + 'clinicaltrials?epic=true'
     redirect_to_search = redirect(url)
