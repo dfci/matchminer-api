@@ -323,8 +323,8 @@ def build_redirect_url_epic(user, trial_match):
     })
 
     # Build redirect URL
-    patient_url = str(trial_match["_id"])
-    url = FRONT_END_ADDRESS + 'dashboard/patients/' + patient_url + '?epic=true'
+    patient_id = str(trial_match["_id"])
+    url = FRONT_END_ADDRESS + 'dashboard/patients/' + patient_id + '?epic=true'
     redirect_to_patient = redirect(url)
     logging.info('[EPIC] redirect to URL: ' + url)
 
@@ -386,6 +386,7 @@ def dispatch_epic():
 
     # Get patient MRN
     mrn = epic_data['PatientID.SiteMRN']
+    logging.info(type(mrn))
 
     # Find patient
     trial_match = db['clinical'].find_one({'MRN': mrn})
