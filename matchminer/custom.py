@@ -344,13 +344,16 @@ def build_redirect_url_epic(user, trial_match):
     return response
 
 
-@blueprint.route('/epic', methods=['POST'])
+@blueprint.route('/epic', methods=['POST', 'GET'])
 @nocache
 def dispatch_epic():
     """
     Process request from EPIC, redirect to patient page.
     :return:
     """
+    if request.method == 'GET':
+        return 'Method unsupported'
+
     db = database.get_db()
     logging.info('[EPIC] ' + str(request.remote_addr))
 
