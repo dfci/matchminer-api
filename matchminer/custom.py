@@ -1,6 +1,7 @@
 import os
 import uuid
 import datetime
+import base64
 from flask import Blueprint, current_app as app
 from flask import Response, request, render_template, redirect, session, make_response
 from flask_cors import CORS
@@ -18,10 +19,11 @@ from matchminer.utilities import parse_resource_field, nocache, set_updated, run
 from matchminer.security import TokenAuth, authorize_custom_request
 from matchminer.services.filter import Filter
 from matchminer.services.match import Match
-from matchminer.cipher import AESCipher
-from matchminer.cipher_key import generate_secret_key
 from matchminer.templates.emails.emails import EAP_INQUIRY_BODY
 from matchminer.validation import check_valid_email_address
+from wincrypto import CryptCreateHash, CryptHashData, CryptDeriveKey, CryptEncrypt, CryptDecrypt
+from wincrypto.definitions import CALG_SHA1, CALG_AES_128
+import binascii
 
 import logging
 
@@ -29,6 +31,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
 
 API_ADDRESS = os.getenv('API_ADDRESS', None)
+FRONT_END_ADDRESS = os.getenv('FRONT_END_ADDRESS', None)
 API_TOKEN = os.getenv('API_TOKEN', None)
 
 blueprint = Blueprint('', __name__, template_folder="templates/templates")
@@ -262,48 +265,165 @@ def eap_email():
     return json.dumps({"success": True}), 201
 
 
-@blueprint.route('/epic', methods=['POST'])
+def generate_encryption_key_epic(shared_secret):
+    """
+    Create hashed key based on CryptDeriveKey from Microsoft Desktop Cryptography package.
+    :param shared_secret:
+    :return:
+    """
+    sha1_hasher = CryptCreateHash(CALG_SHA1)
+    CryptHashData(sha1_hasher, shared_secret)
+    aes_key = CryptDeriveKey(sha1_hasher, CALG_AES_128)
+    return aes_key
+
+
+def encrypt_epic(aes_key, unencrypted_data):
+    """
+    NOTE: This function is used for testing and to ensure that the encryption mechanism used in MM matches the encryption schema used in EPIC.
+    :param aes_key: <AES_128> An object created in the WinCrypto Library.
+    :param unencrypted_data: <str> Whatever text you would like to encrypt
+    :return:
+    """
+
+    encrypted = CryptEncrypt(aes_key, unencrypted_data)
+
+    # Display in human readable format
+    encrypted_readable = base64.b64encode(encrypted)
+    return encrypted_readable
+
+
+def decrypt_epic(aes_key, encrypted_data):
+    """
+    Decrypt string encrypted with AES128 ciphering algorithm using custom wincrypt hash key
+    :param aes_key: <AES_128> Object created by WinCrypto Library
+    :param encrypted_data: Raw string data
+    :return:
+    """
+    # Decode encrypted string
+    decoded = base64.b64decode(encrypted_data)
+
+    # Decrypt decoded string
+    decoded_readable = CryptDecrypt(aes_key, decoded)
+    return decoded_readable
+
+
+def build_redirect_url_epic(user, trial_match):
+    """
+    When redirecting to a patient for integration with EPIC, set appropriate tokens, headers, and cookies
+    :param user:
+    :param trial_match:
+    :return:
+    """
+    db = database.get_db()
+
+    # Set token. Must match token set in cookie
+    token = str(uuid.uuid4())
+    db['user'].update_one({'_id': user['_id']}, {
+        '$set': {'token': token, 'last_auth': datetime.datetime.now()}
+    })
+
+    # Build redirect URL
+    patient_id = str(trial_match["_id"])
+    url = FRONT_END_ADDRESS + 'dashboard/patients/' + patient_id + '?epic=true'
+    redirect_to_patient = redirect(url)
+    logging.info('[EPIC] redirect to URL: ' + url)
+
+    # Build response headers
+    response = app.make_response(redirect_to_patient)
+    response.headers.add('Authorization', 'Basic' + str(base64.b64encode(API_TOKEN + ':')))
+    response.headers.add('Last-Modified', datetime.datetime.now())
+    response.headers.add('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0')
+    response.headers.add('Pragma', 'no-cache')
+    response.headers.add('Content-Type', 'application/json')
+    response.headers.add('Location', url)
+
+    # Set cookies
+    response.set_cookie('user_id', value=str(user['_id']), expires=0)
+    response.set_cookie('team_id', value=str(user['teams'][0]), expires=0)
+    response.set_cookie('token', value=token, expires=0)
+    return response
+
+
+@blueprint.route('/epic', methods=['POST', 'GET'])
 @nocache
 def dispatch_epic():
     """
     Process request from EPIC, redirect to patient page.
     :return:
     """
-    # Get EPIC encrypted data
-    # patientDataEncrypted = request.get_json().get('data')
+    if request.method == 'GET':
+        return 'Method unsupported'
 
-    # Data is encrypted with AES256 encryption with a custom 128 bit + padding key?! Decrypt
-    # pass_phrase = "PartnersTest"
-    # raw_text = "Field1|Field2|Field3|DSGGNCRASTKMSOXMR"
+    db = database.get_db()
+    logging.info('[EPIC] ' + str(request.remote_addr))
 
-    # secret_key = generate_secret_key(pass_phrase)
-    # cipher = AESCipher(secret_key)
+    # Get patient data off request body
+    encrypted_patient_data = str(request.form['data'])
+    logging.info('[EPIC] Encrypted: ' + str(encrypted_patient_data))
 
-    # the encrypted text should look like:
-    # 18sQogCGwZUnIzVQvI7nNycKqth2t8RkiW3BPN14UJ/ZBkL4wEtuKq1ovZqotORO
-    # encrypt_text = cipher.encrypt(raw_text)
+    # Generate valid encryption key
+    aes_key = generate_encryption_key_epic('***REMOVED***')
 
-    # decrypt_text = cipher.decrypt(patientDataEncrypted)
+    # Decrypt encrypted string
+    decrypted = decrypt_epic(aes_key, encrypted_patient_data)
+    logging.info('[EPIC] Decrypted: ' + str(decrypted))
 
-    # convert EPIC mrn to Matchminer MRN
+    # JSON format data
+    epic_data = json.loads(decrypted)
+    logging.info('[EPIC] Data: ' + str(epic_data))
 
-    # grab trial_match[?] object from db
-    # db = app.data.driver.db
-    # patient = db.clinical.findOne({"MRN": epicMRN})
+    # Get user
+    user = db['user'].find_one({'user_name': str(epic_data['UserNID']).lower()})
 
-    #redirect to patient view URL
-    return redirect('%s/#/dashboard/patients/%s?epic=true' % ('https://matchminer.dfci.harvard.edu:8443', '5ad4e83945a18d001835798f'), code=302)
+    # Redirect to error page if user is not authorized
+    if user is None:
+        logging.error('[EPIC] Error: No user found in db. UserID: ' + epic_data['UserNID'])
+        error_url = FRONT_END_ADDRESS + 'epic-auth-error'
+        redirect_to_patient = redirect(error_url)
+        response = app.make_response(redirect_to_patient)
+        response.headers.add('Location', error_url)
+        return response
+
+    # Get patient MRN
+    mrn = epic_data['PatientID.SiteMRN']
+
+    # Find patient
+    trial_match = db['clinical'].find_one({'MRN': mrn})
+
+    # Redirect to error page if no patient record in db
+    if trial_match is None:
+        logging.error('[EPIC] Error: No clinical document found matching MRN: ' + mrn)
+        error_url = FRONT_END_ADDRESS + 'epic-mrn-error'
+        redirect_to_patient = redirect(error_url)
+        response = app.make_response(redirect_to_patient)
+        response.headers.add('Location', error_url)
+        return response
+
+    response = build_redirect_url_epic(user, trial_match)
+    return response
 
 
-@blueprint.route('/epic_ctrial', methods=['POST'])
+@blueprint.route('/epic_ctrial', methods=['POST', 'GET'])
 @nocache
 def dispatch_epic_clinical_trial():
     """
     Process request from EPIC, redirect to clinical trial page.
     :return:
     """
+    if request.method == 'GET':
+        return 'Method unsupported'
 
-    return redirect('https://matchminer.dfci.harvard.edu:8443/#/clinicaltrials?epic=true', code=302)
+    url = FRONT_END_ADDRESS + 'clinicaltrials?epic=true'
+    redirect_to_search = redirect(url)
+    logging.info('[EPIC] redirect to search URL: ' + url)
+
+    # Build response headers
+    response = app.make_response(redirect_to_search)
+    response.headers.add('Location', url)
+
+    # Set cookies
+    response.set_cookie('epic', value='true', expires=0)
+    return response
 
 
 @blueprint.route('/api/utility/count_match', methods=['GET'])
