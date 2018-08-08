@@ -210,7 +210,7 @@ def gi_patient_view():
     documents = []
     for protocol_no in all_protocol_nos:
         document = {
-            'requires_manual_review': False,
+            'requires_manual_review': True,
             'user_user_name': 'gi-automation',
             'user_first_name': 'gi-automation',
             'user_last_name': 'gi-automation',
