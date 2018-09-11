@@ -1385,5 +1385,6 @@ gi_gold_standard_truth = {
 
     # misc
     'is_unreviewed': {'type': 'boolean'},
-    'display_caveat': {'type': 'boolean'}
+    'display_caveat': {'type': 'boolean'},
+    'mrn_is_deceased': {'type': 'boolean'}
 }
