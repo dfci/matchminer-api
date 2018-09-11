@@ -1309,7 +1309,8 @@ gikb_schema = {
     'trial_matches': {'allow_unknown': True},
     'provider_name': {'type': 'string'},
     'provider_npi': {'type': 'integer'},
-    'gi_report_date': {'type': 'string'}
+    'gi_report_date': {'type': 'string'},
+    'mrn_is_deceased': {'type': 'boolean'}
 }
 
 gi_gold_standard_truth = {
