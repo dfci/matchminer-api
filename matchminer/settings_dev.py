@@ -1,16 +1,12 @@
 import os
 import sys
-import json
-import logging
 import matchminer.data_model
-
-## parameters
+from matchminer.components.gi.data_model import gikb_schema, gi_gold_standard_truth, gi_final_reports_schema, \
+    gi_kb1_schema, gi_kb2_schema, gi_kb3_schema, gi_providers_schema
 
 # for API documentation, needs to be enabled
 ENFORCE_IF_MATCH = True
 OPLOG = True
-
-# start DB like so: docker run --name match-mongo -d -p 27017:27017 mongo mongod --smallfiles
 
 # collection names.
 COLLECTION_CLINICAL = "clinical"
@@ -237,7 +233,7 @@ enrollment = {
 }
 
 gikb = {
-    'schema': matchminer.data_model.gikb_schema,
+    'schema': gikb_schema,
     'allow_unknown': True,
     'allowed_read_roles': ["admin", "service", "user"],
     'allowed_write_roles': ["admin", "service", "user"],
@@ -245,7 +241,42 @@ gikb = {
 }
 
 gi_gold_standard_truth = {
-    'schema': matchminer.data_model.gi_gold_standard_truth,
+    'schema': gi_gold_standard_truth,
+    'allowed_read_roles': ["admin", "service", "user"],
+    'allowed_write_roles': ["admin", "service"],
+    'item_methods': ['GET', 'PUT', 'DELETE']
+}
+
+gi_final_reports = {
+    'schema': gi_final_reports_schema,
+    'allowed_read_roles': ["admin", "service", "user"],
+    'allowed_write_roles': ["admin", "service"],
+    'item_methods': ['GET', 'PUT', 'DELETE']
+}
+
+gi_kb1 = {
+    'schema': gi_kb1_schema,
+    'allowed_read_roles': ["admin", "service", "user"],
+    'allowed_write_roles': ["admin", "service"],
+    'item_methods': ['GET', 'PUT', 'DELETE']
+}
+
+gi_kb2 = {
+    'schema': gi_kb2_schema,
+    'allowed_read_roles': ["admin", "service", "user"],
+    'allowed_write_roles': ["admin", "service"],
+    'item_methods': ['GET', 'PUT', 'DELETE']
+}
+
+gi_kb3 = {
+    'schema': gi_kb3_schema,
+    'allowed_read_roles': ["admin", "service", "user"],
+    'allowed_write_roles': ["admin", "service"],
+    'item_methods': ['GET', 'PUT', 'DELETE']
+}
+
+gi_providers = {
+    'schema': gi_providers_schema,
     'allowed_read_roles': ["admin", "service", "user"],
     'allowed_write_roles': ["admin", "service"],
     'item_methods': ['GET', 'PUT', 'DELETE']
@@ -271,5 +302,10 @@ DOMAIN = {
     'patient_view': patient_view,
     'enrollment': enrollment,
     'gikb': gikb,
-    'gi_gold_standard_truth': gi_gold_standard_truth
+    'gi_gold_standard_truth': gi_gold_standard_truth,
+    'gi_final_reports': gi_final_reports,
+    'gi_kb1': gi_kb1,
+    'gi_kb2': gi_kb2,
+    'gi_kb3': gi_kb3,
+    'gi_providers': gi_providers
 }
