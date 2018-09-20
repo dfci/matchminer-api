@@ -1,4 +1,4 @@
-gikb_schema = {
+gi_schema = {
     'mrn': {'type': 'string', 'required': True},
     'name': {'type': 'string', 'required': True},
     'sample_id': {'type': 'string', 'required': True},
@@ -7,8 +7,10 @@ gikb_schema = {
     'trial_matches': {'allow_unknown': True},
     'provider_name': {'type': 'string'},
     'provider_npi': {'type': 'integer'},
-    'gi_report_date': {'type': 'string'},
-    'mrn_is_deceased': {'type': 'boolean'}
+    'gi_report_date': {'type': 'string', 'nullable': True},
+    'mrn_is_deceased': {'type': 'boolean'},
+    'sign_out_date': {'type': 'integer'},
+    'archived': {'type': 'boolean'}
 }
 
 gi_gold_standard_truth = {
@@ -87,26 +89,27 @@ gi_gold_standard_truth = {
     'mrn_is_deceased': {'type': 'boolean'}
 }
 
-gi_final_reports_schema = {
+gi_final_kb_schema = {
 
     # autopopulated columns
-    'filename': {'type': 'string', 'readonly': True},
-    'initials': {'type': 'string', 'readonly': True},
-    'firstName': {'type': 'string', 'readonly': True},
-    'lastName': {'type': 'string', 'readonly': True},
-    'sampleId': {'type': 'string', 'readonly': True},
-    'mrn': {'type': 'string', 'readonly': True},
-    'ordPhysicianName': {'type': 'string', 'readonly': True},
-    'ProviderName': {'type': 'string', 'readonly': True},
+    'filename': {'type': 'string'},
+    'initials': {'type': 'string'},
+    'firstName': {'type': 'string'},
+    'lastName': {'type': 'string'},
+    'sampleId': {'type': 'string'},
+    'mrn': {'type': 'string'},
+    'ordPhysicianName': {'type': 'string'},
+    'ProviderName': {'type': 'string'},
+    'dateAdded': {'type': 'integer'},
 
     # manually populated columns
     'clinicalStatus': {'type': 'string'},
-    'orderForMeeting':  {'type': 'integer'},
-    'reportSentToProviderDate': {'type': 'datetime'},
+    'orderForMeeting':  {'type': 'string'},
+    'reportSentToProviderDate': {'type': 'integer', 'nullable': True},
 
     # google form populated columns
     'formReviewed': {'type': 'boolean'},
-    'meetingDate': {'type': 'datetime'},
+    'meetingDate': {'type': 'integer', 'nullable': True},
     'meetingTitles': {'type': 'string'},
     'meetingNames': {'type': 'string'},
     'includeSV': {'type': 'string'},
@@ -122,7 +125,8 @@ gi_final_reports_schema = {
     'reportEdits': {'type': 'string'},
     'translationalResearchOpportunity': {'type': 'string'},
     'formTriggerId': {'type': 'string'},
-    'formActive': {'type': 'boolean'}
+    'formActive': {'type': 'boolean'},
+    'emailRead': {'type': 'string'}
 }
 
 gi_kb1_schema = {
@@ -130,36 +134,37 @@ gi_kb1_schema = {
     'variantCategory': {'type': 'string'},
     'variantDetails': {'type': 'string', 'nullable': True},
     'reviewer': {'type': 'string'},
-    'dateAdded': {'type': 'datetime'},
-    'dateRemoved': {'type': 'datetime', 'nullable': True},
+    'dateAdded': {'type': 'integer', 'nullable': True},
+    'dateRemoved': {'type': 'integer', 'nullable': True},
     'exclude': {'type': 'boolean', 'default': False},
-    'gene_class': {'type': 'string', 'nullable': True}
+    'geneClass': {'type': 'string', 'nullable': True}
 }
 
 gi_kb2_schema = {
 
     # autopopulated columns
-    'gene': {'type': 'string', 'readonly': True},
-    'variantCategory': {'type': 'string', 'readonly': True},
-    'variantClassification': {'type': 'string', 'readonly': True},
-    'genomicChange': {'type': 'string', 'readonly': True},
-    'nucleotideChange': {'type': 'string', 'readonly': True},
-    'proteinChange': {'type': 'string', 'readonly': True},
-    'exon': {'type': 'integer', 'readonly': True},
-    'transcript': {'type': 'string', 'readonly': True},
-    'tier1Count': {'type': 'string', 'readonly': True},
-    'tier2Count': {'type': 'string', 'readonly': True},
-    'tier3Count': {'type': 'string', 'readonly': True},
-    'tier4Count': {'type': 'string', 'readonly': True},
-    'dateAdded': {'type': 'datetime', 'readonly': True},
-    'assignedReviewer': {'type': 'string', 'readonly': True},
-    'cosmicLink': {'type': 'string', 'readonly': True},
-    'clinvarLink': {'type': 'string', 'readonly': True},
-    'unprotLink': {'type': 'string', 'readonly': True},
-    'oncokbLink': {'type': 'string', 'readonly': True},
-    'civicLink': {'type': 'string', 'nullable': True, 'readonly': True},
-    'jaxLink': {'type': 'string', 'nullable': True, 'readonly': True},
-    'formLink': {'type': 'string', 'default': 'not yet', 'readonly': True},
+    'gene': {'type': 'string'},
+    'variantCategory': {'type': 'string'},
+    'variantClassification': {'type': 'string'},
+    'genomicChange': {'type': 'string'},
+    'nucleotideChange': {'type': 'string'},
+    'proteinChange': {'type': 'string'},
+    'exon': {'type': 'integer', 'nullable': True},
+    'transcript': {'type': 'string'},
+    'tier1Count': {'type': 'integer', 'nullable': True},
+    'tier2Count': {'type': 'integer', 'nullable': True},
+    'tier3Count': {'type': 'integer', 'nullable': True},
+    'tier4Count': {'type': 'integer', 'nullable': True},
+    'dateAdded': {'type': 'integer', 'nullable': True},
+    'assignedReviewer': {'type': 'string'},
+    'cosmicLink': {'type': 'string'},
+    'clinvarLink': {'type': 'string'},
+    'unprotLink': {'type': 'string'},
+    'oncokbLink': {'type': 'string'},
+    'civicLink': {'type': 'string', 'nullable': True},
+    'jaxLink': {'type': 'string', 'nullable': True},
+    'myCancerGenomeLink': {'type': 'string', 'nullable': True},
+    'formLink': {'type': 'string', 'default': ''},
 
     # manually populated columns
     'oncogenic': {'type': 'string'},
@@ -170,8 +175,8 @@ gi_kb2_schema = {
     'discrepancyWithCAMDComment': {'type': 'boolean', 'default': False},
 
     # autopopulated after review columns
-    'dateReviewed': {'type': 'datetime', 'readonly': True},
-    'reviewer': {'type': 'string', 'readonly': True},
+    'dateReviewed': {'type': 'integer', 'nullable': True},
+    'reviewer': {'type': 'string'},
 
     # trigger columns
     'formTriggerId': {'type': 'string'},
@@ -185,19 +190,21 @@ gi_kb3_schema = {
     'gene': {'type': 'string'},
     'variantCategory': {'type': 'string'},
     'variantDetails': {'type': 'string', 'nullable': True},
-    'mutationClassification': {'type': 'string', 'nullable': True},
+    'mutationClass': {'type': 'string', 'nullable': True},
     'cancerType': {'type': 'string'},
     'oncotreeCode': {'type': 'string', 'nullable': True},
     'FDAApprovedTherapy': {'type': 'string', 'nullable': True},
     'offLabelTherapy': {'type': 'string', 'nullable': True},
     'translationalResearch': {'type': 'string', 'nullable': True},
-    'dateUpdated': {'type': 'datetime'}
+    'dateUpdated': {'type': 'integer'},
+    'dateAdded': {'type': 'integer'}
 }
 
-gi_providers_schema = {
+gi_provider_kb_schema = {
     'lastName': {'type': 'string'},
     'firstName': {'type': 'string'},
     'middleInitial': {'type': 'string', 'nullable': True},
     'pilot': {'type': 'boolean', 'default': False},
-    'npi': {'type': 'string'}
+    'npi': {'type': 'string'},
+    'dateAdded': {'type': 'integer'}
 }

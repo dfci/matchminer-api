@@ -1,8 +1,8 @@
 import os
 import sys
 import matchminer.data_model
-from matchminer.components.gi.data_model import gikb_schema, gi_gold_standard_truth, gi_final_reports_schema, \
-    gi_kb1_schema, gi_kb2_schema, gi_kb3_schema, gi_providers_schema
+from matchminer.components.gi.data_model import gi_schema, gi_gold_standard_truth, gi_final_kb_schema, \
+    gi_kb1_schema, gi_kb2_schema, gi_kb3_schema, gi_provider_kb_schema
 
 # for API documentation, needs to be enabled
 ENFORCE_IF_MATCH = True
@@ -232,8 +232,8 @@ enrollment = {
     'item_methods': ['GET']
 }
 
-gikb = {
-    'schema': gikb_schema,
+gi = {
+    'schema': gi_schema,
     'allow_unknown': True,
     'allowed_read_roles': ["admin", "service", "user"],
     'allowed_write_roles': ["admin", "service", "user"],
@@ -247,39 +247,39 @@ gi_gold_standard_truth = {
     'item_methods': ['GET', 'PUT', 'DELETE']
 }
 
-gi_final_reports = {
-    'schema': gi_final_reports_schema,
+gi_final_kb = {
+    'schema': gi_final_kb_schema,
     'allowed_read_roles': ["admin", "service", "user"],
     'allowed_write_roles': ["admin", "service"],
-    'item_methods': ['GET', 'PUT', 'DELETE']
+    'item_methods': ['GET', 'PUT', 'PATCH']
 }
 
 gi_kb1 = {
     'schema': gi_kb1_schema,
     'allowed_read_roles': ["admin", "service", "user"],
     'allowed_write_roles': ["admin", "service"],
-    'item_methods': ['GET', 'PUT', 'DELETE']
+    'item_methods': ['GET', 'PUT', 'PATCH']
 }
 
 gi_kb2 = {
     'schema': gi_kb2_schema,
     'allowed_read_roles': ["admin", "service", "user"],
     'allowed_write_roles': ["admin", "service"],
-    'item_methods': ['GET', 'PUT', 'DELETE']
+    'item_methods': ['GET', 'PUT', 'PATCH']
 }
 
 gi_kb3 = {
     'schema': gi_kb3_schema,
     'allowed_read_roles': ["admin", "service", "user"],
     'allowed_write_roles': ["admin", "service"],
-    'item_methods': ['GET', 'PUT', 'DELETE']
+    'item_methods': ['GET', 'PUT', 'PATCH']
 }
 
-gi_providers = {
-    'schema': gi_providers_schema,
+gi_provider_kb = {
+    'schema': gi_provider_kb_schema,
     'allowed_read_roles': ["admin", "service", "user"],
     'allowed_write_roles': ["admin", "service"],
-    'item_methods': ['GET', 'PUT', 'DELETE']
+    'item_methods': ['GET', 'PUT', 'PATCH']
 }
 
 # schema
@@ -301,11 +301,11 @@ DOMAIN = {
     'negative_genomic': negative_genomic,
     'patient_view': patient_view,
     'enrollment': enrollment,
-    'gikb': gikb,
+    'gi': gi,
     'gi_gold_standard_truth': gi_gold_standard_truth,
-    'gi_final_reports': gi_final_reports,
+    'gi_final_kb': gi_final_kb,
     'gi_kb1': gi_kb1,
     'gi_kb2': gi_kb2,
     'gi_kb3': gi_kb3,
-    'gi_providers': gi_providers
+    'gi_provider_kb': gi_provider_kb
 }
