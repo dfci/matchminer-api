@@ -247,41 +247,6 @@ gi_gold_standard_truth = {
     'item_methods': ['GET', 'PUT', 'DELETE']
 }
 
-gi_final_kb = {
-    'schema': gi_final_kb_schema,
-    'allowed_read_roles': ["admin", "service", "user"],
-    'allowed_write_roles': ["admin", "service"],
-    'item_methods': ['GET', 'PUT', 'PATCH']
-}
-
-gi_kb1 = {
-    'schema': gi_kb1_schema,
-    'allowed_read_roles': ["admin", "service", "user"],
-    'allowed_write_roles': ["admin", "service"],
-    'item_methods': ['GET', 'PUT', 'PATCH']
-}
-
-gi_kb2 = {
-    'schema': gi_kb2_schema,
-    'allowed_read_roles': ["admin", "service", "user"],
-    'allowed_write_roles': ["admin", "service"],
-    'item_methods': ['GET', 'PUT', 'PATCH']
-}
-
-gi_kb3 = {
-    'schema': gi_kb3_schema,
-    'allowed_read_roles': ["admin", "service", "user"],
-    'allowed_write_roles': ["admin", "service"],
-    'item_methods': ['GET', 'PUT', 'PATCH']
-}
-
-gi_provider_kb = {
-    'schema': gi_provider_kb_schema,
-    'allowed_read_roles': ["admin", "service", "user"],
-    'allowed_write_roles': ["admin", "service"],
-    'item_methods': ['GET', 'PUT', 'PATCH']
-}
-
 # schema
 DOMAIN = {
     'user': user,
@@ -302,10 +267,5 @@ DOMAIN = {
     'patient_view': patient_view,
     'enrollment': enrollment,
     'gi': gi,
-    'gi_gold_standard_truth': gi_gold_standard_truth,
-    'gi_final_kb': gi_final_kb,
-    'gi_kb1': gi_kb1,
-    'gi_kb2': gi_kb2,
-    'gi_kb3': gi_kb3,
-    'gi_provider_kb': gi_provider_kb
+    'gi_gold_standard_truth': gi_gold_standard_truth
 }
