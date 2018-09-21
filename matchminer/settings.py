@@ -56,7 +56,6 @@ else:
     from matchminer.settings_dev import *
 
 logging.info("settings: %s" % MM_SETTINGS)
-MONGO_URI = 'mongodb://localhost:27017/matchminer'
 logging.info("settings: %s" % MONGO_URI)
 
 match_status_mapping = {
