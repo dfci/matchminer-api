@@ -9,7 +9,7 @@ gi_schema = {
     'provider_npi': {'type': 'integer'},
     'gi_report_date': {'type': 'string', 'nullable': True},
     'mrn_is_deceased': {'type': 'boolean'},
-    'sign_out_date': {'type': 'integer'},
+    'sign_out_date': {'type': 'integer', 'nullable': True},
     'archived': {'type': 'boolean'}
 }
 
