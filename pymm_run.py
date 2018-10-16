@@ -12,8 +12,9 @@ from matchminer.events import register_hooks
 from matchminer.miner import email_content
 from matchminer.utilities import *
 from matchminer.validation import ConsentValidatorEve
+from matchminer.components.oncore.oncore_app import oncore_blueprint
 from services.account import account_pipeline
-from eve_swagger import swagger, add_documentation
+from eve_swagger import swagger
 
 # logging
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
@@ -45,6 +46,7 @@ app.config['SAML_PATH'] = os.path.join(cur_dir, 'saml')
 
 # register blueprint to the main Eve application.
 app.register_blueprint(blueprint)
+app.register_blueprint(oncore_blueprint)
 
 
 if settings.MM_SETTINGS != 'PROD':

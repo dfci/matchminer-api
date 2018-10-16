@@ -1,0 +1,67 @@
+<!doctype html>
+<title>Trial curation interface</title>
+<head>
+    <style>
+        body {
+            background-color: white;
+        }
+
+        table#t01 {
+            width: 100%;
+            background-color: #f1f1c1;
+        }
+
+        table#t01 tr:nth-child(even) {
+            background-color: #eee;
+        }
+        table#t01 tr:nth-child(odd) {
+            background-color: #fff;
+        }
+        table#t01 th {
+            color: white;
+            background-color: black;
+        }
+        table#t01 td {
+            text-align:center;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Oncore transfer</h1>
+<em>Fetch a YAML file from Oncore on demand</em>
+<form action="/curate/oncore" method=post enctype=multipart/form-data>
+    <input type="text" name="protocol_no"><br>
+    <input type=submit value=Fetch>
+</form>
+
+<h1>File upload</h1>
+<em>File upload adds or replaces an existing trial</em>
+<form action="" method=post enctype=multipart/form-data>
+    <p>
+        <input type=file name=file>
+        <input type=submit value=Upload>
+    </p>
+</form>
+
+<h1>Trial list</h1>
+<em>The following table details all trials and allows basic modifications</em>
+<table id="t01">
+    <tr>
+        <th>Protocol #</th>
+        <th>Curated</th>
+        <th>Updated</th>
+        <th>Download</th>
+        <th>Delete</th>
+    </tr>
+    {% for trial in trials %}
+    <tr>
+        <td>{{trial['protocol_no']}}</td>
+        <td>{{trial['curated_on']}}</td>
+        <td>{{trial['last_updated']}}</td>
+        <td><a href="/curate/{{ trial['protocol_no'] }}">download</a></td>
+        <td><a href="/curate/{{ trial['protocol_no'] }}?delete=1">X</a></td>
+    </tr>
+    {% endfor %}
+</table>
+</body>
