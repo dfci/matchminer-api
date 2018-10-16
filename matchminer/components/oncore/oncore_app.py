@@ -17,7 +17,7 @@ from matchminer.settings import API_TOKEN, API_ADDRESS
 
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s', )
 
-oncore_blueprint = Blueprint('', __name__, template_folder="templates")
+oncore_blueprint = Blueprint('oncore_blueprint', __name__, template_folder="templates")
 CORS(oncore_blueprint)
 
 
