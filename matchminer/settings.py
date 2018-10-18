@@ -38,6 +38,7 @@ EMAIL_AUTHOR_PROTECTED = os.getenv('EMAIL_AUTHOR_PROTECTED', '')
 EMAIL_TRIAL_CC_LIST = os.getenv('EMAIL_TRIAL_CC_LIST', '')
 EMAIL_TRIAL_CONTACT = os.getenv('EMAIL_TRIAL_CONTACT', '')
 EXCLUDE_FROM_STATISTICS = os.getenv('EXCLUDE_FROM_STATISTICS', [])
+ONCORE_CURATION_AUTH_TOKEN = os.getenv('ONCORE_CURATION_AUTH_TOKEN', '')
 
 TUMOR_TREE = os.path.abspath(os.path.join(os.path.dirname(__file__), './data/tumor_tree.txt'))
 

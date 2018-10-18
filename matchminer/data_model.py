@@ -56,6 +56,11 @@ user_schema = {
         'required': False,
         'readonly': True
     },
+    'oncore_token': {
+        'type': 'string',
+        'required': False,
+        'readonly': True
+    },
     'user_name': {
         'type': 'string',
         'required': True
