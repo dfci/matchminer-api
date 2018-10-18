@@ -92,7 +92,6 @@ def authorize_custom_request(request):
     not_authed = False
     if request.authorization is not None:
         token = request.authorization.username
-        print 'token', token
 
         # find the user.
         user = accounts.find_one({'token': token})
@@ -115,6 +114,7 @@ def authorize_oncore_curation(request):
     :param request: {Flask request obj}
     :return: {bool} True if user is not authenticated. False if user is authenticated
     """
+
     user_id = request.cookies.get('user_id')
     if user_id is None:
         return True
@@ -122,10 +122,10 @@ def authorize_oncore_curation(request):
     db = app.data.driver.db
     query = {'_id': ObjectId(user_id)}
     user = db.user.find_one(query)
-    if user is None or 'token' not in user:
+    if user is None or 'oncore_token' not in user:
         return True
 
-    if user['token'] != ONCORE_CURATION_AUTH_TOKEN:
+    if str(user['oncore_token']) != str(ONCORE_CURATION_AUTH_TOKEN):
         return True
 
     return False
