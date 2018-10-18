@@ -11,9 +11,12 @@ import uuid
 import datetime
 from eve.auth import TokenAuth
 from flask import current_app as app
-from flask import Response
+from bson.objectid import ObjectId
+
+from matchminer.settings import ONCORE_CURATION_AUTH_TOKEN
 
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
+
 
 class TokenAuth(TokenAuth):
 
@@ -89,6 +92,7 @@ def authorize_custom_request(request):
     not_authed = False
     if request.authorization is not None:
         token = request.authorization.username
+        print 'token', token
 
         # find the user.
         user = accounts.find_one({'token': token})
@@ -101,3 +105,27 @@ def authorize_custom_request(request):
 
     # deal with bad request.
     return not_authed
+
+
+def authorize_oncore_curation(request):
+    """
+    Look up the token of the logged-in user and validate if they are authorized to access
+    the Oncore curation platform.
+
+    :param request: {Flask request obj}
+    :return: {bool} True if user is not authenticated. False if user is authenticated
+    """
+    user_id = request.cookies.get('user_id')
+    if user_id is None:
+        return True
+
+    db = app.data.driver.db
+    query = {'_id': ObjectId(user_id)}
+    user = db.user.find_one(query)
+    if user is None or 'token' not in user:
+        return True
+
+    if user['token'] != ONCORE_CURATION_AUTH_TOKEN:
+        return True
+
+    return False

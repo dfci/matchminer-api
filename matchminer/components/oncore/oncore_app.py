@@ -14,7 +14,7 @@ from matchminer.database import get_db
 from matchminer.utilities import set_updated, set_curated
 from matchminer.components.oncore.oncore_utilities import OncoreSync
 from matchminer.settings import API_TOKEN, API_ADDRESS
-from matchminer.security import authorize_custom_request
+from matchminer.security import authorize_oncore_curation
 
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s', )
 
@@ -33,6 +33,20 @@ def nocache(view):
         return response
 
     return update_wrapper(no_cache, view)
+
+
+def oncore_auth_required(view):
+    @wraps(view)
+    def auth(*args, **kwargs):
+        # check authorization
+        not_authed = authorize_oncore_curation(request)
+        if not_authed:
+            resp = Response(response="not authorized route",
+                            status=401,
+                            mimetype="application/json")
+            return resp
+        return view(*args, **kwargs)
+    return auth
 
 
 def _yamlize(trial, trial_id):
@@ -81,15 +95,8 @@ def _handle_exc(trial):
 
 @oncore_blueprint.route('/curate', methods=['GET', 'POST'])
 @nocache
+@oncore_auth_required
 def index():
-
-    # check authorization
-    not_authed = authorize_custom_request(request)
-    if not_authed:
-        resp = Response(response="not authorized route",
-                        status=401,
-                        mimetype="application/json")
-        return resp
 
     # set headers.
     headers = {
@@ -184,6 +191,7 @@ def index():
 
 @oncore_blueprint.route('/curate/<trial_id>', methods=['GET'])
 @nocache
+@oncore_auth_required
 def trial_request(trial_id):
 
     # determine mode.
@@ -244,6 +252,7 @@ def trial_request(trial_id):
 
 @oncore_blueprint.route('/curate/oncore', methods=['POST'])
 @nocache
+@oncore_auth_required
 def oncore():
 
     # get the protocol number
