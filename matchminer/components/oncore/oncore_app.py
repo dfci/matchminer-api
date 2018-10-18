@@ -8,12 +8,13 @@ import StringIO
 import requests
 from flask_cors import CORS
 from functools import wraps, update_wrapper
-from flask import Blueprint, make_response, render_template, request, redirect
+from flask import Blueprint, Response, make_response, render_template, request, redirect
 
 from matchminer.database import get_db
 from matchminer.utilities import set_updated, set_curated
 from matchminer.components.oncore.oncore_utilities import OncoreSync
 from matchminer.settings import API_TOKEN, API_ADDRESS
+from matchminer.security import authorize_custom_request
 
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s', )
 
@@ -81,6 +82,14 @@ def _handle_exc(trial):
 @oncore_blueprint.route('/curate', methods=['GET', 'POST'])
 @nocache
 def index():
+
+    # check authorization
+    not_authed = authorize_custom_request(request)
+    if not_authed:
+        resp = Response(response="not authorized route",
+                        status=401,
+                        mimetype="application/json")
+        return resp
 
     # set headers.
     headers = {
