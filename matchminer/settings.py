@@ -23,6 +23,7 @@ WELCOME_EMAIL = os.getenv('WELCOME_EMAIL', 'YES')
 API_PORT = os.getenv('API_PORT', 5000)
 API_TOKEN = os.getenv('API_TOKEN', 'fb4d6830-d3aa-481b-bcd6-270d69790e11')
 API_ADDRESS = os.getenv('API_ADDRESS', 'http://localhost:5555/api')
+ONCORE_ADDRESS = os.getenv('ONCORE_ADDRESS', '')
 EMAIL_CONFIG = os.getenv('EMAIL_CONFIG', os.path.abspath(os.path.join(os.path.dirname(__file__),
                                                                       '../',
                                                                       'email.config.json')))

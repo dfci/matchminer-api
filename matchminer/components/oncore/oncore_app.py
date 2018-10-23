@@ -13,7 +13,7 @@ from flask import Blueprint, Response, make_response, render_template, request, 
 from matchminer.database import get_db
 from matchminer.utilities import set_updated, set_curated
 from matchminer.components.oncore.oncore_utilities import OncoreSync
-from matchminer.settings import API_TOKEN, API_ADDRESS
+from matchminer.settings import API_TOKEN, API_ADDRESS, ONCORE_ADDRESS
 from matchminer.security import authorize_oncore_curation
 
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s', )
@@ -264,7 +264,7 @@ def oncore():
     }
 
     # get the trial list from db.
-    url = '%s?protocolNumber=%s' % (os.path.join(API_ADDRESS, 'utility/oncore/'), protocol_no)
+    url = '%s?protocolNumber=%s' % (ONCORE_ADDRESS, protocol_no)
     r = requests.get(url, headers=headers)
 
     # test for resposne.
