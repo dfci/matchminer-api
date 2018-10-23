@@ -171,10 +171,6 @@ class CBioEngine(object):
         # connect to database.
         self.connection = MongoClient(self.mongo_uri)
 
-        # make user.
-        if self.muser is not None:
-            self.connection[self.mongo_dbname].add_user(self.muser, self.mpass)
-
         # establish the collection interface.
         self._c = self.connection[self.mongo_dbname][self.collection_clinical]
         self._g = self.connection[self.mongo_dbname][self.collection_genomic]

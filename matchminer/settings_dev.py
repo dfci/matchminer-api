@@ -20,7 +20,7 @@ DATA_DIR = os.path.join(os.path.abspath(os.path.join(__file__ , "../..")), "data
 DATA_DIR_PROD = ""
 DATA_CLINICAL_CSV = os.path.join(DATA_DIR, "tcga.clinical.pkl")
 DATA_GENOMIC_CSV = os.path.join(DATA_DIR, "tcga.genomic.pkl")
-DATA_ONCOTREE_FILE = os.path.join(DATA_DIR, "oncotree_file.txt")
+DATA_ONCOTREE_FILE = "/var/www/apache-flask/api/matchminer/data/oncotree_file.txt"
 
 # backup dir in data.
 BACKUP_DIR = os.path.join(DATA_DIR, "backup")
