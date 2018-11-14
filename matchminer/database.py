@@ -43,7 +43,6 @@ def get_db():
     except RuntimeError as e:
 
         # connect to database.
-        #connection = MongoClient(MONGO_HOST, MONGO_PORT)
         connection = MongoClient(MONGO_URI)
 
         if MONGO_USERNAME:

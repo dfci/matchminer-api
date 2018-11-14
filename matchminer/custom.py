@@ -15,6 +15,7 @@ import oncotreenx
 from matchminer import database
 from matchminer import settings
 from matchminer import data_model
+from matchminer.settings import MONGO_DBNAME, SERVER
 from matchminer.utilities import parse_resource_field, nocache, set_updated, run_matchengine
 from matchminer.security import TokenAuth, authorize_custom_request
 from matchminer.services.filter import Filter
@@ -122,6 +123,15 @@ def _count_matches_by_filter(matches, filters):
                 filter_dict[str(match['FILTER_ID'])]['deferred'] += 1
 
     return filter_dict
+
+
+@blueprint.route('/api/info', methods=['GET'])
+def api_info():
+    info = {
+        "server": SERVER,
+        "mongo_db": MONGO_DBNAME
+    }
+    return json.dumps(info), 200
 
 
 @blueprint.route('/api/utility/matchengine', methods=['GET'])

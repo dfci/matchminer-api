@@ -1,47 +1,65 @@
 import os
 import logging
+import json
 import datetime as dt
 
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
 
 SETTINGS_DIR = os.path.dirname(os.path.realpath(__file__))
 
-MM_SETTINGS = os.getenv('MM_SETTINGS', 'DEV')
-MONGO_HOST = os.getenv('MONGO_HOST', 'localhost')
-MONGO_PORT = os.getenv('MONGO_PORT', 27017)
-MONGO_USERNAME = os.getenv('MONGO_USERNAME', 'user')
-MONGO_PASSWORD = os.getenv('MONGO_PASSWORD', 'user')
-MONGO_DBNAME = os.getenv('MONGO_DBNAME', 'matchminer')
-MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017/matchminer?replicaSet=rs0')
-OPLOG = os.getenv('OPLOG', True)
-SSL_PORT = os.getenv('SSL_PORT', 5555)
-ACS_URL = os.getenv('ACS_URL', '')
-SLS_URL = os.getenv('SLS_URL', '')
-SAML_SETTINGS = os.getenv('SAML_SETTINGS', 'settings_dev.json')
-NO_AUTH = os.getenv('NO_AUTH', 'False')
-WELCOME_EMAIL = os.getenv('WELCOME_EMAIL', 'YES')
-API_PORT = os.getenv('API_PORT', 5000)
-API_TOKEN = os.getenv('API_TOKEN', 'fb4d6830-d3aa-481b-bcd6-270d69790e11')
-API_ADDRESS = os.getenv('API_ADDRESS', 'http://localhost:5555/api')
-ONCORE_ADDRESS = os.getenv('ONCORE_ADDRESS', '')
+MM_SETTINGS = ""
+MONGO_HOST = ""
+MONGO_PORT = ""
+MONGO_AUTH_SOURCE = ""
+MONGO_USERNAME = ""
+MONGO_PASSWORD = ""
+MONGO_DBNAME = ""
+MONGO_URI = ""
+SERVER = ""
+OPLOG = ""
+ACS_URL = ""
+SLS_URL = ""
+SAML_SETTINGS = ""
+NO_AUTH = ""
+WELCOME_EMAIL = ""
+API_PORT = ""
+API_TOKEN = ""
+API_ADDRESS = ""
+ONCORE_ADDRESS = ""
 EMAIL_CONFIG = os.getenv('EMAIL_CONFIG', os.path.abspath(os.path.join(os.path.dirname(__file__),
                                                                       '../',
                                                                       'email.config.json')))
-EMAIL_SERVER = os.getenv('EMAIL_SERVER', '')
-EMAIL_USER = os.getenv('EMAIL_USER', '')
-EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD', '')
-EMAIL_AUTHOR = os.getenv('EMAIL_AUTHOR', '')
-EMAIL_ACTIVE_PROTECTED = os.getenv('EMAIL_ACTIVE_PROTECTED', False)
-EMAIL_SERVER_PROTECTED = os.getenv('EMAIL_SERVER_PROTECTED', '')
-EMAIL_USER_PROTECTED = os.getenv('EMAIL_USER_PROTECTED', '')
-EMAIL_PASSWORD_PROTECTED = os.getenv('EMAIL_PASSWORD_PROTECTED', '')
-EMAIL_AUTHOR_PROTECTED = os.getenv('EMAIL_AUTHOR_PROTECTED', '')
-EMAIL_TRIAL_CC_LIST = os.getenv('EMAIL_TRIAL_CC_LIST', '')
-EMAIL_TRIAL_CONTACT = os.getenv('EMAIL_TRIAL_CONTACT', '')
-EXCLUDE_FROM_STATISTICS = os.getenv('EXCLUDE_FROM_STATISTICS', [])
-ONCORE_CURATION_AUTH_TOKEN = os.getenv('ONCORE_CURATION_AUTH_TOKEN', '')
+EMAIL_SERVER = ""
+EMAIL_USER = ""
+EMAIL_PASSWORD = ""
+EMAIL_AUTHOR = ""
+EMAIL_ACTIVE_PROTECTED = ""
+EMAIL_SERVER_PROTECTED = ""
+EMAIL_USER_PROTECTED = ""
+EMAIL_PASSWORD_PROTECTED = ""
+EMAIL_AUTHOR_PROTECTED = ""
+EMAIL_TRIAL_CC_LIST = ""
+EMAIL_TRIAL_CONTACT = ""
+EXCLUDE_FROM_STATISTICS = ""
+ONCORE_CURATION_AUTH_TOKEN = ""
+
 
 TUMOR_TREE = os.path.abspath(os.path.join(os.path.dirname(__file__), './data/tumor_tree.txt'))
+
+
+# connect to secrets
+file_path = os.getenv("SECRETS_JSON", None)
+
+if file_path is None:
+    logging.error("ENVAR SECRETS_JSON not set")
+
+# pull values.
+if file_path is not None:
+    with open(file_path) as fin:
+        vars_ = json.load(fin)
+        for name, value in vars_.iteritems():
+            globals()[name] = value
+
 
 if EMAIL_ACTIVE_PROTECTED == "True":
     EMAIL_ACTIVE_PROTECTED = True
@@ -57,8 +75,8 @@ if MM_SETTINGS == "PROD":
 else:
     from matchminer.settings_dev import *
 
-logging.info("settings: %s" % MM_SETTINGS)
-logging.info("settings: %s" % MONGO_URI)
+logging.warn("settings: %s" % MM_SETTINGS)
+logging.warn("settings: %s" % MONGO_URI)
 
 match_status_mapping = {
     'New': 0,
