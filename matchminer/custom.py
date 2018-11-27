@@ -15,7 +15,7 @@ import oncotreenx
 from matchminer import database
 from matchminer import settings
 from matchminer import data_model
-from matchminer.settings import MONGO_DBNAME, SERVER
+from matchminer.settings import MONGO_DBNAME, SERVER, FRONT_END_ADDRESS, API_TOKEN, API_ADDRESS
 from matchminer.utilities import parse_resource_field, nocache, set_updated, run_matchengine
 from matchminer.security import TokenAuth, authorize_custom_request
 from matchminer.services.filter import Filter
@@ -30,10 +30,6 @@ import logging
 
 # logging
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
-
-API_ADDRESS = os.getenv('API_ADDRESS', None)
-FRONT_END_ADDRESS = os.getenv('FRONT_END_ADDRESS', None)
-API_TOKEN = os.getenv('API_TOKEN', None)
 
 blueprint = Blueprint('', __name__, template_folder="templates/templates")
 CORS(blueprint)
