@@ -191,7 +191,7 @@ class OncoreSync(object):
             'email_to': EMAIL_TRIAL_CONTACT,
             'subject': "OnCore Trial Modifications",
             'body': email_body,
-            'cc': [],
+            'cc': EMAIL_TRIAL_CC_LIST,
             'sent': False,
             'num_failures': 0,
             'errors': []
