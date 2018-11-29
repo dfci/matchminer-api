@@ -42,6 +42,7 @@ EMAIL_TRIAL_CC_LIST = ""
 EMAIL_TRIAL_CONTACT = ""
 EXCLUDE_FROM_STATISTICS = ""
 ONCORE_CURATION_AUTH_TOKEN = ""
+FRONT_END_ADDRESS = ""
 
 
 TUMOR_TREE = os.path.abspath(os.path.join(os.path.dirname(__file__), './data/tumor_tree.txt'))
@@ -59,6 +60,7 @@ if file_path is not None:
         vars_ = json.load(fin)
         for name, value in vars_.iteritems():
             globals()[name] = value
+            print(str([name]) + "|" + str(value))
 
 
 if EMAIL_ACTIVE_PROTECTED == "True":
