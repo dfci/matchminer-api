@@ -15,6 +15,7 @@ import oncotreenx
 from matchminer import database
 from matchminer import settings
 from matchminer import data_model
+import matchminer.miner
 from matchminer.settings import MONGO_DBNAME, SERVER, FRONT_END_ADDRESS, API_TOKEN, API_ADDRESS
 from matchminer.utilities import parse_resource_field, nocache, set_updated, run_matchengine
 from matchminer.security import TokenAuth, authorize_custom_request
@@ -185,6 +186,21 @@ def get_vip_clinical():
                     continue
 
     return json.dumps(clinical_ll)
+
+
+@blueprint.route('/api/utility/send_emails', methods=['POST'])
+@nocache
+def send_emails():
+    # authorize request.
+    not_authed = authorize_custom_request(request)
+    if not_authed:
+        resp = Response(response="not authorized route",
+                        status=401,
+                        mimetype="application/json")
+        return resp
+    # trigger email.
+    matchminer.miner.email_matches()
+    return json.dumps({"success": True}), 201
 
 
 @blueprint.route('/api/gi_patient_view', methods=['POST'])

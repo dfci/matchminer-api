@@ -480,11 +480,6 @@ def status_insert(items):
         # re-run all filters.
         miner.rerun_filters(dpi)
 
-        # trigger email.
-        if not item['silent']:
-            miner.email_matches()
-        else:
-            logging.info("status post was silent, no email sent")
 
         #else:
         #    abort(422, "Not allowed to POST status which isn't pre=True")
@@ -492,9 +487,6 @@ def status_insert(items):
         # adds a row to the MatchMiner Stats dashboard datatable for the new CAMD update
         if not item['silent']:
             add_dashboard_row(item)
-
-        # run matchengine on the entire database
-        utilities.run_matchengine()
 
 
 def add_dashboard_row(status):
