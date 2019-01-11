@@ -845,19 +845,6 @@ def set_updated(otrial):
     return otrial
 
 
-def run_matchengine():
-    """
-    Computes matches between all trials in the database and the given subset list of patient MRNs
-
-    :param mrns: List of patient MRNs
-    :return: database collection of trial matches
-    """
-
-    db = database.get_db()
-    me = MatchEngine(db)
-    me.find_trial_matches()
-
-
 def get_data_push_id(db):
     """
     Returns the most recent data push id in the database.

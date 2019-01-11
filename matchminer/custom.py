@@ -16,8 +16,8 @@ from matchminer import database
 from matchminer import settings
 from matchminer import data_model
 import matchminer.miner
-from matchminer.settings import MONGO_DBNAME, SERVER, FRONT_END_ADDRESS, API_TOKEN, API_ADDRESS
-from matchminer.utilities import parse_resource_field, nocache, set_updated, run_matchengine
+from matchminer.settings import MONGO_DBNAME, SERVER, FRONT_END_ADDRESS, API_TOKEN
+from matchminer.utilities import parse_resource_field, nocache
 from matchminer.security import TokenAuth, authorize_custom_request
 from matchminer.services.filter import Filter
 from matchminer.services.match import Match
@@ -133,22 +133,7 @@ def api_info():
 
 @blueprint.route('/api/utility/matchengine', methods=['GET'])
 def run_matchengine_route():
-    """Launches the MatchEngine on the entire database"""
-
-    # limit access to service account only
-    auth = request.authorization
-    if not auth:
-        return json.dumps({"error": "no authorization supplied"})
-
-    accounts = app.data.driver.db.user
-    user = accounts.find_one({'token': auth.username})
-    if not user:
-        return json.dumps({"error": "not authorized"})
-
-    # Match Engine #
-    run_matchengine()
-
-    return json.dumps({"success": True})
+    return json.dumps({"This route has been deprecated. Please run the matchengine through the stand-alone service": True})
 
 
 @blueprint.route('/api/vip_clinical', methods=['GET'])
@@ -198,6 +183,7 @@ def send_emails():
                         status=401,
                         mimetype="application/json")
         return resp
+
     # trigger email.
     matchminer.miner.email_matches()
     return json.dumps({"success": True}), 201

@@ -456,21 +456,17 @@ def assess_vital_status(update, original):
 
 
 def status_insert(items):
+    """
+    Re runs all filters (created in UI)
+    :param items:
+    :return:
+    """
 
     # loop over each item.
     for item in items:
 
-        # check if its a pre-or-post status.
-        #if item['pre']:
-
         # log this.
         logging.info("recieved pre-status post")
-
-        # archive the site.
-        #backup_dir = utilities.backup_event(None, settings.BACKUP_STATUS_DIR, -1, settings.BACKUP_STATUS_MAX, True)
-
-        # add this to the resource.
-        #item['backup_path'] = backup_dir
 
         # this is the unique data push id to be assigned to all matches
         dpi = None
@@ -479,10 +475,6 @@ def status_insert(items):
 
         # re-run all filters.
         miner.rerun_filters(dpi)
-
-
-        #else:
-        #    abort(422, "Not allowed to POST status which isn't pre=True")
 
         # adds a row to the MatchMiner Stats dashboard datatable for the new CAMD update
         if not item['silent']:
