@@ -1,9 +1,8 @@
 # MatchMiner V1.0 demo installation
 This is a step by step guide to install and run a dockerized demo installation of MatchMiner using simulated data.
 
-   ### Download the demo data
-- https://drive.google.com/open?id=0B334b-HHVrwGc3djZUdvMktNekU
-- Decompress mm_data.tar.gz and move genomic.bson, clinical.bson, trial.bson, and synonyms.txt to ./demo/matchminer/data/mongo
+   ### See demo_data directory
+- Move genomic.bson, clinical.bson, trial.bson, and synonyms.txt to `./demo/matchminer/data/mongo`
 
    ### Creating and setting up the images
 1. Start the Docker Engine
