@@ -117,6 +117,7 @@ def get_recursively(search_dict, field):
 
     return fields_found
 
+
 def get_key_recursively(search_dict, field):
     """
     Takes a dict with nested lists and dicts,
@@ -148,6 +149,7 @@ def get_key_recursively(search_dict, field):
 
     return fields_found
 
+
 def nocache(view):
     @wraps(view)
     def no_cache(*args, **kwargs):
@@ -159,6 +161,7 @@ def nocache(view):
         return response
 
     return update_wrapper(no_cache, view)
+
 
 def utility_post(ctx, resource, data, token=None):
 
@@ -678,6 +681,7 @@ def genomic_load(file_path):
 def get_physicians_names():
     return ["none"]
 
+
 def clinical_gen(clinical_df, clinical_schema=None):
     """
     generate valid dictionaries from dataframe
@@ -807,6 +811,7 @@ def genomics_gen(genomic_df, genomic_schema=None):
         # yield it.
         yield tmp
 
+
 def dump_collections(out_dir, settings):
 
     # create the dump commands.
@@ -843,19 +848,6 @@ def set_updated(otrial):
     """Sets the last updated date. Determined by Oncore updates."""
     otrial['last_updated'] = datetime.now().strftime('%B %d, %Y')
     return otrial
-
-
-def run_matchengine():
-    """
-    Computes matches between all trials in the database and the given subset list of patient MRNs
-
-    :param mrns: List of patient MRNs
-    :return: database collection of trial matches
-    """
-
-    db = database.get_db()
-    me = MatchEngine(db)
-    me.find_trial_matches()
 
 
 def get_data_push_id(db):
