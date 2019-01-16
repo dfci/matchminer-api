@@ -16,7 +16,7 @@ from matchminer import database
 from matchminer import settings
 from matchminer import data_model
 import matchminer.miner
-from matchminer.settings import MONGO_DBNAME, SERVER, FRONT_END_ADDRESS, API_TOKEN
+from matchminer.settings import MONGO_DBNAME, SERVER, FRONT_END_ADDRESS, API_TOKEN, EPIC_DECRYPT_TOKEN
 from matchminer.utilities import parse_resource_field, nocache
 from matchminer.security import TokenAuth, authorize_custom_request
 from matchminer.services.filter import Filter
@@ -370,7 +370,7 @@ def dispatch_epic():
     logging.info('[EPIC] Encrypted: ' + str(encrypted_patient_data))
 
     # Generate valid encryption key
-    aes_key = generate_encryption_key_epic('***REMOVED***')
+    aes_key = generate_encryption_key_epic(EPIC_DECRYPT_TOKEN)
 
     # Decrypt encrypted string
     decrypted = decrypt_epic(aes_key, encrypted_patient_data)
@@ -396,10 +396,14 @@ def dispatch_epic():
     mrn = epic_data['PatientID.SiteMRN']
 
     # Find patient
-    trial_match = db['clinical'].find_one({'MRN': mrn})
+    patient = db['clinical'].find_one({'MRN': mrn})
 
-    # Redirect to error page if no patient record in db
-    if trial_match is None:
+    # check BWH MRN
+    if patient is None:
+        patient = db['clinical'].find_one({'ALT_MRN': mrn})
+
+    # If still no patient redirect to error page
+    if patient is None:
         logging.error('[EPIC] Error: No clinical document found matching MRN: ' + mrn)
         error_url = FRONT_END_ADDRESS + 'epic-mrn-error'
         redirect_to_patient = redirect(error_url)
@@ -407,7 +411,7 @@ def dispatch_epic():
         response.headers.add('Location', error_url)
         return response
 
-    response = build_redirect_url_epic(user, trial_match)
+    response = build_redirect_url_epic(user, patient)
     return response
 
 
