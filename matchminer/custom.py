@@ -400,6 +400,7 @@ def dispatch_epic():
 
     # check BWH MRN
     if patient is None:
+        logging.warn('[EPIC] Looking up using ALT_MRN')
         patient = db['clinical'].find_one({'ALT_MRN': mrn})
 
     # If still no patient redirect to error page
