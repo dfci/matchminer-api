@@ -363,22 +363,20 @@ def dispatch_epic():
         return 'Method unsupported'
 
     db = database.get_db()
-    logging.info('[EPIC] ' + str(request.remote_addr))
+    logging.info('[EPIC] request origin: ' + str(request.remote_addr))
 
     # Get patient data off request body
     encrypted_patient_data = str(request.form['data'])
-    logging.info('[EPIC] Encrypted: ' + str(encrypted_patient_data))
 
     # Generate valid encryption key
     aes_key = generate_encryption_key_epic(EPIC_DECRYPT_TOKEN)
 
     # Decrypt encrypted string
     decrypted = decrypt_epic(aes_key, encrypted_patient_data)
-    logging.info('[EPIC] Decrypted: ' + str(decrypted))
 
     # JSON format data
     epic_data = json.loads(decrypted)
-    logging.info('[EPIC] Data: ' + str(epic_data))
+    logging.info('[EPIC] ' + str(epic_data))
 
     # Get user
     user = db['user'].find_one({'user_name': str(epic_data['UserNID']).lower()})
@@ -400,6 +398,7 @@ def dispatch_epic():
 
     # check BWH MRN
     if patient is None:
+        logging.error('[EPIC] [BWH] No DFCI MRN present on request: Looking up using BWH MRN... ')
         patient = db['clinical'].find_one({'ALT_MRN': mrn})
 
     # If still no patient redirect to error page
