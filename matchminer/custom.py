@@ -16,7 +16,8 @@ from matchminer import database
 from matchminer import settings
 from matchminer import data_model
 import matchminer.miner
-from matchminer.settings import MONGO_DBNAME, SERVER, FRONT_END_ADDRESS, API_TOKEN, EPIC_DECRYPT_TOKEN
+from matchminer.settings import MONGO_DBNAME, SERVER, FRONT_END_ADDRESS, API_TOKEN, EPIC_DECRYPT_TOKEN, \
+    EMAIL_AUTHOR_PROTECTED
 from matchminer.utilities import parse_resource_field, nocache
 from matchminer.security import TokenAuth, authorize_custom_request
 from matchminer.services.filter import Filter
@@ -25,7 +26,6 @@ from matchminer.templates.emails.emails import EAP_INQUIRY_BODY
 from matchminer.validation import check_valid_email_address
 from wincrypto import CryptCreateHash, CryptHashData, CryptDeriveKey, CryptEncrypt, CryptDecrypt
 from wincrypto.definitions import CALG_SHA1, CALG_AES_128
-import binascii
 
 import logging
 
@@ -403,7 +403,23 @@ def dispatch_epic():
 
     # If still no patient redirect to error page
     if patient is None:
-        logging.error('[EPIC] Error: No clinical document found matching MRN: ' + mrn)
+        msg = '[EPIC] Error: No clinical document found matching MRN: %s' % mrn
+        logging.error(msg)
+
+        # send alert email
+        email_item = {
+            'email_from': EMAIL_AUTHOR_PROTECTED,
+            'email_to': EMAIL_AUTHOR_PROTECTED,
+            'subject': "[EPIC] MRN Error",
+            'body': msg,
+            'cc': '',
+            'sent': False,
+            'num_failures': 0,
+            'errors': []
+        }
+        db.email.insert(email_item)
+
+        # build url and redirect to error page
         error_url = FRONT_END_ADDRESS + 'epic-mrn-error'
         redirect_to_patient = redirect(error_url)
         response = app.make_response(redirect_to_patient)
