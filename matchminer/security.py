@@ -7,6 +7,7 @@
     Securing an Eve-powered API with Token based Authentication.
 """
 import logging
+import time
 import uuid
 import datetime
 from eve.auth import TokenAuth
@@ -34,7 +35,15 @@ class TokenAuth(TokenAuth):
         lookup = {'token': token}
         if allowed_roles:
             lookup['roles'] = {"$in": allowed_roles}
-        user = accounts.find_one(lookup)
+
+        user = None
+        for attempt in xrange(5):
+            try:
+                user = accounts.find_one(lookup)
+            except Exception as e:
+                wait_t = 0.2 * pow(2, attempt)  # exponential back off
+                logging.warning("PyMongo auto-reconnecting... %s. Waiting %.1f seconds.", str(e), wait_t)
+                time.sleep(wait_t)
 
         # return none.
         if user is None:
@@ -59,7 +68,6 @@ class TokenAuth(TokenAuth):
             total_seconds = diff.total_seconds()
 
             if (float(total_seconds) / 60.0) > app.config['TOKEN_TIMEOUT']:
-
                 # reset token.
                 accounts.update_one({'_id': user['_id']}, {'$set': {'token': str(uuid.uuid4())}})
 

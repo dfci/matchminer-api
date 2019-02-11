@@ -1,7 +1,7 @@
 import logging
 import pandas as pd
 from eve.io.mongo.validation import Validator
-from flask.ext.pymongo import MongoClient
+from pymongo import MongoClient
 
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
 

@@ -2,7 +2,7 @@ import unittest
 import eve
 import simplejson as json
 from datetime import datetime
-from flask.ext.pymongo import MongoClient
+from pymongo import MongoClient
 from eve import ISSUES
 import base64
 import datetime

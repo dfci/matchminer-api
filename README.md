@@ -1,16 +1,7 @@
-# MatchMiner API
+## Overview
 Matchminer API written in python. This API utilizes the [Eve](http://python-eve.org/) framework and 
 mongodb to build a lightweight and intuitive web app. Utilizing Eve's opinioned choices and direct 
 integration with MongoDB enabled us to create a level 3 REST compliant application.
-
-
-## Built with
-* Python2.7
-* [Virtualenv](https://virtualenv.pypa.io/en/stable/) - Tool to create isolated Python environments.
-* [Eve](http://python-eve.org/) - REST API framework.
-* [MongoDB](https://docs.mongodb.com/) - NoSQL document database for data storage.
-* [Docker](https://docs.docker.com/machine/) - Container platform for deployment.
-* [nose](http://nose.readthedocs.io/en/latest/) - Python library for unit testing.
 
 ## Development guide
 The following sections detail steps necessary to begin development on MatchMiner.
@@ -40,7 +31,7 @@ docker exec -it match-mongo mongo matchminer --eval "rs.initiate();"
 ```
 
 ###### 5) add test data
-`python pymm_run.py restore`
+First start a local mongo database. Then load the data from ./tests/data/clinical.bson and ./tests/data/genomic.bson. You will need to drop the db and restore after every full test run 
 
 ###### 6) run unit tests
 Due to the sensitive nature of the application test driven development is a must. 
@@ -54,6 +45,9 @@ e.g.
 nosetests tests/test_matchminer/test_filter.py:TestFiler.test_put_dirty
 ```
 
+You also must update the oncotree file in ```settings_prod.py``` to ```./matchminerAPI/data/oncotree_file.txt``` as the file is in the repo.
+
+Note: When running the unit tests, in ```miner.py```, the ```from matchminer import ... custom ``` line will fail due to a name collision re: _count_matches(). For testing purposes, the interim solution is to comment this out or copy over the function from custom.py temporarily to make the unit tests work 
 
 
 
@@ -99,3 +93,12 @@ docker-compose up -d
 * dev: is used to development candidates (it will only ever contain simulated data)
 * stage: is used for the staging enviroment
 * latest: is the *master* or the *production* image
+
+
+## Built with
+* Python2.7
+* [Virtualenv](https://virtualenv.pypa.io/en/stable/) - Tool to create isolated Python environments.
+* [Eve](http://python-eve.org/) - REST API framework.
+* [MongoDB](https://docs.mongodb.com/) - NoSQL document database for data storage.
+* [Docker](https://docs.docker.com/machine/) - Container platform for deployment.
+* [nose](http://nose.readthedocs.io/en/latest/) - Python library for unit testing.
