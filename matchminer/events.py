@@ -781,6 +781,7 @@ def insert_data_other(trial_tree, node_id, n, other):
 
 def trial_replace(item, original):
 
+    logging.info("trial updated")
     trial_insert([item])
 
 
