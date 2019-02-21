@@ -412,7 +412,7 @@ def dispatch_epic():
             'email_to': EMAIL_AUTHOR_PROTECTED,
             'subject': "[EPIC] MRN Error",
             'body': msg,
-            'cc': '',
+            'cc': [],
             'sent': False,
             'num_failures': 0,
             'errors': []
