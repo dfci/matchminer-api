@@ -104,7 +104,7 @@ def my_own_error_msg(err):
     return make_response("unauthorized access", 497)
 
 
-@app.errorhandler(333)
+@app.errorhandler(501)
 def redirect_response(err):
     logging.info("redirected to: %s" % err)
     return make_response(redirect(err))

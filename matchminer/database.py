@@ -1,5 +1,5 @@
 from flask import current_app as app
-from flask.ext.pymongo import MongoClient
+from pymongo import MongoClient
 
 from matchminer.settings import *
 

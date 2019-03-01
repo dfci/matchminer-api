@@ -2,7 +2,7 @@ import time
 import subprocess
 import pandas as pd
 import random
-from flask.ext.pymongo import MongoClient
+from pymongo import MongoClient
 from bson.objectid import ObjectId
 from eve.flaskapp import Eve
 import datetime
