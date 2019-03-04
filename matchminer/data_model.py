@@ -1270,7 +1270,7 @@ negative_genomic_schema = {
     'coverage': {'type': 'float', 'required': True, 'nullable': True},
     'coverage_type': {'type': 'string', 'allowed': ['PN', 'PLC', 'NPLC'], 'required': True},
     'panel': {'type': 'string', 'required': True},
-    'roi_type': {'type': 'string', 'required': True, 'allowed': ['C', 'R', 'M', 'G', 'E'], 'nullable': True},
+    'roi_type': {'type': 'string', 'required': True, 'allowed': ['C', 'R', 'M', 'G', 'E', None], 'nullable': True},
     'entire_gene': {'type': 'boolean', 'readonly': True},
     'show_exon': {'type': 'boolean', 'readonly': True},
     'show_codon': {'type': 'boolean', 'readonly': True}
