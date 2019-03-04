@@ -388,6 +388,8 @@ genomic_schema = {
 for key in genomic_schema:
     if 'nullable' not in genomic_schema[key]:
         genomic_schema[key]['nullable'] = True
+    if 'allowed' in genomic_schema[key]:
+        genomic_schema[key]['allowed'].append(None)
 
 match_schema = {
     'TEAM_ID': {'type': 'objectid', 'required': True},
