@@ -248,7 +248,8 @@ clinical_schema = {
             'Cannot assess',
             'Indeterminate (see note)',
             'Proficient (MMR-P / MSS)',
-            'Deficient (MMR-D / MSI-H)'
+            'Deficient (MMR-D / MSI-H)',
+            None
         ]
     },
     'METAMAIN_COUNT': {'type': 'integer', 'nullable': True},
