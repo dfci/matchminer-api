@@ -47,10 +47,6 @@ nosetests tests/test_matchminer/test_filter.py:TestFiler.test_put_dirty
 
 You also must update the oncotree file in ```settings_prod.py``` to ```./matchminerAPI/data/oncotree_file.txt``` as the file is in the repo.
 
-Note: When running the unit tests, in ```miner.py```, the ```from matchminer import ... custom ``` line will fail due to a name collision re: _count_matches(). For testing purposes, the interim solution is to comment this out or copy over the function from custom.py temporarily to make the unit tests work 
-
-
-
 ### DEV server ###
 
 The root of the application is **pymm_run.py**. The API can be served in development mode by using the following command:
