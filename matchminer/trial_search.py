@@ -157,22 +157,22 @@ class Summary:
         # return DFCI site principal investigator
         for staff in item['staff_list']['protocol_staff']:
             if staff['staff_role'] == 'Site Principal Investigator' and \
-                            staff['institution_name'] == 'Dana-Farber Cancer Institute':
+                    staff['institution_name'] == 'Dana-Farber Cancer Institute':
                 self.dfci_investigator = parse_dfci_investigator(staff, item['principal_investigator'])
                 return
 
         # if not present, return DFCI overall principal investigator
         for staff in item['staff_list']['protocol_staff']:
             if staff['staff_role'] == 'Overall Principal Investigator' and \
-                            staff['institution_name'] == 'Dana-Farber Cancer Institute':
+                    staff['institution_name'] == 'Dana-Farber Cancer Institute':
                 self.dfci_investigator = parse_dfci_investigator(staff, item['principal_investigator'])
                 return
 
         # if not present, return overall principal investigator at BWH or Beth Israel
         for staff in item['staff_list']['protocol_staff']:
             if staff['staff_role'] == 'Overall Principal Investigator' and \
-                            staff['institution_name'] in ["Brigham and Women's Hospital",
-                                                          "Beth Israel Deaconess Medical Center"]:
+                    staff['institution_name'] in ["Brigham and Women's Hospital",
+                                                  "Beth Israel Deaconess Medical Center"]:
                 self.dfci_investigator = parse_dfci_investigator(staff, item['principal_investigator'], dfci=False)
                 return
 
@@ -302,7 +302,7 @@ class Autocomplete:
             'exclusions': []
         }
         self.genes = []
-        self.cancer_type_dict = None
+        self.cancer_type_dict = dict()
         self.m = MatchEngine(get_db())
 
     @staticmethod
@@ -412,14 +412,14 @@ class Autocomplete:
         g = self.m.create_match_tree(match)
         pmt = ParseMatchTree(g)
         cancer_type_dict = pmt.extract_cancer_types()
-        if cancer_type_dict is not None:
-            for cancer_type_dict_key, field_list in cancer_type_dict.items():
-                fields_already_present = self.cancer_type_dict[cancer_type_dict_key] if self.cancer_type_dict is not None else dict()
-                fields_to_add = list()
-                for field in field_list:
-                    if field not in fields_already_present:
-                        fields_to_add.append(field)
-                self.cancer_type_dict[cancer_type_dict_key].extend(fields_to_add)
+        for cancer_type_dict_key, field_list in cancer_type_dict.items():
+            fields_already_present = self.cancer_type_dict.setdefault(cancer_type_dict_key, dict())
+            fields_to_add = list()
+            for field in field_list:
+                if field not in fields_already_present:
+                    fields_to_add.append(field)
+            self.cancer_type_dict[cancer_type_dict_key] = self.cancer_type_dict.setdefault(cancer_type_dict_key,
+                                                                                           list()) + fields_to_add
         self.genes.extend(pmt.extract_genes())
         vdict_tmp = pmt.extract_variants()
         for k, v in self.vdict.iteritems():
@@ -446,7 +446,7 @@ class Autocomplete:
                             if 'match' in dose:
                                 self._extract_data_from_match(dose['match'][0])
 
-        if self.cancer_type_dict is None:
+        if not self.cancer_type_dict:
             self.cancer_type_dict = {
                 'diagnoses': [],
                 'primary_cancer_types': [],
@@ -459,7 +459,8 @@ class Autocomplete:
             suggestion = self._get_cancer_type_weight(ct, hierarchy='primary')
             weighted_cancer_types.append(suggestion)
 
-        for ct in set(self.cancer_type_dict['cancer_types_expanded']) - set(self.cancer_type_dict['primary_cancer_types']):
+        for ct in set(self.cancer_type_dict['cancer_types_expanded']) - set(
+                self.cancer_type_dict['primary_cancer_types']):
             suggestion = self._get_cancer_type_weight(ct, hierarchy='default')
             weighted_cancer_types.append(suggestion)
 
@@ -584,12 +585,14 @@ class ParseMatchTree:
                         wildtypes.append(wt)
                         continue
 
-                    if 'variant_category' in node['value'] and node['value']['variant_category'] == 'Structural Variation':
+                    if 'variant_category' in node['value'] and node['value'][
+                        'variant_category'] == 'Structural Variation':
                         sv = '%s SV' % gene
                         fusions.append(sv)
                         continue
 
-                    if 'variant_category' in node['value'] and node['value']['variant_category'] == 'Copy Number Variation':
+                    if 'variant_category' in node['value'] and node['value'][
+                        'variant_category'] == 'Copy Number Variation':
                         cnv = '%s CNV' % gene
                         cnvs.append(cnv)
                         continue
@@ -598,12 +601,12 @@ class ParseMatchTree:
                         variant = '%s any' % gene
                         if not variant.startswith('!') and \
                                 ('variant_category' not in node['value'] or
-                                    ('variant_category' in node['value'] and not
-                                        node['value']['variant_category'].startswith('!'))):
+                                 ('variant_category' in node['value'] and not
+                                 node['value']['variant_category'].startswith('!'))):
                             variants.append(variant)
                         elif (variant.startswith('!') or
-                                ('variant_category' in node['value'] and
-                                    node['value']['variant_category'].startswith('!')) and variant not in exclusions):
+                              ('variant_category' in node['value'] and
+                               node['value']['variant_category'].startswith('!')) and variant not in exclusions):
                             exclusions.append(variant.replace('!', '').replace(' any', ''))
                     else:
                         for k in ['protein_change', 'wildcard_protein_change']:
@@ -613,7 +616,8 @@ class ParseMatchTree:
 
                                 if v.startswith('!') and variant not in exclusions:
                                     exclusions.append(variant.replace('!', ''))
-                                elif 'variant_category' in node['value'] and node['value']['variant_category'].startswith('!'):
+                                elif 'variant_category' in node['value'] and node['value'][
+                                    'variant_category'].startswith('!'):
                                     exclusions.append(variant.replace('!', ''))
                                 else:
                                     if variant not in variants:
@@ -764,7 +768,7 @@ def parse_dfci_investigator(staff, overall_pi, dfci=True):
     overall_pi_last = overall_pi[0]
     overall_pi_first = overall_pi[1]
     if overall_pi_first.strip() == staff['first_name'].strip() and \
-       overall_pi_last.strip() == staff['last_name'].strip():
+            overall_pi_last.strip() == staff['last_name'].strip():
         is_overall_pi = True
 
     return {
