@@ -411,15 +411,12 @@ class Autocomplete:
 
         g = self.m.create_match_tree(match)
         pmt = ParseMatchTree(g)
-        cancer_type_dict = pmt.extract_cancer_types()
-        for cancer_type_dict_key, field_list in cancer_type_dict.items():
-            fields_already_present = self.cancer_type_dict.setdefault(cancer_type_dict_key, dict())
-            fields_to_add = list()
-            for field in field_list:
-                if field not in fields_already_present:
-                    fields_to_add.append(field)
-            self.cancer_type_dict[cancer_type_dict_key] = self.cancer_type_dict.setdefault(cancer_type_dict_key,
-                                                                                           list()) + fields_to_add
+        for key, value_list in pmt.extract_cancer_types().items():
+            if key not in self.cancer_type_dict:
+                self.cancer_type_dict[key] = list()
+            for item in value_list:
+                if item not in self.cancer_type_dict[key]:
+                    self.cancer_type_dict[key].append(item)
         self.genes.extend(pmt.extract_genes())
         vdict_tmp = pmt.extract_variants()
         for k, v in self.vdict.iteritems():
