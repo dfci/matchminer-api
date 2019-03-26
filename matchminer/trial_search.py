@@ -414,7 +414,7 @@ class Autocomplete:
         cancer_type_dict = pmt.extract_cancer_types()
         if cancer_type_dict is not None:
             for cancer_type_dict_key, field_list in cancer_type_dict.items():
-                fields_already_present = self.cancer_type_dict[cancer_type_dict_key]
+                fields_already_present = self.cancer_type_dict[cancer_type_dict_key] if self.cancer_type_dict is not None else dict()
                 fields_to_add = list()
                 for field in field_list:
                     if field not in fields_already_present:
