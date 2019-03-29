@@ -312,6 +312,8 @@ def update_from_oncore(protocol_no):
     # call the comparison.
     cmp = OncoreSync()
     mm_trial, updated, changes = cmp.compare_trials(on_trial, mm_trial)
+    for log_entry in cmp.log_entries:
+        db.oncore_trial_log.insert(log_entry)
     cmp.send_email()
 
     # if it is updated then do the update.

@@ -5,7 +5,7 @@ import json
 from time import mktime
 
 from matchminer.database import get_db
-from matchminer.settings import TRIAL_SORT_DICT, EMAIL_AUTHOR_PROTECTED , EMAIL_TRIAL_CONTACT , EMAIL_TRIAL_CC_LIST, \
+from matchminer.settings import TRIAL_SORT_DICT, EMAIL_AUTHOR_PROTECTED, EMAIL_TRIAL_CONTACT, EMAIL_TRIAL_CC_LIST, \
     TREATMENT_LIST_AUTO_UPDATE_KEYS
 
 # logging
@@ -25,6 +25,7 @@ class OncoreSync(object):
     def __init__(self):
 
         now = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
+        self.log_entries = list()
         self.email_body_head = '''
         <html>
         <head></head>
@@ -113,7 +114,8 @@ class OncoreSync(object):
                 oncore_vals_sorted = sorted(oncore_val, key=lambda x: str(x[sortby]).lower())
                 mm_vals_sorted = sorted(mm_val, key=lambda x: str(x[sortby]).lower())
 
-                for ll_oncore_val, ll_mm_val, i in zip(oncore_vals_sorted, mm_vals_sorted, range(len(oncore_vals_sorted))):
+                for ll_oncore_val, ll_mm_val, i in zip(oncore_vals_sorted, mm_vals_sorted,
+                                                       range(len(oncore_vals_sorted))):
 
                     if isinstance(ll_oncore_val, dict):
                         diffs.extend(
@@ -153,7 +155,7 @@ class OncoreSync(object):
         ascii_encode = lambda x: x.encode('ascii', 'ignore') if isinstance(x, unicode) else x
         return dict(map(ascii_encode, pair) for pair in data.items())
 
-    def build_email(self, protocol_no, event):
+    def build_email_and_log(self, protocol_no, event):
         """
         Builds the email body for the OnCore updates, but doesn't send them to the
         database until we've looped through all the trials.
@@ -166,6 +168,13 @@ class OncoreSync(object):
         if self.email_body is None:
             self.email_body = ''
 
+        log_entry = dict()
+        log_entry["protocol_no"] = protocol_no
+        log_entry["key"] = event['key']
+        log_entry["old"] = event['old']
+        log_entry["new"] = event['new']
+        log_entry["updated"] = datetime.datetime.now()
+        self.log_entries.append(log_entry)
         self.email_body += '<br><li><b>%s</b> | key: %s, %s -> %s</li>' % (
             protocol_no,
             event['key'],
@@ -238,12 +247,14 @@ class OncoreSync(object):
 
                         if treatment_status == 'level_suspended':
                             dose_idx = int(treatment_status_key_list[3].split('[')[1].split(']')[0])
-                            mm_trial['treatment_list']['step'][step_idx]['arm'][arm_idx]['dose_level'][dose_idx]['level_suspended'] = \
-                                on_trial['treatment_list']['step'][step_idx]['arm'][arm_idx]['dose_level'][dose_idx]['level_suspended']
+                            mm_trial['treatment_list']['step'][step_idx]['arm'][arm_idx]['dose_level'][dose_idx][
+                                'level_suspended'] = \
+                                on_trial['treatment_list']['step'][step_idx]['arm'][arm_idx]['dose_level'][dose_idx][
+                                    'level_suspended']
 
                         updated.append(v)
                     else:
-                        self.build_email(protocol_no, v)
+                        self.build_email_and_log(protocol_no, v)
 
             # special case for single values.
             elif not isinstance(on_trial[key], dict):
@@ -275,7 +286,8 @@ class OncoreSync(object):
 
         # log the modifictions.
         for event in updated:
-            logging.info("trial changes: %s on key %s - %s -> %s" % (mm_trial['protocol_no'], event['key'], str(event['old']), str(event['new'])))
+            logging.info("trial changes: %s on key %s - %s -> %s" % (
+            mm_trial['protocol_no'], event['key'], str(event['old']), str(event['new'])))
 
         # return the updated trial
         return mm_trial, len(updated) > 0, updated
