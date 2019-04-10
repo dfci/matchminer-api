@@ -31,7 +31,9 @@ docker exec -it match-mongo mongo matchminer --eval "rs.initiate();"
 ```
 
 ###### 5) add test data
-First start a local mongo database. Then load the data from ./tests/data/clinical.bson and ./tests/data/genomic.bson. You will need to drop the db and restore after every full test run 
+Then load the data from ./tests/data/clinical.bson and ./tests/data/genomic.bson. You will need to drop the db and restore after every full test run
+
+```mongorestore --db matchminer --dir=tests/data``` 
 
 ###### 6) run unit tests
 Due to the sensitive nature of the application test driven development is a must. 
@@ -84,11 +86,6 @@ docker pull DOCKER_IMAGE:VERSION
 docker-compose down
 docker-compose up -d
 ```
-
-##### tagging convention #####
-* dev: is used to development candidates (it will only ever contain simulated data)
-* stage: is used for the staging enviroment
-* latest: is the *master* or the *production* image
 
 
 ## Built with
