@@ -35,8 +35,30 @@ Then load the data from ./tests/data/clinical.bson and ./tests/data/genomic.bson
 
 ```mongorestore --db matchminer --dir=tests/data``` 
 
-###### 6) run unit tests
-Due to the sensitive nature of the application test driven development is a must. 
+###### 6) setup local secrets file
+You must setup a local secrets file as an OS environmental variable named SECRETS_JSON. It's contents should contain:
+```
+{  
+  "SERVER": "immuno6", 
+  "ONCOTREE_CUSTOM_DIR": "/where/you/cloned/thedir/matchminerAPI/tests/data/oncotree_file.txt", 
+  "MONGO_HOST": "localhost", 
+  "MONGO_PORT": 27017, 
+  "MONGO_USERNAME": "", 
+  "MONGO_PASSWORD": "", 
+  "MONGO_DBNAME": "matchminer"
+}
+```
+
+Save this somewhere. Then, edit your .bash_profile (or bashrc on linux) to save the secrets file as an env variable
+
+```
+vi ~/.bash_profile                          # open your bash profile
+export SECRETS_JSON=/dir/of/secrets.json    # add this line 
+. ~/.bash_profile                           # reload your bash session
+```
+ 
+
+###### 7) run unit tests 
 Unit tests are located in the /tests folder and roughly correspond to the application structure itself.
 ```bash
 nosetests tests
