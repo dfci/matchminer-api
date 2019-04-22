@@ -69,7 +69,11 @@ e.g.
 nosetests tests/test_matchminer/test_filter.py:TestFiler.test_put_dirty
 ```
 
-You also must update the oncotree file in ```settings_prod.py``` to ```./matchminerAPI/data/oncotree_file.txt``` as the file is in the repo.
+You must also point the application at your local copy of `oncotree_file.txt` by setting the `ONCOTREE_CUSTOM_DIR` environment variable:
+```bash
+export ONCOTREE_CUSTOM_DIR=$PATH_TO_YOUR_REPO/matchminerAPI/tests/data/oncotree_file.txt
+```
+You can add the above command to your `.bashrc` to load the environment variable everytime you open a new shell.
 
 ### DEV server ###
 
