@@ -345,6 +345,10 @@ def hipaa_logging_item(resource, response):
     # set loggable user_name.
     user_name = user['user_name']
 
+
+    if user_name == 'cbioone':
+        return
+
     # deal with clinical.
     needs_it = False
     if resource == 'clinical':
