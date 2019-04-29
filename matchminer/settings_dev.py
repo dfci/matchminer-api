@@ -269,3 +269,5 @@ DOMAIN = {
     'gi': gi,
     'gi_gold_standard_truth': gi_gold_standard_truth
 }
+
+MONGO_QUERY_BLACKLIST = ['$where']
