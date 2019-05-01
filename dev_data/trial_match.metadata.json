@@ -1,1 +1,1 @@
-{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"dev.trial_match"}],"uuid":"19970176578a4fbca299295882279f96"}
+{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"matchminer.trial_match"}],"uuid":"d680153fcf2344ceb601cf00360c6042"}
