@@ -416,18 +416,19 @@ def dispatch_epic():
             log['is_BWH_MRN'] = False
             logging.error(msg)
 
-            # send alert email
-            email_item = {
-                'email_from': EMAIL_AUTHOR_PROTECTED,
-                'email_to': EMAIL_AUTHOR_PROTECTED,
-                'subject': "[EPIC] MRN Error",
-                'body': msg,
-                'cc': [],
-                'sent': False,
-                'num_failures': 0,
-                'errors': []
-            }
-            db.email.insert(email_item)
+            if len(mrn) > 6:
+                # send alert email if MRN is longer than 6 digits
+                email_item = {
+                    'email_from': EMAIL_AUTHOR_PROTECTED,
+                    'email_to': EMAIL_AUTHOR_PROTECTED,
+                    'subject': "[EPIC] MRN Error",
+                    'body': msg,
+                    'cc': [],
+                    'sent': False,
+                    'num_failures': 0,
+                    'errors': []
+                }
+                db.email.insert(email_item)
 
             # build url and redirect to error page
             error_url = FRONT_END_ADDRESS + 'epic-mrn-error'
