@@ -48,6 +48,7 @@ class TokenAuth(TokenAuth):
         # return none.
         if user is None:
             logging.info("warning failed authentication")
+            logging.info("token: %s" % token)
             return user
 
         # check for role.
@@ -80,7 +81,7 @@ class TokenAuth(TokenAuth):
         # log results
         if user is None:
             logging.info("warning failed authentication")
-
+            logging.info("token: %s" % token)
         else:
 
             # update with last auth.
