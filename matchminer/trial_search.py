@@ -134,6 +134,7 @@ class Summary:
             centers = [site['site_name'] for site in item['site_list']['site'] if site['coordinating_center'] == "Y"]
             if len(centers) > 0:
                 self.summary_dict['site'] = centers[0]
+                self.summary_dict['center'] = centers[0]
 
         if 'sponsor_list' in item and 'sponsor' in item['sponsor_list']:
             sponsors = [s['sponsor_name'] for s in item['sponsor_list']['sponsor'] if s['is_principal_sponsor'] == "Y"]
