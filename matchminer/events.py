@@ -230,6 +230,28 @@ def align_matches_clinical(a):
     a['ENROLLED'] = list(enrolled)
 
 
+def get_sort_order(resource):
+    """
+    In Matchengine V2, the sort order field is an array which delivers each dimension of the sort as an index.
+    This function will sort each protocol's match reasons according to this criteria:
+
+    MMR > Tier 1 > Tier 2 > CNV > Tier 3 > Tier 4 > wild type
+    Variant-level  > gene-level
+    Exact cancer match > all solid/liquid
+    Co-ordinating center: DFCI > others
+    Reverse protocol number: high > low
+    """
+    current_rank = 1
+    seen_protocol_nos = dict()
+    if resource['_items'] and isinstance(resource['_items'][0]['sort_order'], list):
+        resource['_items'] = sorted(resource['_items'], key=lambda x: (tuple(x['sort_order'][:-1]) + (1.0 / x['sort_order'][-1],)))
+        for item in resource['_items']:
+            if item['protocol_no'] not in seen_protocol_nos:
+                seen_protocol_nos[item['protocol_no']] = current_rank
+                current_rank += 1
+            item['sort_order'] = seen_protocol_nos[item['protocol_no']]
+
+
 def align_other_clinical(a):
 
     # extract the clinical id.
@@ -1319,10 +1341,10 @@ def register_hooks(app):
     app.on_fetched_item_clinical += align_matches_clinical
     app.on_fetched_item_clinical += align_other_clinical
 
+    app.on_fetched_resource_trial_match += get_sort_order
+
     # register the status update.
     app.on_insert_status += status_insert
-    #app.on_replaced_status += status_replaced
-    #app.on_delete_item_status += status_delete
 
     # hook to split the trial resource
     app.on_insert_trial += trial_insert
