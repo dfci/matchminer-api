@@ -241,7 +241,7 @@ def get_sort_order(resource):
     Co-ordinating center: DFCI > others
     Reverse protocol number: high > low
     """
-    current_rank = 1
+    current_rank = 0
     seen_protocol_nos = dict()
     if resource['_items'] and isinstance(resource['_items'][0]['sort_order'], list):
         resource['_items'] = sorted(resource['_items'], key=lambda x: (tuple(x['sort_order'][:-1]) + (1.0 / x['sort_order'][-1],)))
