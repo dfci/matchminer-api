@@ -247,8 +247,11 @@ def get_sort_order(resource):
         resource['_items'] = sorted(resource['_items'], key=lambda x: (tuple(x['sort_order'][:-1]) + (1.0 / x['sort_order'][-1],)))
         for item in resource['_items']:
             if item['protocol_no'] not in seen_protocol_nos:
-                seen_protocol_nos[item['protocol_no']] = current_rank
-                current_rank += 1
+                if any(map(lambda x: x < 0, item['sort_order'])):
+                    seen_protocol_nos[item['protocol_no']] = -1
+                else:
+                    seen_protocol_nos[item['protocol_no']] = current_rank
+                    current_rank += 1
             item['sort_order'] = seen_protocol_nos[item['protocol_no']]
 
 
