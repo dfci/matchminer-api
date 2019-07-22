@@ -248,8 +248,7 @@ def get_sort_order(resource):
         for item in resource['_items']:
             if item['protocol_no'] not in seen_protocol_nos:
                 # don't return trial match documents for trials which are closed
-                if item.get('trial_summary_status', None) in ['closed to accrual', 'irb study closure', 'suspended'] or \
-                        any(map(lambda x: x < 0, item['sort_order'])):
+                if item.get('trial_summary_status', None) == 'closed' or any(map(lambda x: x < 0, item['sort_order'])):
                     seen_protocol_nos[item['protocol_no']] = -1
                 else:
                     seen_protocol_nos[item['protocol_no']] = current_rank
@@ -358,7 +357,6 @@ def hipaa_logging_resource(resource, response):
         hipaa_logging_item(resource, item)
 
 
-
 def hipaa_logging_item(resource, response):
 
     if resource == 'response':
@@ -373,6 +371,7 @@ def hipaa_logging_item(resource, response):
 
     # set loggable user_name.
     user_name = user['user_name']
+
 
     if user_name == 'cbioone':
         return
@@ -424,7 +423,6 @@ def hipaa_logging_item(resource, response):
 
         # insert it.
         app.data.insert('hipaa', transaction)
-
 
 def clinical_insert(items):
 
