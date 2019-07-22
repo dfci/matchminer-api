@@ -247,7 +247,9 @@ def get_sort_order(resource):
         resource['_items'] = sorted(resource['_items'], key=lambda x: (tuple(x['sort_order'][:-1]) + (1.0 / x['sort_order'][-1],)))
         for item in resource['_items']:
             if item['protocol_no'] not in seen_protocol_nos:
-                if any(map(lambda x: x < 0, item['sort_order'])):
+                # don't return trial match documents for trials which are closed
+                if item.get('trial_summary_status', None) in ['closed to accrual', 'irb study closure', 'suspended'] or \
+                        any(map(lambda x: x < 0, item['sort_order'])):
                     seen_protocol_nos[item['protocol_no']] = -1
                 else:
                     seen_protocol_nos[item['protocol_no']] = current_rank
@@ -356,6 +358,7 @@ def hipaa_logging_resource(resource, response):
         hipaa_logging_item(resource, item)
 
 
+
 def hipaa_logging_item(resource, response):
 
     if resource == 'response':
@@ -364,12 +367,12 @@ def hipaa_logging_item(resource, response):
     # get the user_id.
     db = app.data.driver.db
     if app.auth is None:
+        logging.warning('Skipping HIPAA logging')
         return
     user = app.auth.get_request_auth_value()
 
     # set loggable user_name.
     user_name = user['user_name']
-
 
     if user_name == 'cbioone':
         return
@@ -421,6 +424,7 @@ def hipaa_logging_item(resource, response):
 
         # insert it.
         app.data.insert('hipaa', transaction)
+
 
 def clinical_insert(items):
 
