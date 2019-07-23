@@ -22,16 +22,28 @@ cd matchminer-api
 ###### 3) install dependencies
 `pip install -r requirements.txt`
 
+If on MacOS, additionally run:
+```brew install libxml2 libxmlsec1```
+
 ###### 4) create mongodb docker container
 The following commands will start and test the mongo container. A local instance of mongo can also be used,
  by over-ridding the configuration variables for the DB host.
+ 
+ Start Docker, then run:
 ```bash
 docker run --name match-mongo -d -p 27017:27017 mongo mongod --smallfiles --replSet=rs0
 docker exec -it match-mongo mongo matchminer --eval "rs.initiate();"
 ```
 
 ###### 5) add test data
-Then load the data from ./tests/data/clinical.bson and ./tests/data/genomic.bson. You will need to drop the db and restore after every full test run
+Then load the data from the following database collections:
+1. ./tests/data/clinical.bson
+2. ./tests/data/genomic.bson
+3. ./tests/data/user.bson
+4. ./tests/data/status.bson
+5. ./tests/data/trial.bson
+
+You will need to drop the db and restore after every full test run.
 
 ```mongorestore --db matchminer --dir=tests/data``` 
 
@@ -50,7 +62,7 @@ You must setup a local secrets file as an OS environmental variable named SECRET
 }
 ```
 
-Save this somewhere. Then, edit your .bash_profile (or bashrc on linux) to save the secrets file as an env variable
+Save this somewhere. Then, edit your .bash_profile (or bashrc on linux) to save the secrets file as an environment variable.
 
 ```
 vi ~/.bash_profile                          # open your bash profile
