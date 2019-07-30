@@ -85,3 +85,4 @@ ENV TERM xterm
 
 # hack from https://github.com/onelogin/python3-saml/issues/82
 RUN STATIC_DEPS=true pip install lxml==4.1.1 --force-reinstall
+

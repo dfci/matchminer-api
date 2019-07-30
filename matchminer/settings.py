@@ -45,9 +45,7 @@ ONCORE_CURATION_AUTH_TOKEN = ""
 FRONT_END_ADDRESS = ""
 EPIC_DECRYPT_TOKEN = ""
 
-
 TUMOR_TREE = os.path.abspath(os.path.join(os.path.dirname(__file__), './data/tumor_tree.txt'))
-
 
 # connect to secrets
 file_path = os.getenv("SECRETS_JSON", None)
@@ -62,15 +60,21 @@ if file_path is not None:
         for name, value in vars_.iteritems():
             globals()[name] = value
 
-
 if EMAIL_ACTIVE_PROTECTED == "True":
     EMAIL_ACTIVE_PROTECTED = True
 
-# modify variables if necessary.
+# NO_AUTH turns off authentication by reading a variable from the secrets.json file. It will look for a user named
+# John Doe and use that user for authentication. If authorization is turned off, hipaa logging will not happen.
+# For more details around the admin user John Doe see the UI readme.
+
 if NO_AUTH != "False":
     NO_AUTH = True
 else:
     NO_AUTH = False
+
+# Hipaa log directories where csv files of daily logs are stored.
+HIPAA_LOG_DIR = os.getenv("HIPAA_LOG_CUSTOM_DIR", "/var/log/hipaa/")
+HIPAA_OUTPUT_ZIP_DIR = os.getenv("HIPAA_LOG_CUSTOM_ZIP_DIR", "/var/log/hipaa_zip/")
 
 if MM_SETTINGS == "PROD":
     from matchminer.settings_prod import *
@@ -92,3 +96,6 @@ match_status_mapping = {
     'Deceased': 3
 }
 enrollment_date_filter = dt.datetime(year=2016, month=8, day=1)
+
+
+
