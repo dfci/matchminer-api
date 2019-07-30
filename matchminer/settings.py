@@ -66,10 +66,9 @@ if EMAIL_ACTIVE_PROTECTED == "True":
 # NO_AUTH turns off authentication by reading a variable from the secrets.json file. It will look for a user named
 # John Doe and use that user for authentication. If authorization is turned off, hipaa logging will not happen.
 # For more details around the admin user John Doe see the UI readme.
-if NO_AUTH == "False":
+
+if NO_AUTH != "False":
     NO_AUTH = True
-elif NO_AUTH is None:
-    NO_AUTH = False
 else:
     NO_AUTH = False
 
