@@ -471,6 +471,7 @@ def count_query():
     # no auth version.
     accounts = app.data.driver.db['user']
     if settings.NO_AUTH:
+        logging.info("NO AUTH enabled. count_query.")
 
         # get the user_id
         user_id = str(request.args.get("user_id"))

@@ -142,6 +142,7 @@ def align_matches_genomic(a):
 
     # get the user.
     if settings.NO_AUTH:
+        logging.info("NO AUTH enabled. align_matches_genomic")
         accounts = app.data.driver.db['user']
         user = accounts.find_one({"last_name": "Doe"})
     else:

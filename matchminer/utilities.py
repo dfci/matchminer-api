@@ -929,6 +929,7 @@ def get_current_user(no_auth, app):
     """
 
     if no_auth:
+        logging.info("NO AUTH enabled. get_current_user")
         accounts = app.data.driver.db['user']
         user = accounts.find_one({"last_name": "Doe"})
     else:
