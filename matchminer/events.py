@@ -22,9 +22,6 @@ from tcm.engine import CBioEngine
 from matchengine.engine import MatchEngine
 from matchminer.templates.emails import emails
 
-
-import csv
-
 # logging
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
 
@@ -361,27 +358,6 @@ def hipaa_logging_resource(resource, response):
         hipaa_logging_item(resource, item)
 
 
-def insert_data_to_csv(transaction):
-    """ Inserts hipaa logs into csv files. One csv file is created per day
-    :argument transaction: dictionary (log created by the hipaa_logging_item function)
-    """
-    today_date = datetime.datetime.now().strftime('%m_%d_%Y')
-    date_file = 'hipaa_log_{}.csv'.format(today_date)
-    csv_file = settings.HIPAA_LOG_DIR + date_file
-
-    csv_columns = ['phi',
-                   'user_id',
-                   'timestamp',
-                   'patient_id',
-                   'reason',
-                   '_updated',
-                   '_created']
-
-    with open(csv_file, 'a') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
-        writer.writerow(transaction)
-
-
 def hipaa_logging_item(resource, response):
 
     if resource == 'response':
@@ -396,6 +372,7 @@ def hipaa_logging_item(resource, response):
 
     # set loggable user_name.
     user_name = user['user_name']
+
 
     if user_name == 'cbioone':
         return
@@ -446,8 +423,7 @@ def hipaa_logging_item(resource, response):
         }
 
         # insert it.
-        insert_data_to_csv(transaction)
-
+        app.data.insert('hipaa', transaction)
 
 def clinical_insert(items):
 
@@ -1212,7 +1188,7 @@ def negative_genomic(items):
                 continue
 
             if item['roi_type'] == 'C':
-                item['show_codon'] = True 
+                item['show_codon'] = True
 
             elif item['roi_type'] == 'E':
                 item['show_exon'] = True

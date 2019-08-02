@@ -45,7 +45,7 @@ You must setup a local secrets file as an OS environmental variable named SECRET
   "MONGO_PORT": 27017, 
   "MONGO_USERNAME": "", 
   "MONGO_PASSWORD": "", 
-  "MONGO_DBNAME": "matchminer", 
+  "MONGO_DBNAME": "matchminer",
   "MONGO_URI":"mongodb://localhost:27017"
 }
 ```
