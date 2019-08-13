@@ -1234,6 +1234,7 @@ trial_match_schema = {
     'protocol_no': {'type': 'string'},
     'genomic_alteration': {'type': 'string', 'readonly': True},
     'trial_accrual_status': {'type': 'string', 'allowed': ['open', 'closed']},
+    'trial_curation_level_status': {'type': 'string', 'required': False},
     'match_level': {'type': 'string', 'allowed': ['step', 'arm', 'dose']},
     'code': {'type': 'string'},
     'internal_id': {'type': 'string'},
