@@ -1099,6 +1099,9 @@ yaml_clinical_schema = {
         'type': 'string',
         'required': False,
         'allowed': ['Male', 'Female']
+    },
+    'tmb_numerical': {
+        'type': 'string',
     }
 }
 
@@ -1163,6 +1166,31 @@ yaml_genomic_schema = {
         'type': 'string',
         'required': False,
         'allowed': ['MSI-H', 'MSI-L', 'MSS']
+    },
+    'pole_signature': {
+        'type': 'string',
+        'required': False,
+        'allowed': ['Yes', 'No']
+    },
+    'tobacco_signature': {
+         'type': 'string',
+         'required': False,
+         'allowed': ['Yes', 'No']
+    },
+    'apobec_signature': {
+         'type': 'string',
+         'required': False,
+         'allowed': ['Yes', 'No']
+    },
+    'uva_signature': {
+        'type': 'string',
+        'required': False,
+        'allowed': ['Yes', 'No']
+    },
+    'temozolomide_signature': {
+        'type': 'string',
+        'required': False,
+        'allowed': ['Yes', 'No']
     },
     'tier': {
         'type': 'list',
