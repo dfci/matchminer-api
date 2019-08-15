@@ -33,7 +33,7 @@ class ConsentValidatorEve(EveValidator):
         if isinstance(item, dict):
             for k, v in item.iteritems():
                 if k == 'genomic':
-                    if signatures in v:
+                    if v in signatures:
                         item[k]['hugo_symbol'] = 'None'
                         return
                     elif isinstance(v, dict):
