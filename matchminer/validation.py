@@ -28,7 +28,8 @@ class ConsentValidatorEve(EveValidator):
                       'uva_signature',
                       'temozolomide_signature',
                       'apobec_signature',
-                      'pole_signature']
+                      'pole_signature',
+                      'tmb_numerical']
 
         if isinstance(item, dict):
             for k, v in item.iteritems():
