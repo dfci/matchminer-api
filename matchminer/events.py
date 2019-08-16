@@ -825,9 +825,6 @@ def trial_insert(items):
     # loop over each item.
     for item in items:
 
-        # log this.
-        logging.info("trial inserted")
-
         # build tree.
         me = MatchEngine(db)
         status, trial_tree = me.create_trial_tree(item, no_validate=True)
@@ -865,6 +862,7 @@ def trial_insert(items):
         item['_suggest'], item['_elasticsearch'], item['_summary']['primary_tumor_types'] = \
             autocomplete.add_autocomplete()
 
+        logging.info("trial inserted " + item['protocol_no'])
     return items
 
 
