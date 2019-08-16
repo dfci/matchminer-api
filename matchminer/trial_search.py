@@ -707,11 +707,11 @@ class ParseMatchTree:
         ms = []
         sigs = []
         sig_mapping = {
-            'tobacco_signature': 'Tobacco',
-            'uva_signature': 'UVA',
-            'temozolomide_signature': 'Temozolomide',
-            'apobec_signature': 'APOBEC',
-            'pole_signature': 'POLE',
+            'tobacco_signature': 'Tobacco Signature',
+            'uva_signature': 'UVA Signature',
+            'temozolomide_signature': 'Temozolomide Signature',
+            'apobec_signature': 'APOBEC Signature',
+            'pole_signature': 'POLE Signature',
             'tmb_numerical': 'Tumor Mutational Burden'
         }
 
