@@ -1108,7 +1108,7 @@ yaml_clinical_schema = {
 yaml_genomic_schema = {
     'hugo_symbol': {
         'type': 'string',
-        'required': True,
+        'required': False,
         'nullable': True
     },
     'protein_change': {
