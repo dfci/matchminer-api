@@ -26,6 +26,7 @@ class Summary:
         self.mmr = []
         self.ms = []
         self.hr = []
+        self.sigs = []
         self.status = []
 
         self.summary_dict = {
@@ -198,6 +199,7 @@ class Summary:
                 signatures = pmt.extract_signatures()
                 self.mmr.extend(signatures[0])
                 self.ms.extend(signatures[1])
+                self.sigs.extend(signatures[2])
                 self.hr.extend(pmt.extract_hr_status())
 
             if 'arm' in step:
@@ -208,6 +210,7 @@ class Summary:
                         signatures = pmt.extract_signatures()
                         self.mmr.extend(signatures[0])
                         self.ms.extend(signatures[1])
+                        self.sigs.extend(signatures[2])
                         self.hr.extend(pmt.extract_hr_status())
 
                     if 'dose_level' in arm:
@@ -218,6 +221,7 @@ class Summary:
                                 signatures = pmt.extract_signatures()
                                 self.mmr.extend(signatures[0])
                                 self.ms.extend(signatures[1])
+                                self.sigs.extend(signatures[2])
                                 self.hr.extend(pmt.extract_hr_status())
 
     def _get_status(self):
@@ -256,7 +260,7 @@ class Summary:
         item = {
             'mmr_status': list(set(self.mmr)),
             'ms_status': list(set(self.ms)),
-            'mutational_signatures': list(set(self.mmr + self.ms)),
+            'mutational_signatures': list(set(self.mmr + self.ms + self.sigs)),
             'dfci_investigator': self.dfci_investigator,
             'investigator': self.summary_dict['principal_investigator'],
             'protocol_number': self.summary_dict['protocol_no'],
@@ -694,12 +698,22 @@ class ParseMatchTree:
     def extract_signatures(self):
         """
         Returns all mutational signatures located in the trial match tree g
+        APOBEC, UVA, Temozolomide, POLE and TMB are treated as mutational signatures for convenience in the UI
 
         :return: List of mutational signatures
         """
 
         mmr = []
         ms = []
+        sigs = []
+        sig_mapping = {
+            'tobacco_signature': 'Tobacco',
+            'uva_signature': 'UVA',
+            'temozolomide_signature': 'Temozolomide',
+            'apobec_signature': 'APOBEC',
+            'pole_signature': 'POLE',
+            'tmb_numerical': 'Tumor Mutational Burden'
+        }
 
         # iterate through the graph
         for node_id in list(nx.dfs_postorder_nodes(self.g, source=1)):
@@ -709,8 +723,11 @@ class ParseMatchTree:
                     mmr.append(node['value']['mmr_status'])
                 if 'ms_status' in node['value']:
                     ms.append(node['value']['ms_status'])
+                for sig in sig_mapping.keys():
+                    if sig in node['value']:
+                        sigs.append(sig_mapping[sig])
 
-        return mmr, ms
+        return mmr, ms, sigs
 
     def extract_hr_status(self):
         """
