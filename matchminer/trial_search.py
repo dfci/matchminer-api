@@ -489,7 +489,7 @@ class Autocomplete:
             'drug_suggest': {'input': [i.title() for i in self.summary['drugs']]},
             'investigator_suggest': self._get_investigator_suggest(self.summary['investigator'],
                                                                    self.summary['dfci_investigator']),
-            'mmr_status_suggest': {'input': self.summary['mmr_status'] + self.summary['ms_status']},
+            'mmr_status_suggest': {'input': self.summary['mmr_status'] + self.summary['ms_status'] + self.summary['mutational_signatures']},
             'nct_number_suggest': {'input': self.summary['nct_number']}
         }
 
@@ -508,7 +508,7 @@ class Autocomplete:
             "disease_status": self.summary["disease_status"],
             "nct_number": self.summary["nct_number"],
             "disease_center": self.summary["disease_center"],
-            "mmr_status": self.summary["mmr_status"],
+            "mmr_status": self.summary["mmr_status"] + self.summary['mutational_signatures'],
             "ms_status": self.summary["ms_status"],
             "mutational_signatures": self.summary["mutational_signatures"],
             "investigator": [i['output'] for i in suggestors['investigator_suggest']],
