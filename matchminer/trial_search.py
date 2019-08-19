@@ -711,8 +711,7 @@ class ParseMatchTree:
             'uva_signature': 'UVA Signature',
             'temozolomide_signature': 'Temozolomide Signature',
             'apobec_signature': 'APOBEC Signature',
-            'pole_signature': 'POLE Signature',
-            'tmb_numerical': 'Tumor Mutational Burden'
+            'pole_signature': 'POLE Signature'
         }
 
         # iterate through the graph
@@ -726,6 +725,9 @@ class ParseMatchTree:
                 for sig in sig_mapping.keys():
                     if sig in node['value']:
                         sigs.append(sig_mapping[sig])
+            elif node['type'] == 'clinical':
+                if 'tmb_numerical' in node['value']:
+                    sigs.append('Tumor Mutational Burden')
 
         return mmr, ms, sigs
 
