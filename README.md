@@ -39,9 +39,9 @@ docker exec -it match-mongo mongo matchminer --eval "rs.initiate();"
 Then load the data from the following database collections:
 1. ./tests/data/clinical.bson
 2. ./tests/data/genomic.bson
-3. ./tests/data/user.bson
-4. ./tests/data/status.bson
-5. ./tests/data/trial.bson
+3. user.bson
+4. status.bson
+5. trial.bson
 
 You will need to drop the db and restore after every full test run.
 
