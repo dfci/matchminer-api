@@ -231,7 +231,7 @@ def align_matches_clinical(a):
     a['ENROLLED'] = list(enrolled)
 
 
-def get_sort_order(resource):
+def filter_and_sort(resource):
     """
     In Matchengine V2, the sort order field is an array which delivers each dimension of the sort as an index.
     This function will sort each protocol's match reasons according to this criteria:
@@ -241,12 +241,18 @@ def get_sort_order(resource):
     Exact cancer match > all solid/liquid
     Co-ordinating center: DFCI > others
     Reverse protocol number: high > low
+
+    There is also a field show_in_ui which determines whether a match document
+    is viewable in the UI.
     """
     current_rank = 0
     seen_protocol_nos = dict()
     if resource['_items'] and isinstance(resource['_items'][0]['sort_order'], list):
         resource['_items'] = sorted(resource['_items'], key=lambda x: (tuple(x['sort_order'][:-1]) + (1.0 / x['sort_order'][-1],)))
         for item in resource['_items']:
+            if 'show_in_ui' in item and item['show_in_ui'] is False:
+                continue
+
             if item['protocol_no'] not in seen_protocol_nos:
                 # don't return trial match documents for trials which are closed
                 if item.get('trial_summary_status', None) == 'closed' or any(map(lambda x: x < 0, item['sort_order'])):
@@ -1201,16 +1207,6 @@ def negative_genomic(items):
                 item['show_codon'] = True
 
 
-def trial_match_get(item):
-    """Does not return fusion matches"""
-    new_item = []
-    for i in item['_items']:
-        if "variant_category" in i and i["variant_category"] == "SV":
-            continue
-        new_item.append(i)
-    item['_items'] = new_item
-
-
 def hide_name(item):
     """Hides patient name"""
     for i, idx in zip(item['_items'][:], range(len(item['_items']))):
@@ -1345,7 +1341,8 @@ def register_hooks(app):
     app.on_fetched_item_clinical += align_matches_clinical
     app.on_fetched_item_clinical += align_other_clinical
 
-    app.on_fetched_resource_trial_match += get_sort_order
+    # trial match get
+    app.on_fetched_resource_trial_match += filter_and_sort
 
     # register the status update.
     app.on_insert_status += status_insert
@@ -1367,9 +1364,6 @@ def register_hooks(app):
 
     # negative genomic coverage insertion
     app.on_insert_negative_genomic += negative_genomic
-
-    # trial match GET
-    app.on_fetched_resource_trial_match += trial_match_get
 
     # clinical GET
     app.on_fetched_resource_clinical += hide_name
