@@ -1289,7 +1289,8 @@ trial_match_schema = {
     'clinical_id': {'type': 'string'},
     'genomic_id': {'type': 'string'},
     'sort_order': {'type': 'integer'},
-    'trial_summary_status': {'type': 'string', 'required': False}
+    'trial_summary_status': {'type': 'string', 'required': False},
+    'show_in_ui': {'type': 'boolean', 'required': False}
 }
 
 negative_genomic_schema = {

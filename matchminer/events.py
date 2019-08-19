@@ -251,6 +251,8 @@ def filter_and_sort(resource):
         resource['_items'] = sorted(resource['_items'], key=lambda x: (tuple(x['sort_order'][:-1]) + (1.0 / x['sort_order'][-1],)))
         for item in resource['_items']:
             if 'show_in_ui' in item and item['show_in_ui'] is False:
+                seen_protocol_nos[item['protocol_no']] = -1
+                item['sort_order'] = -1
                 continue
 
             if item['protocol_no'] not in seen_protocol_nos:
