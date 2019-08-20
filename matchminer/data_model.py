@@ -380,12 +380,35 @@ genomic_schema = {
             'Deficient (MMR-D / MSI-H)'
         ]
     },
-    'TABACCO_STATUS': {'type': 'string', 'allowed': ['Yes', 'No', 'Cannot assess', 'insufficient variants'], 'nullable': True},
-    'TEMOZOLOMIDE_STATUS': {'type': 'string', 'allowed': ['Yes', 'No', 'Cannot assess', 'insufficient variants'], 'nullable': True},
-    'POLE_STATUS': {'type': 'string', 'allowed': ['Yes', 'No', 'Cannot assess', 'insufficient variants'], 'nullable': True},
-    'APOBEC_STATUS': {'type': 'string', 'allowed': ['Yes', 'No', 'Cannot assess', 'insufficient variants'], 'nullable': True},
-    'UVA_STATUS': {'type': 'string', 'allowed': ['Yes', 'No', 'Cannot assess', 'insufficient variants'], 'nullable': True},
+    'TABACCO_STATUS': {'type': 'string', 'allowed': ['Yes', 'No', 'Cannot assess', 'insufficient variants'],
+                       'nullable': True},
+    'TEMOZOLOMIDE_STATUS': {'type': 'string', 'allowed': ['Yes', 'No', 'Cannot assess', 'insufficient variants'],
+                            'nullable': True},
+    'POLE_STATUS': {'type': 'string', 'allowed': ['Yes', 'No', 'Cannot assess', 'insufficient variants'],
+                    'nullable': True},
+    'APOBEC_STATUS': {'type': 'string', 'allowed': ['Yes', 'No', 'Cannot assess', 'insufficient variants'],
+                      'nullable': True},
+    'UVA_STATUS': {'type': 'string', 'allowed': ['Yes', 'No', 'Cannot assess', 'insufficient variants'],
+                   'nullable': True},
+
+    "EVENT_ID": {'type': 'integer', 'nullable': True},
+    "STRUCTURAL_VARIANT_TYPE": {'type': 'string', 'nullable': True},
+    "LEFT_PARTNER_CHROMOSOME": {'type': 'string', 'nullable': True},
+    "LEFT_PARTNER_POSITION": {'type': 'integer', 'nullable': True},
+    "LEFT_PARTNER_STRAND": {'type': 'string', 'nullable': True},
+    "LEFT_PARTNER_GENE": {'type': 'string', 'nullable': True},
+    "LEFT_PARTNER_BAND": {'type': 'string', 'nullable': True},
+    "LEFT_PARTNER_EXON_INTRON": {'type': 'string', 'nullable': True},
+    "LEFT_PARTNER_EXON_INTRON_NUM": {'type': 'integer', 'nullable': True},
+    "RIGHT_PARTNER_CHROMOSOME": {'type': 'string', 'nullable': True},
+    "RIGHT_PARTNER_POSITION": {'type': 'integer', 'nullable': True},
+    "RIGHT_PARTNER_STRAND": {'type': 'string', 'nullable': True},
+    "RIGHT_PARTNER_GENE": {'type': 'string', 'nullable': True},
+    "RIGHT_PARTNER_BAND": {'type': 'string', 'nullable': True},
+    "RIGHT_PARTNER_EXON_INTRON": {'type': 'string', 'nullable': True},
+    "RIGHT_PARTNER_EXON_INTRON_NUM": {'type': 'integer', 'nullable': True},
 }
+
 for key in genomic_schema:
     if 'nullable' not in genomic_schema[key]:
         genomic_schema[key]['nullable'] = True
