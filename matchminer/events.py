@@ -455,6 +455,7 @@ def clinical_insert(items):
         # this is really just a PUT in disguise!
         #app.data.update(item)
 
+
 def clinical_delete(item):
 
     # get database lookup.
@@ -466,6 +467,14 @@ def clinical_delete(item):
 
     # delete associated matches.
     match_db.delete_many({"CLINICAL_ID": ObjectId(item['_id'])})
+
+
+def genomic_insert(items):
+    # modify each item.
+    for item in items:
+
+        # set strings to be object ids
+        item['CLINICAL_ID'] = ObjectId(item['CLINICAL_ID'])
 
 
 def clinical_replace(item, original):
@@ -1314,6 +1323,8 @@ def register_hooks(app):
     app.on_replace_clinical += clinical_replace
     app.on_update_clinical += clinical_update
     app.on_delete_item_clinical += clinical_delete
+
+    app.on_insert_genomic += genomic_insert
 
     # register the filter hooks.
     if settings.NO_AUTH is not True:
