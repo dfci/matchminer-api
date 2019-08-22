@@ -256,7 +256,7 @@ clinical_schema = {
     'CASE_COUNT': {'type': 'integer', 'nullable': True},
     'PDF_LAYOUT_VERSION': {
         'type': 'integer',
-        'allowed': [1, 2]
+        'allowed': [1, 2, 3]
     },
 
     'FILTER': {
