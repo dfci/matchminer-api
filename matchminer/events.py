@@ -443,6 +443,7 @@ def clinical_insert(items):
 
         # extract sample id
         sample_id = item['SAMPLE_ID']
+        logging.info("Adding clinical data for sample id " + str(sample_id))
 
         # check for existing sample_id.
         clinical = clinical_db.find_one({'SAMPLE_ID': sample_id})
