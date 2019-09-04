@@ -1313,7 +1313,8 @@ trial_match_schema = {
     'genomic_id': {'type': 'string'},
     'sort_order': {'type': 'integer'},
     'trial_summary_status': {'type': 'string', 'required': False},
-    'show_in_ui': {'type': 'boolean', 'required': False}
+    'show_in_ui': {'type': 'boolean', 'required': False},
+    'is_disabled': {'type': 'boolean', 'required': False}
 }
 
 negative_genomic_schema = {

@@ -251,8 +251,7 @@ def filter_and_sort(resource):
         resource['_items'] = sorted(resource['_items'], key=lambda x: (tuple(x['sort_order'][:-1]) + (1.0 / x['sort_order'][-1],)))
         for item in resource['_items']:
             if item['protocol_no'] not in seen_protocol_nos:
-                # don't return trial match documents for trials which are closed
-                if item.get('trial_summary_status', None) == 'closed' or any(map(lambda x: x < 0, item['sort_order'])):
+                if any(map(lambda x: x < 0, item['sort_order'])):
                     seen_protocol_nos[item['protocol_no']] = -1
                 else:
                     seen_protocol_nos[item['protocol_no']] = current_rank
