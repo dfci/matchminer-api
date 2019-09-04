@@ -231,7 +231,7 @@ def align_matches_clinical(a):
     a['ENROLLED'] = list(enrolled)
 
 
-def filter_and_sort(resource):
+def sort_trial_matches(resource):
     """
     In Matchengine V2, the sort order field is an array which delivers each dimension of the sort as an index.
     This function will sort each protocol's match reasons according to this criteria:
@@ -1350,7 +1350,7 @@ def register_hooks(app):
     app.on_fetched_item_clinical += align_other_clinical
 
     # trial match get
-    app.on_fetched_resource_trial_match += filter_and_sort
+    app.on_fetched_resource_trial_match += sort_trial_matches
 
     # register the status update.
     app.on_insert_status += status_insert
