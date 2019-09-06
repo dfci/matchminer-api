@@ -310,8 +310,10 @@ def recursive_snake_case(on_trial):
         if isinstance(on_trial_val, dict):
             on_trial_snakecase[new_key] = recursive_snake_case(on_trial_val)
         elif isinstance(on_trial_val, list):
+            new_list = list()
             for val in on_trial_val:
-                on_trial_snakecase[new_key] = recursive_snake_case(val)
+                new_list.append(recursive_snake_case(val))
+                on_trial_snakecase[new_key] = new_list
         else:
             on_trial_snakecase[new_key] = on_trial_val
     return on_trial_snakecase
