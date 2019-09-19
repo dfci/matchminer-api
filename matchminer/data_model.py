@@ -1266,7 +1266,7 @@ email_schema = {
     'subject': {'type': 'string', 'required': True},
     'body': {'type': 'string', 'required': True},
     'sent': {'type': 'boolean', 'default': False},
-    'cc': {'type': 'list', 'schema': {'type': 'string'}},
+    'cc': {'type': 'list', 'schema': {'type': 'string'}, 'required': True},
     'num_failures': {'type': 'integer', 'default': 0},
     'errors': {'type': 'list', 'schema': {'type': 'string'}, 'default': []}
 }
