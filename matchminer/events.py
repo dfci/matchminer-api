@@ -3,6 +3,8 @@ import time
 import json
 import logging
 import datetime
+from email.utils import formatdate
+
 from bson import ObjectId
 
 
@@ -981,7 +983,7 @@ def update_response(item):
     db['response'].update_one(
         {'_id': item['_id']},
         {'$set': {
-            # 'time_clicked': formatdate(time.mktime(datetime.datetime.now().timetuple())),
+            'time_clicked': formatdate(time.mktime(datetime.datetime.now().timetuple())),
             'ip_address': _get_ip()
         }}
     )

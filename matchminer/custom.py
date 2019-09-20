@@ -24,12 +24,12 @@ from matchminer.services.filter import Filter
 from matchminer.services.match import Match
 from matchminer.templates.emails.emails import EAP_INQUIRY_BODY
 from matchminer.validation import check_valid_email_address
-from wincrypto import CryptCreateHash, CryptHashData, CryptDeriveKey, CryptEncrypt, CryptDecrypt
-from wincrypto.definitions import CALG_SHA1, CALG_AES_128
-
 import logging
 
 # logging
+from src.wincrypto.wincrypto import CryptCreateHash, CryptDeriveKey, CryptHashData, CryptDecrypt, CryptEncrypt
+from src.wincrypto.wincrypto.constants import CALG_SHA1, CALG_AES_128
+
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
 
 blueprint = Blueprint('', __name__, template_folder="templates/templates")

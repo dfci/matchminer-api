@@ -6,7 +6,7 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 from eve.flaskapp import Eve
 import datetime
-from rfc822 import formatdate
+from email.utils import formatdate
 import base64
 from functools import wraps, update_wrapper
 from datetime import datetime, date
