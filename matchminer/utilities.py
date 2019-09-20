@@ -169,7 +169,7 @@ def utility_post(ctx, resource, data, token=None):
     headers = list()
     headers.append(('Content-Type', 'application/json'))
     if token is not None:
-        headers.append(('Authorization', 'Basic ' + str(base64.b64encode(token + ':'))))
+        headers.append(('Authorization', 'Basic ' + base64.b64encode(f'{token}:'.encode('utf-8')).decode()))
 
     # determine how to insert this.
     if isinstance(ctx, Eve):

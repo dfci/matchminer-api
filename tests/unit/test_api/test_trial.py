@@ -409,6 +409,7 @@ class TestTrialUtilities(unittest.TestCase):
         assert trial['last_updated'] == today, self._debug(trial, 'last_updated')
 
         # check dates are preserved after trial_insert is called
+        trial['protocol_no'] = '01-001'
         trial = trial_insert([trial])
         trial = trial[0]
         assert trial['curated_on'] == old, self._debug(trial, 'curated_on')

@@ -7,7 +7,7 @@ from eve import ISSUES
 import base64
 import datetime
 import time
-from rfc822 import formatdate
+from email.utils import formatdate
 from bson import ObjectId
 import re
 import shutil
@@ -221,7 +221,7 @@ class TestMinimal(unittest.TestCase):
 
         # add the defaults
         headers.append(('Content-Type', 'application/json'))
-        headers.append(('Authorization', 'Basic ' + str(base64.b64encode(self.user_token + ':'))))
+        headers.append(('Authorization', 'Basic ' + base64.b64encode(f'{self.user_token}:'.encode('utf-8')).decode('utf-8')))
 
         # just return list.
         return headers
