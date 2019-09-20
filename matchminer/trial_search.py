@@ -4,7 +4,7 @@ import networkx as nx
 
 from matchminer.settings import TUMOR_TREE
 from matchengine.engine import MatchEngine
-from database import get_db
+from .database import get_db
 
 
 class Summary:
@@ -125,7 +125,7 @@ class Summary:
         :param item: ```dictionary``` Trial details
         """
 
-        for field in self.summary_dict.keys():
+        for field in list(self.summary_dict.keys()):
             if field in item:
                 self.summary_dict[field] = item[field]
 
@@ -416,7 +416,7 @@ class Autocomplete:
 
         g = self.m.create_match_tree(match)
         pmt = ParseMatchTree(g)
-        for key, value_list in pmt.extract_cancer_types().items():
+        for key, value_list in list(pmt.extract_cancer_types().items()):
             if key not in self.cancer_type_dict:
                 self.cancer_type_dict[key] = list()
             for item in value_list:
@@ -424,7 +424,7 @@ class Autocomplete:
                     self.cancer_type_dict[key].append(item)
         self.genes.extend(pmt.extract_genes())
         vdict_tmp = pmt.extract_variants()
-        for k, v in self.vdict.iteritems():
+        for k, v in self.vdict.items():
             v.extend(vdict_tmp[k])
 
     def add_autocomplete(self):
@@ -722,7 +722,7 @@ class ParseMatchTree:
                     mmr.append(node['value']['mmr_status'])
                 if 'ms_status' in node['value']:
                     ms.append(node['value']['ms_status'])
-                for sig in sig_mapping.keys():
+                for sig in list(sig_mapping.keys()):
                     if sig in node['value']:
                         sigs.append(sig_mapping[sig])
             elif node['type'] == 'clinical':

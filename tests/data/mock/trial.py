@@ -55,7 +55,7 @@ on_trial = {
     "treatment_list": {
         "step": [
             {
-                "step_internal_id": 01,
+                "step_internal_id": 0o1,
                 "step_code": "code",
                 "step_type": "type",
                 "arm": [
@@ -67,19 +67,19 @@ on_trial = {
                                 "level_description": "description",
                                 "level_suspended": "Y",
                                 "level_code": "code",
-                                "level_internal_id": 02
+                                "level_internal_id": 0o2
                             },
                             {
                                 "level_description": "description",
                                 "level_suspended": "Y",
                                 "level_code": "code",
-                                "level_internal_id": 03
+                                "level_internal_id": 0o3
                             },
                             {
                                 "level_description": "description",
                                 "level_suspended": "N",
                                 "level_code": "code",
-                                "level_internal_id": 04
+                                "level_internal_id": 0o4
                             },
                             {
                                 "level_description": "description",
@@ -133,19 +133,19 @@ on_trial = {
                                         ]
                                     }
                                 ],
-                                "level_internal_id": 04
+                                "level_internal_id": 0o4
                             },
                             {
                                 "level_description": "description",
                                 "level_suspended": "Y",
                                 "level_code": "code",
-                                "level_internal_id": 05
+                                "level_internal_id": 0o5
                             },
                             {
                                 "level_description": "description",
                                 "level_suspended": "Y",
                                 "level_code": "code",
-                                "level_internal_id": 06
+                                "level_internal_id": 0o6
                             },
                             {
                                 "level_description": "description",
@@ -200,7 +200,7 @@ on_trial = {
                                         ]
                                     }
                                 ],
-                                "level_internal_id": 07
+                                "level_internal_id": 0o7
                             },
                             {
                                 "level_description": "description",
@@ -266,7 +266,7 @@ on_trial = {
             }
         ]
     },
-    "protocol_id": 0001,
+    "protocol_id": 0o001,
     "principal_investigator": "PI",
     "disease_site_list": {
         "disease_site": [

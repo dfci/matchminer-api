@@ -140,7 +140,7 @@ class TestStatus(TestMinimal):
             #    print genomics[i]['TRUE_HUGO_SYMBOL'], genomics[i]['VARIANT_CATEGORY']
 
             # clear this.
-            for key in genomics[i].keys():
+            for key in list(genomics[i].keys()):
                 if key[0] == '_':
                     del genomics[i][key]
 
@@ -157,7 +157,7 @@ class TestStatus(TestMinimal):
         clinical, genomic = self._insert_pair()
 
         # add second genomic record
-        for key in genomic.keys():
+        for key in list(genomic.keys()):
             if key[0] == "_":
                 del genomic[key]
         genomic["TRUE_PROTEIN_CHANGE"] = "p.TEST"
@@ -193,13 +193,13 @@ class TestStatus(TestMinimal):
 
         # delete the second and third genomic record.
         etag = genomic_2['_etag']
-        for key in genomic_2.keys():
+        for key in list(genomic_2.keys()):
             if key[0] == "_" and key != "_id":
                 del genomic_2[key]
         r, status_code = self.delete('genomic/%s' % genomic_2['_id'], headers=[('If-Match', etag)])
 
         etag = genomic_3['_etag']
-        for key in genomic_3.keys():
+        for key in list(genomic_3.keys()):
             if key[0] == "_" and key != "_id":
                 del genomic_3[key]
         r, status_code = self.delete('genomic/%s' % genomic_3['_id'], headers=[('If-Match', etag)])
@@ -229,7 +229,7 @@ class TestStatus(TestMinimal):
         clinical, genomic = self._insert_pair()
 
         # add second genomic record
-        for key in genomic.keys():
+        for key in list(genomic.keys()):
             if key[0] == "_":
                 del genomic[key]
         genomic["TRUE_PROTEIN_CHANGE"] = "p.TEST"
@@ -268,13 +268,13 @@ class TestStatus(TestMinimal):
 
         # delete the second and third genomic record.
         etag = genomic_2['_etag']
-        for key in genomic_2.keys():
+        for key in list(genomic_2.keys()):
             if key[0] == "_" and key != "_id":
                 del genomic_2[key]
         r, status_code = self.delete('genomic/%s' % genomic_2['_id'], headers=[('If-Match', etag)])
 
         etag = genomic_3['_etag']
-        for key in genomic_3.keys():
+        for key in list(genomic_3.keys()):
             if key[0] == "_" and key != "_id":
                 del genomic_3[key]
         r, status_code = self.delete('genomic/%s' % genomic_3['_id'], headers=[('If-Match', etag)])
@@ -329,7 +329,7 @@ class TestStatus(TestMinimal):
         r['status'] = 2
 
         # patch it.
-        for key in r.keys():
+        for key in list(r.keys()):
             if key[0] == "_" and key != "_id":
                 del r[key]
         r, status_code = self.put('filter/%s' % filter_id, r, headers=[('If-Match', etag)])
@@ -461,7 +461,7 @@ class TestStatus(TestMinimal):
         clinical_id = clinical['_id']
 
         # sanitize object except for _id.
-        for key in clinical.keys():
+        for key in list(clinical.keys()):
             if key[0] == "_" and key != "_id":
                 del clinical[key]
 
@@ -601,7 +601,7 @@ class TestStatus(TestMinimal):
         r['pre'] = False
         etag = r['_etag']
         status_id = r['_id']
-        for key in r.keys():
+        for key in list(r.keys()):
             if key[0] == "_" and key != "_id":
                 del r[key]
         r, status_code = self.put('status/%s' % status_id, r, headers=[('If-Match', etag)])

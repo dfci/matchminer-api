@@ -132,7 +132,7 @@ class CBioEngine(object):
         v = Validator(self.match_schema)
 
         # names cols.
-        cis = zip(range(len(self.match_df.columns)), list(self.match_df.columns))
+        cis = list(zip(list(range(len(self.match_df.columns))), list(self.match_df.columns)))
 
         # strip out underscore fields.
         tmp = []

@@ -13,7 +13,7 @@ COLLECTION_CLINICAL = "clinical"
 COLLECTION_GENOMIC = "genomic"
 
 # TOKEN TIMEOUT.
-TOKEN_TIMEOUT = sys.maxint
+TOKEN_TIMEOUT = sys.maxsize
 
 # data outdir.
 DATA_DIR = os.path.join(os.path.abspath(os.path.join(__file__ , "../..")), "data")

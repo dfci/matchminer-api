@@ -73,7 +73,7 @@ MAPPING = {
 def _handle_exc(trial):
     """Field name "diseasesite_code" can come in from the yaml as string or integer but must be stored as a string"""
 
-    for k, v in trial.iteritems():
+    for k, v in trial.items():
         if k == 'disease_site_code':
             trial[k] = str(v)
         elif isinstance(v, list):
@@ -618,7 +618,7 @@ class TestTrialUtilities(unittest.TestCase):
                 "first_last": "First Last",
                 "institution_name": "Dana-Farber Cancer Institute"
             },
-            "site": [{"id": [01], "value": "Dana-Farber Cancer Institute"}],
+            "site": [{"id": [0o1], "value": "Dana-Farber Cancer Institute"}],
             "tumor_types": [
                 "CT1",
                 "CT2",
@@ -634,8 +634,8 @@ class TestTrialUtilities(unittest.TestCase):
                 "PDGFRA",
                 "PDGFRB"
             ],
-            "status": [{"id": [01],"value": "Closed to Accrual"}],
-            "management_group": [{"id": [01], "value": "fake management group value"}],
+            "status": [{"id": [0o1],"value": "Closed to Accrual"}],
+            "management_group": [{"id": [0o1], "value": "fake management group value"}],
             "nonsynonymous_wt_genes": [
                 "EGFR",
                 "KRAS",
@@ -652,13 +652,13 @@ class TestTrialUtilities(unittest.TestCase):
                 "wt KRAS"
             ],
             "age_summary": "Adults",
-            "phase": [{"id": [01], "value": "II"}],
+            "phase": [{"id": [0o1], "value": "II"}],
             "variants": [],
             "phase_summary": "II",
             "ms_status": "",
-            "accrual_goal": 01,
+            "accrual_goal": 0o1,
             "investigator": "Last, First, M.",
-            "age": [{"id": [01],"value": "Adults"}],
+            "age": [{"id": [0o1],"value": "Adults"}],
             "mmr_status": "",
             "mutational_signatures": "",
             "disease_status": ["Advanced"],
@@ -668,8 +668,8 @@ class TestTrialUtilities(unittest.TestCase):
         trial['_summary'] = summary
         autocomplete = Autocomplete(trial)
         suggest, search, pct = autocomplete.add_autocomplete()
-        assert sorted(suggest.keys()) == sorted(suggestor_options), suggest.keys()
-        assert sorted(search.keys()) == sorted(search_options), search.keys()
+        assert sorted(suggest.keys()) == sorted(suggestor_options), list(suggest.keys())
+        assert sorted(search.keys()) == sorted(search_options), list(search.keys())
         assert pct == ['Skin']
 
         cts = suggest['cancer_type_suggest']
@@ -707,7 +707,7 @@ class TestTrialUtilities(unittest.TestCase):
 
         gs = suggest['hugo_symbol_suggest']
         assert isinstance(gs, dict)
-        assert gs.keys() == ['input']
+        assert list(gs.keys()) == ['input']
         assert 'BRAF' in gs['input']
         assert 'KRAS' in gs['input']
         assert 'test' not in gs['input']

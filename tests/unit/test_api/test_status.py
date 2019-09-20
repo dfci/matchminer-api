@@ -177,7 +177,7 @@ class TestStatus(unittest.TestCase):
 
         # check the number of matches for each filter
         assert sorted(counts.keys()) == sorted([str(filter1), str(filter2)]), '%s\n%s\b%s' % (
-            counts.keys(), filter1, filter)
+            list(counts.keys()), filter1, filter)
         assert counts[str(filter1)] == {
             "new": 2,
             "pending": 2,

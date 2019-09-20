@@ -128,7 +128,7 @@ class TestTrial(TestMinimal):
         # update it.
         etag = r['_etag']
         trial_id = r['_id']
-        for key in r.keys():
+        for key in list(r.keys()):
             if key[0] == '_':
                 del r[key]
 

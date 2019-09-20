@@ -134,7 +134,7 @@ class DefinitionSchema(MutableMapping):
                 aimed to mappings. """
             try:
                 return all(isinstance(x, Mapping) for x
-                           in schema[field]['schema'].values())
+                           in list(schema[field]['schema'].values()))
             except TypeError:
                 return False
 
@@ -390,7 +390,7 @@ class Registry:
         :param definitions: The names and defintions.
         :type definitions: a :term:`mapping` or an :term:`iterable` with
                            two-value :class:`tuple` s """
-        for name, definition in dict(definitions).items():
+        for name, definition in list(dict(definitions).items()):
             self.add(name, definition)
 
     def clear(self):

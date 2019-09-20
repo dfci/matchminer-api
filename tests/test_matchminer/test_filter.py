@@ -317,7 +317,7 @@ class TestFilter(TestMinimal):
         r['genomic_filter']['CNV_CALL'] = "Heterozygous deletion"
 
         # sanitize object except for _id.
-        for key in r.keys():
+        for key in list(r.keys()):
             if key[0] == "_" and key != "_id":
                 del r[key]
 

@@ -5,7 +5,7 @@ import base64
 from flask import Blueprint, current_app as app
 from flask import Response, request, render_template, redirect, session, make_response
 from flask_cors import CORS
-from urlparse import urlparse
+from urllib.parse import urlparse
 from bson import ObjectId
 
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
@@ -163,7 +163,7 @@ def get_vip_clinical():
 
     clinical_ll = list(db.clinical.find(query))
     for clinical in clinical_ll:
-        for field, val in clinical.iteritems():
+        for field, val in clinical.items():
             if not isinstance(field, float) and not isinstance(field, int):
                 try:
                     clinical[field] = str(val)
@@ -381,7 +381,7 @@ def dispatch_epic():
     # Get user
     user = db['user'].find_one({'user_name': str(epic_data['UserNID']).lower()})
 
-    log = {k.replace('.', '_'):v for k,v in epic_data.iteritems()}
+    log = {k.replace('.', '_'):v for k,v in epic_data.items()}
     log['accessed_at'] = datetime.datetime.now()
     log['exists_in_mm'] = True
     log['is_BWH_MRN'] = False
@@ -851,7 +851,7 @@ def saml(page=None):
 
         # redirect to error if user not present.
         if user is None:
-            print "user is not found in database"
+            print("user is not found in database")
             return response
 
         # disable the login.
@@ -975,7 +975,7 @@ def attrs():
     if 'samlUserdata' in session:
         paint_logout = True
         if len(session['samlUserdata']) > 0:
-            attributes = session['samlUserdata'].items()
+            attributes = list(session['samlUserdata'].items())
 
     return render_template('attrs.html', paint_logout=paint_logout,
                            attributes=attributes)

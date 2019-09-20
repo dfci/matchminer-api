@@ -7,7 +7,7 @@ class Services:
     def parse_query(query, **kwargs):
         """Returns pymongo query"""
 
-        for k, v in kwargs.iteritems():
+        for k, v in kwargs.items():
             query[k] = v
 
         return query

@@ -14,7 +14,7 @@ from flask import Response, request, make_response
 import shutil
 
 from matchminer import database
-from settings import *
+from .settings import *
 
 from matchengine.engine import MatchEngine
 
@@ -31,7 +31,7 @@ REPLACEMENTS = {
     '$regex': '^regex'
 }
 REREPLACEMENTS = {}
-for key, val in REPLACEMENTS.items():
+for key, val in list(REPLACEMENTS.items()):
     REREPLACEMENTS[val] = key
 
 
@@ -95,10 +95,10 @@ def get_recursively(search_dict, field):
     """
     fields_found = []
 
-    for key, value in search_dict.iteritems():
+    for key, value in search_dict.items():
 
         # try to parse date.
-        if isinstance(value, basestring) and value.count(field) > 0:
+        if isinstance(value, str) and value.count(field) > 0:
 
             # save final.
             fields_found.append(value)
@@ -127,7 +127,7 @@ def get_key_recursively(search_dict, field):
     fields_found = []
 
     # loop over every key, value pair.
-    for key, value in search_dict.iteritems():
+    for key, value in search_dict.items():
 
         # try to parse date.
         if key == field:
@@ -184,7 +184,7 @@ def utility_post(ctx, resource, data, token=None):
 
         else:
             resource = 'api/%s' % resource
-            val = unicode(json.dumps(data), errors='replace')
+            val = str(json.dumps(data), errors='replace')
             resp = ctx.test_client().post(resource, data=val, headers=headers)
 
         # parse response.
@@ -369,7 +369,7 @@ def add_simulated_sv():
 
     # fetch all patients.
     patients = list(db.clinical.find())
-    pidx = range(len(patients))
+    pidx = list(range(len(patients)))
 
     # loop over each synoymm
     svs = list()
@@ -724,7 +724,7 @@ def clinical_gen(clinical_df, clinical_schema=None):
                 val = formatdate(time.mktime(val.to_pydatetime(warn=False).timetuple()))
 
             if isinstance(val, str):
-                val = unicode(val, errors='replace')
+                val = str(val, errors='replace')
 
             # convert nan
             if pd.isnull(val):
@@ -777,7 +777,7 @@ def genomics_gen(genomic_df, genomic_schema=None):
     genomic_df['CANONICAL_ENTREZ_ID'] = genomic_df['CANONICAL_ENTREZ_ID'].astype(str)
 
     # names cols.
-    cis = zip(range(len(genomic_df.columns)), list(genomic_df.columns))
+    cis = list(zip(list(range(len(genomic_df.columns))), list(genomic_df.columns)))
 
     # loop over each entry.
     for row in genomic_df.itertuples():
@@ -799,7 +799,7 @@ def genomics_gen(genomic_df, genomic_schema=None):
 
             # fix bad encoding.
             if isinstance(val, str):
-                val = unicode(val, errors='replace')
+                val = str(val, errors='replace')
 
             # save it to dict.
             tmp[key] = val

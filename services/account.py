@@ -128,7 +128,7 @@ def _test_update_user(user, test):
 
     # delete the user name and trip extras.
     user['user_name'] = ''
-    for x in user.keys():
+    for x in list(user.keys()):
         if x[0] == '_':
             del user[x]
 
@@ -149,7 +149,7 @@ def _real_update_user(user):
 
     # delete the user name and trip extras.
     user['user_name'] = ''
-    for x in user.keys():
+    for x in list(user.keys()):
         if x[0] == '_':
             del user[x]
 

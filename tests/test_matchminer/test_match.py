@@ -254,7 +254,7 @@ class TestMatch(TestMinimal):
         etag = match['_etag']
 
         # strip it.
-        for key in match.keys():
+        for key in list(match.keys()):
 
             # strip meta vars.
             if key[0] == "_" and key != "_id":

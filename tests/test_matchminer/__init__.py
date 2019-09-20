@@ -309,7 +309,7 @@ class TestMinimal(unittest.TestCase):
         issues = response[ISSUES]
         self.assertTrue(len(issues))
 
-        for k, v in matches.items():
+        for k, v in list(matches.items()):
             self.assertTrue(k in issues)
             self.assertTrue(v in issues[k])
 
@@ -754,10 +754,10 @@ class TestMinimal(unittest.TestCase):
 
         existing_keys = []
         for item in table:
-            existing_keys += item.keys()
+            existing_keys += list(item.keys())
             existing_keys = list(set(existing_keys))
 
-        required_keys = self.clinical.keys()
+        required_keys = list(self.clinical.keys())
         for key in required_keys:
 
             if key == '_id':
