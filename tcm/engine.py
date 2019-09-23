@@ -1,7 +1,7 @@
 import logging
 import pandas as pd
 from eve.io.mongo.validation import Validator
-from flask.ext.pymongo import MongoClient
+from pymongo import MongoClient
 
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
 
@@ -170,10 +170,6 @@ class CBioEngine(object):
 
         # connect to database.
         self.connection = MongoClient(self.mongo_uri)
-
-        # make user.
-        if self.muser is not None:
-            self.connection[self.mongo_dbname].add_user(self.muser, self.mpass)
 
         # establish the collection interface.
         self._c = self.connection[self.mongo_dbname][self.collection_clinical]

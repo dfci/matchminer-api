@@ -56,6 +56,11 @@ user_schema = {
         'required': False,
         'readonly': True
     },
+    'oncore_token': {
+        'type': 'string',
+        'required': False,
+        'readonly': True
+    },
     'user_name': {
         'type': 'string',
         'required': True
@@ -243,14 +248,15 @@ clinical_schema = {
             'Cannot assess',
             'Indeterminate (see note)',
             'Proficient (MMR-P / MSS)',
-            'Deficient (MMR-D / MSI-H)'
+            'Deficient (MMR-D / MSI-H)',
+            None
         ]
     },
     'METAMAIN_COUNT': {'type': 'integer', 'nullable': True},
     'CASE_COUNT': {'type': 'integer', 'nullable': True},
     'PDF_LAYOUT_VERSION': {
         'type': 'integer',
-        'allowed': [1, 2]
+        'allowed': [1, 2, 3]
     },
 
     'FILTER': {
@@ -374,15 +380,40 @@ genomic_schema = {
             'Deficient (MMR-D / MSI-H)'
         ]
     },
-    'TABACCO_STATUS': {'type': 'string', 'allowed': ['Yes', 'No', 'Cannot assess', 'insufficient variants'], 'nullable': True},
-    'TEMOZOLOMIDE_STATUS': {'type': 'string', 'allowed': ['Yes', 'No', 'Cannot assess', 'insufficient variants'], 'nullable': True},
-    'POLE_STATUS': {'type': 'string', 'allowed': ['Yes', 'No', 'Cannot assess', 'insufficient variants'], 'nullable': True},
-    'APOBEC_STATUS': {'type': 'string', 'allowed': ['Yes', 'No', 'Cannot assess', 'insufficient variants'], 'nullable': True},
-    'UVA_STATUS': {'type': 'string', 'allowed': ['Yes', 'No', 'Cannot assess', 'insufficient variants'], 'nullable': True},
+    'TABACCO_STATUS': {'type': 'string', 'allowed': ['Yes', 'No', 'Cannot assess', 'insufficient variants'],
+                       'nullable': True},
+    'TEMOZOLOMIDE_STATUS': {'type': 'string', 'allowed': ['Yes', 'No', 'Cannot assess', 'insufficient variants'],
+                            'nullable': True},
+    'POLE_STATUS': {'type': 'string', 'allowed': ['Yes', 'No', 'Cannot assess', 'insufficient variants'],
+                    'nullable': True},
+    'APOBEC_STATUS': {'type': 'string', 'allowed': ['Yes', 'No', 'Cannot assess', 'insufficient variants'],
+                      'nullable': True},
+    'UVA_STATUS': {'type': 'string', 'allowed': ['Yes', 'No', 'Cannot assess', 'insufficient variants'],
+                   'nullable': True},
+
+    "EVENT_ID": {'type': 'integer', 'nullable': True},
+    "STRUCTURAL_VARIANT_TYPE": {'type': 'string', 'nullable': True},
+    "LEFT_PARTNER_CHROMOSOME": {'type': 'string', 'nullable': True},
+    "LEFT_PARTNER_POSITION": {'type': 'integer', 'nullable': True},
+    "LEFT_PARTNER_STRAND": {'type': 'string', 'nullable': True},
+    "LEFT_PARTNER_GENE": {'type': 'string', 'nullable': True},
+    "LEFT_PARTNER_BAND": {'type': 'string', 'nullable': True},
+    "LEFT_PARTNER_EXON_INTRON": {'type': 'string', 'nullable': True},
+    "LEFT_PARTNER_EXON_INTRON_NUM": {'type': 'integer', 'nullable': True},
+    "RIGHT_PARTNER_CHROMOSOME": {'type': 'string', 'nullable': True},
+    "RIGHT_PARTNER_POSITION": {'type': 'integer', 'nullable': True},
+    "RIGHT_PARTNER_STRAND": {'type': 'string', 'nullable': True},
+    "RIGHT_PARTNER_GENE": {'type': 'string', 'nullable': True},
+    "RIGHT_PARTNER_BAND": {'type': 'string', 'nullable': True},
+    "RIGHT_PARTNER_EXON_INTRON": {'type': 'string', 'nullable': True},
+    "RIGHT_PARTNER_EXON_INTRON_NUM": {'type': 'integer', 'nullable': True},
 }
+
 for key in genomic_schema:
     if 'nullable' not in genomic_schema[key]:
         genomic_schema[key]['nullable'] = True
+    if 'allowed' in genomic_schema[key]:
+        genomic_schema[key]['allowed'].append(None)
 
 match_schema = {
     'TEAM_ID': {'type': 'objectid', 'required': True},
@@ -1091,13 +1122,16 @@ yaml_clinical_schema = {
         'type': 'string',
         'required': False,
         'allowed': ['Male', 'Female']
+    },
+    'tmb_numerical': {
+        'type': 'string',
     }
 }
 
 yaml_genomic_schema = {
     'hugo_symbol': {
         'type': 'string',
-        'required': True,
+        'required': False,
         'nullable': True
     },
     'protein_change': {
@@ -1156,6 +1190,31 @@ yaml_genomic_schema = {
         'required': False,
         'allowed': ['MSI-H', 'MSI-L', 'MSS']
     },
+    'pole_signature': {
+        'type': 'string',
+        'required': False,
+        'allowed': ['Yes', 'No']
+    },
+    'tobacco_signature': {
+         'type': 'string',
+         'required': False,
+         'allowed': ['Yes', 'No']
+    },
+    'apobec_signature': {
+         'type': 'string',
+         'required': False,
+         'allowed': ['Yes', 'No']
+    },
+    'uva_signature': {
+        'type': 'string',
+        'required': False,
+        'allowed': ['Yes', 'No']
+    },
+    'temozolomide_signature': {
+        'type': 'string',
+        'required': False,
+        'allowed': ['Yes', 'No']
+    },
     'tier': {
         'type': 'list',
         'required': False,
@@ -1207,7 +1266,7 @@ email_schema = {
     'subject': {'type': 'string', 'required': True},
     'body': {'type': 'string', 'required': True},
     'sent': {'type': 'boolean', 'default': False},
-    'cc': {'type': 'list', 'schema': {'type': 'string'}},
+    'cc': {'type': 'list', 'schema': {'type': 'string'}, 'required': True},
     'num_failures': {'type': 'integer', 'default': 0},
     'errors': {'type': 'list', 'schema': {'type': 'string'}, 'default': []}
 }
@@ -1226,6 +1285,7 @@ trial_match_schema = {
     'protocol_no': {'type': 'string'},
     'genomic_alteration': {'type': 'string', 'readonly': True},
     'trial_accrual_status': {'type': 'string', 'allowed': ['open', 'closed']},
+    'trial_curation_level_status': {'type': 'string', 'required': False},
     'match_level': {'type': 'string', 'allowed': ['step', 'arm', 'dose']},
     'code': {'type': 'string'},
     'internal_id': {'type': 'string'},
@@ -1251,7 +1311,10 @@ trial_match_schema = {
     'tier': {'type': 'integer', 'allowed': [1, 2, 3, 4]},
     'clinical_id': {'type': 'string'},
     'genomic_id': {'type': 'string'},
-    'sort_order': {'type': 'integer'}
+    'sort_order': {'type': 'integer'},
+    'trial_summary_status': {'type': 'string', 'required': False},
+    'show_in_ui': {'type': 'boolean', 'required': False},
+    'is_disabled': {'type': 'boolean', 'required': False}
 }
 
 negative_genomic_schema = {
@@ -1263,7 +1326,7 @@ negative_genomic_schema = {
     'coverage': {'type': 'float', 'required': True, 'nullable': True},
     'coverage_type': {'type': 'string', 'allowed': ['PN', 'PLC', 'NPLC'], 'required': True},
     'panel': {'type': 'string', 'required': True},
-    'roi_type': {'type': 'string', 'required': True, 'allowed': ['C', 'R', 'M', 'G', 'E'], 'nullable': True},
+    'roi_type': {'type': 'string', 'required': True, 'allowed': ['C', 'R', 'M', 'G', 'E', None], 'nullable': True},
     'entire_gene': {'type': 'boolean', 'readonly': True},
     'show_exon': {'type': 'boolean', 'readonly': True},
     'show_codon': {'type': 'boolean', 'readonly': True}
@@ -1300,89 +1363,3 @@ enrollment_schema = {
     'filter_protocol_no': {'type': 'string', 'nullable': True}
 }
 
-gikb_schema = {
-    'mrn': {'type': 'string', 'required': True},
-    'name': {'type': 'string', 'required': True},
-    'sample_id': {'type': 'string', 'required': True},
-    'prelim_report_generated': {'type': 'boolean'},
-    'final_report_generated': {'type': 'boolean'},
-    'trial_matches': {'allow_unknown': True},
-    'provider_name': {'type': 'string'},
-    'provider_npi': {'type': 'integer'},
-    'gi_report_date': {'type': 'string'}
-}
-
-gi_gold_standard_truth = {
-    'mrn': {'type': 'string', 'required': True},
-    'oncologist': {'type': 'string', 'required': True},
-    'alterations': {'allow_unknown': True, 'required': True},
-    'gi_report_date': {'type': 'string'},
-    'review_date': {'type': 'string', 'nullable': True, 'required': True},
-    'reviewers': {'type': 'string', 'nullable': True, 'required': True},
-
-    # clinical data
-    'sample_id': {'type': 'string', 'required': True},
-    'clinical_id': {'type': 'string', 'required': True},
-    'patient_name': {'type': 'string', 'required': True},
-    'patient_initials': {'type': 'string', 'required': True},
-    'tumor_type': {'type': 'string', 'required': True},
-    'tumor_type_meta': {'type': 'string', 'required': True, 'nullable': True},
-    'disease_center': {'type': 'string', 'required': True},
-    'physician': {'type': 'string', 'required': True},
-    'report_date': {'type': 'string', 'required': True},
-    'block_number': {'type': 'string', 'required': True},
-    'panel_version': {'type': 'integer', 'required': True},
-    'report_version': {'type': 'integer', 'required': True},
-    'biopsy_site': {'type': 'string', 'required': True},
-    'biopsy_site_type': {'type': 'string', 'required': True},
-    'qc_result': {'type': 'string', 'required': True},
-    'mean_sample_coverage': {'type': 'integer', 'required': True},
-    'tumor_purity_per': {'type': 'float', 'required': True},
-    'pdf_layout_version': {'type': 'integer', 'required': True},
-
-    # genomic data
-    'num_tier1_variants': {'type': 'integer', 'required': True},
-    'num_tier2_variants': {'type': 'integer', 'required': True},
-    'num_tier3_variants': {'type': 'integer', 'required': True},
-    'num_tier4_variants': {'type': 'integer', 'required': True},
-    'num_cnvs': {'type': 'integer', 'required': True},
-    'num_actionable_cnvs': {'type': 'integer', 'required': True},
-    'num_investigational_cnvs': {'type': 'integer', 'required': True},
-    'num_cnv_regions': { 'type': 'integer', 'required': True},
-    'num_actionable_cnv_regions': { 'type': 'integer', 'required': True},
-    'num_investigational_cnv_regions': { 'type': 'integer', 'required': True},
-    'mutation_df': {'allow_unknown': True, 'required': True},
-    'cnv_df': {'allow_unknown': True, 'required': True},
-    'sv_gene': {'allow_unknown': True, 'nullable': True},
-    'filename': {'type': 'string'},
-    'sv_fda_therapies': {'type': 'list', 'schema': {'allow_unknown': True}, 'required': True, 'nullable': True},
-    'sv_offlabel_therapies': {'type': 'list', 'schema': {'allow_unknown': True}, 'required': True, 'nullable': True},
-    'sv_comment': {'type': 'string', 'nullable': True},
-
-    # mutational signature data
-    'mmr_status': {'type': 'string', 'required': True},
-    'pole_status': {'type': 'string', 'required': True},
-
-    # mutational burden data
-    'tmb': {'type': 'float', 'required': True},
-    'all_profile_percentile': {'type': 'integer', 'required': True},
-    'tumor_type_percentile': {'type': 'integer', 'required': True},
-    'num_oncopanel': {'type': 'integer', 'required': True},
-    'num_tumor_type_oncopanel': {'type': 'integer', 'required': True},
-
-    # therapy data
-    'sig_fda_therapies': {'type': 'list', 'schema': {'allow_unknown': True}, 'required': True},
-    'sig_offlabel_therapies': {'type': 'list', 'schema': {'allow_unknown': True}, 'required': True},
-    'summary': {'allow_unknown': True},
-
-    # trial match data
-    'sig_trial_matches': {'type': 'list', 'schema': {'allow_unknown': True}, 'required': True},
-    'mutation_trial_matches': {'allow_unknown': True, 'required': True},
-    'cnv_trial_matches': {'allow_unknown': True, 'required': True},
-    'actionable_trial_matches': {'type': 'list', 'schema': {'allow_unknown': True}, 'required': True},
-    'tier4_trial_matches': {'type': 'list', 'schema': {'allow_unknown': True}, 'required': True},
-
-    # misc
-    'is_unreviewed': {'type': 'boolean'},
-    'display_caveat': {'type': 'boolean'}
-}

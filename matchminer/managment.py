@@ -155,21 +155,18 @@ def maintain_users():
 
 
 def reannotate_trials():
-
-    # connect to the database.
     db = database.get_db()
-
-    # get all trials.
     trials = list(db['trial'].find())
 
-    # call hooks.
+    # modify trials to be inserted in bulk later
     events.trial_insert(trials)
 
     # re-insert.
     for trial in trials:
         db['trial'].delete_one({'_id': trial['_id']})
         db['trial'].insert_one(trial)
-        #db['trial'].replace_one({'_id': trial['_id']}, trial)
+
+    logging.info("DONE")
 
 
 def maintain_elastic():

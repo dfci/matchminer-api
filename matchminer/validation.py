@@ -22,13 +22,19 @@ class ConsentValidatorEve(EveValidator):
 
     def __signature_exception(self, item):
 
+        signatures = ['mmr_status',
+                      'ms_status',
+                      'tobacco_signature',
+                      'uva_signature',
+                      'temozolomide_signature',
+                      'apobec_signature',
+                      'pole_signature',
+                      'tmb_numerical']
+
         if isinstance(item, dict):
             for k, v in item.iteritems():
                 if k == 'genomic':
-                    if 'mmr_status' in v:
-                        item[k]['hugo_symbol'] = 'None'
-                        return
-                    elif 'ms_status' in v:
+                    if v in signatures:
                         item[k]['hugo_symbol'] = 'None'
                         return
                     elif isinstance(v, dict):

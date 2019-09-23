@@ -26,6 +26,7 @@ class Summary:
         self.mmr = []
         self.ms = []
         self.hr = []
+        self.sigs = []
         self.status = []
 
         self.summary_dict = {
@@ -134,6 +135,7 @@ class Summary:
             centers = [site['site_name'] for site in item['site_list']['site'] if site['coordinating_center'] == "Y"]
             if len(centers) > 0:
                 self.summary_dict['site'] = centers[0]
+                self.summary_dict['center'] = centers[0]
 
         if 'sponsor_list' in item and 'sponsor' in item['sponsor_list']:
             sponsors = [s['sponsor_name'] for s in item['sponsor_list']['sponsor'] if s['is_principal_sponsor'] == "Y"]
@@ -157,22 +159,22 @@ class Summary:
         # return DFCI site principal investigator
         for staff in item['staff_list']['protocol_staff']:
             if staff['staff_role'] == 'Site Principal Investigator' and \
-                            staff['institution_name'] == 'Dana-Farber Cancer Institute':
+                    staff['institution_name'] == 'Dana-Farber Cancer Institute':
                 self.dfci_investigator = parse_dfci_investigator(staff, item['principal_investigator'])
                 return
 
         # if not present, return DFCI overall principal investigator
         for staff in item['staff_list']['protocol_staff']:
             if staff['staff_role'] == 'Overall Principal Investigator' and \
-                            staff['institution_name'] == 'Dana-Farber Cancer Institute':
+                    staff['institution_name'] == 'Dana-Farber Cancer Institute':
                 self.dfci_investigator = parse_dfci_investigator(staff, item['principal_investigator'])
                 return
 
         # if not present, return overall principal investigator at BWH or Beth Israel
         for staff in item['staff_list']['protocol_staff']:
             if staff['staff_role'] == 'Overall Principal Investigator' and \
-                            staff['institution_name'] in ["Brigham and Women's Hospital",
-                                                          "Beth Israel Deaconess Medical Center"]:
+                    staff['institution_name'] in ["Brigham and Women's Hospital",
+                                                  "Beth Israel Deaconess Medical Center"]:
                 self.dfci_investigator = parse_dfci_investigator(staff, item['principal_investigator'], dfci=False)
                 return
 
@@ -197,6 +199,7 @@ class Summary:
                 signatures = pmt.extract_signatures()
                 self.mmr.extend(signatures[0])
                 self.ms.extend(signatures[1])
+                self.sigs.extend(signatures[2])
                 self.hr.extend(pmt.extract_hr_status())
 
             if 'arm' in step:
@@ -207,6 +210,7 @@ class Summary:
                         signatures = pmt.extract_signatures()
                         self.mmr.extend(signatures[0])
                         self.ms.extend(signatures[1])
+                        self.sigs.extend(signatures[2])
                         self.hr.extend(pmt.extract_hr_status())
 
                     if 'dose_level' in arm:
@@ -217,6 +221,7 @@ class Summary:
                                 signatures = pmt.extract_signatures()
                                 self.mmr.extend(signatures[0])
                                 self.ms.extend(signatures[1])
+                                self.sigs.extend(signatures[2])
                                 self.hr.extend(pmt.extract_hr_status())
 
     def _get_status(self):
@@ -255,7 +260,7 @@ class Summary:
         item = {
             'mmr_status': list(set(self.mmr)),
             'ms_status': list(set(self.ms)),
-            'mutational_signatures': list(set(self.mmr + self.ms)),
+            'mutational_signatures': list(set(self.mmr + self.ms + self.sigs)),
             'dfci_investigator': self.dfci_investigator,
             'investigator': self.summary_dict['principal_investigator'],
             'protocol_number': self.summary_dict['protocol_no'],
@@ -302,7 +307,7 @@ class Autocomplete:
             'exclusions': []
         }
         self.genes = []
-        self.cancer_type_dict = None
+        self.cancer_type_dict = dict()
         self.m = MatchEngine(get_db())
 
     @staticmethod
@@ -411,7 +416,12 @@ class Autocomplete:
 
         g = self.m.create_match_tree(match)
         pmt = ParseMatchTree(g)
-        self.cancer_type_dict = pmt.extract_cancer_types()
+        for key, value_list in pmt.extract_cancer_types().items():
+            if key not in self.cancer_type_dict:
+                self.cancer_type_dict[key] = list()
+            for item in value_list:
+                if item not in self.cancer_type_dict[key]:
+                    self.cancer_type_dict[key].append(item)
         self.genes.extend(pmt.extract_genes())
         vdict_tmp = pmt.extract_variants()
         for k, v in self.vdict.iteritems():
@@ -438,7 +448,7 @@ class Autocomplete:
                             if 'match' in dose:
                                 self._extract_data_from_match(dose['match'][0])
 
-        if self.cancer_type_dict is None:
+        if not self.cancer_type_dict:
             self.cancer_type_dict = {
                 'diagnoses': [],
                 'primary_cancer_types': [],
@@ -451,7 +461,8 @@ class Autocomplete:
             suggestion = self._get_cancer_type_weight(ct, hierarchy='primary')
             weighted_cancer_types.append(suggestion)
 
-        for ct in set(self.cancer_type_dict['cancer_types_expanded']) - set(self.cancer_type_dict['primary_cancer_types']):
+        for ct in set(self.cancer_type_dict['cancer_types_expanded']) - set(
+                self.cancer_type_dict['primary_cancer_types']):
             suggestion = self._get_cancer_type_weight(ct, hierarchy='default')
             weighted_cancer_types.append(suggestion)
 
@@ -478,7 +489,7 @@ class Autocomplete:
             'drug_suggest': {'input': [i.title() for i in self.summary['drugs']]},
             'investigator_suggest': self._get_investigator_suggest(self.summary['investigator'],
                                                                    self.summary['dfci_investigator']),
-            'mmr_status_suggest': {'input': self.summary['mmr_status'] + self.summary['ms_status']},
+            'mmr_status_suggest': {'input': self.summary['mmr_status'] + self.summary['ms_status'] + self.summary['mutational_signatures']},
             'nct_number_suggest': {'input': self.summary['nct_number']}
         }
 
@@ -497,7 +508,7 @@ class Autocomplete:
             "disease_status": self.summary["disease_status"],
             "nct_number": self.summary["nct_number"],
             "disease_center": self.summary["disease_center"],
-            "mmr_status": self.summary["mmr_status"],
+            "mmr_status": self.summary["mmr_status"] + self.summary['mutational_signatures'],
             "ms_status": self.summary["ms_status"],
             "mutational_signatures": self.summary["mutational_signatures"],
             "investigator": [i['output'] for i in suggestors['investigator_suggest']],
@@ -576,12 +587,14 @@ class ParseMatchTree:
                         wildtypes.append(wt)
                         continue
 
-                    if 'variant_category' in node['value'] and node['value']['variant_category'] == 'Structural Variation':
+                    if 'variant_category' in node['value'] and node['value'][
+                        'variant_category'] == 'Structural Variation':
                         sv = '%s SV' % gene
                         fusions.append(sv)
                         continue
 
-                    if 'variant_category' in node['value'] and node['value']['variant_category'] == 'Copy Number Variation':
+                    if 'variant_category' in node['value'] and node['value'][
+                        'variant_category'] == 'Copy Number Variation':
                         cnv = '%s CNV' % gene
                         cnvs.append(cnv)
                         continue
@@ -590,12 +603,12 @@ class ParseMatchTree:
                         variant = '%s any' % gene
                         if not variant.startswith('!') and \
                                 ('variant_category' not in node['value'] or
-                                    ('variant_category' in node['value'] and not
-                                        node['value']['variant_category'].startswith('!'))):
+                                 ('variant_category' in node['value'] and not
+                                 node['value']['variant_category'].startswith('!'))):
                             variants.append(variant)
                         elif (variant.startswith('!') or
-                                ('variant_category' in node['value'] and
-                                    node['value']['variant_category'].startswith('!')) and variant not in exclusions):
+                              ('variant_category' in node['value'] and
+                               node['value']['variant_category'].startswith('!')) and variant not in exclusions):
                             exclusions.append(variant.replace('!', '').replace(' any', ''))
                     else:
                         for k in ['protein_change', 'wildcard_protein_change']:
@@ -605,7 +618,8 @@ class ParseMatchTree:
 
                                 if v.startswith('!') and variant not in exclusions:
                                     exclusions.append(variant.replace('!', ''))
-                                elif 'variant_category' in node['value'] and node['value']['variant_category'].startswith('!'):
+                                elif 'variant_category' in node['value'] and node['value'][
+                                    'variant_category'].startswith('!'):
                                     exclusions.append(variant.replace('!', ''))
                                 else:
                                     if variant not in variants:
@@ -684,12 +698,21 @@ class ParseMatchTree:
     def extract_signatures(self):
         """
         Returns all mutational signatures located in the trial match tree g
+        APOBEC, UVA, Temozolomide, POLE and TMB are treated as mutational signatures for convenience in the UI
 
         :return: List of mutational signatures
         """
 
         mmr = []
         ms = []
+        sigs = []
+        sig_mapping = {
+            'tobacco_signature': 'Tobacco Signature',
+            'uva_signature': 'UVA Signature',
+            'temozolomide_signature': 'Temozolomide Signature',
+            'apobec_signature': 'APOBEC Signature',
+            'pole_signature': 'POLE Signature'
+        }
 
         # iterate through the graph
         for node_id in list(nx.dfs_postorder_nodes(self.g, source=1)):
@@ -699,8 +722,14 @@ class ParseMatchTree:
                     mmr.append(node['value']['mmr_status'])
                 if 'ms_status' in node['value']:
                     ms.append(node['value']['ms_status'])
+                for sig in sig_mapping.keys():
+                    if sig in node['value']:
+                        sigs.append(sig_mapping[sig])
+            elif node['type'] == 'clinical':
+                if 'tmb_numerical' in node['value']:
+                    sigs.append('Tumor Mutational Burden')
 
-        return mmr, ms
+        return mmr, ms, sigs
 
     def extract_hr_status(self):
         """
@@ -756,7 +785,7 @@ def parse_dfci_investigator(staff, overall_pi, dfci=True):
     overall_pi_last = overall_pi[0]
     overall_pi_first = overall_pi[1]
     if overall_pi_first.strip() == staff['first_name'].strip() and \
-       overall_pi_last.strip() == staff['last_name'].strip():
+            overall_pi_last.strip() == staff['last_name'].strip():
         is_overall_pi = True
 
     return {
