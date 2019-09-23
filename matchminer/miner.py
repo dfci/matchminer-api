@@ -13,7 +13,6 @@ import dateutil.parser
 import re
 from bson import ObjectId
 
-
 from tcm.engine import CBioEngine
 from matchminer.constants import synonyms
 from matchminer import settings, data_model, database, custom
@@ -26,19 +25,18 @@ logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
 
 def _email_text(user, num_matches, match_str, num_filters, cur_date, cur_stamp):
     html = '''<html><head></head><body>%s</body></html>''' % emails.FILTER_MATCH_BODY.format(
-      user['first_name'],
-      user['last_name'],
-      num_matches,
-      match_str,
-      num_filters,
-      cur_date,
-      cur_stamp
+        user['first_name'],
+        user['last_name'],
+        num_matches,
+        match_str,
+        num_filters,
+        cur_date,
+        cur_stamp
     )
     return html
 
 
 def _email_counts(teamid, match_db, filter_db):
-
     num_matches = 0
     num_filters = 0
 
@@ -57,7 +55,6 @@ def _email_counts(teamid, match_db, filter_db):
 
 
 def email_matches():
-
     # get the database links.
     match_db = database.get_collection("match")
     user_db = database.get_collection('user')
@@ -153,7 +150,8 @@ def rerun_filters(dpi=None):
         cbio.match(c=c, g=g)
 
         if cbio.match_df is not None and cbio.genomic_df is not None and cbio.clinical_df is not None:
-            logging.info("rerun_filters: new matches: match=%d, genomic=%d, clinical=%d" % (len(cbio.match_df), len(cbio.genomic_df), len(cbio.clinical_df)))
+            logging.info("rerun_filters: new matches: match=%d, genomic=%d, clinical=%d" % (
+            len(cbio.match_df), len(cbio.genomic_df), len(cbio.clinical_df)))
 
         # get existing matches for this filter.
         matches = list(match_db.find({'FILTER_ID': ObjectId(filter_['_id'])}))
@@ -175,7 +173,6 @@ def rerun_filters(dpi=None):
 
             # now build tuples of variants.
             for genomic_id in match['VARIANTS']:
-
                 # make pair
                 pair = (clinical_id, genomic_id)
                 clinical_old_id.add(pair)
@@ -191,7 +188,6 @@ def rerun_filters(dpi=None):
         new_lu = {}
         i = 0
         for match in cbio.match_iter():
-
             # simplify.
             clinical_id = match['CLINICAL_ID']
             genomic_id = match['GENOMIC_ID']
@@ -246,7 +242,6 @@ def rerun_filters(dpi=None):
         remove_frame = clinical_new_id.intersection(clinical_old_id)
         bad_list = []
         for pair in remove_frame:
-
             # lookup index.
             idx = new_lu[pair]
             bad_list.append(idx)
@@ -326,7 +321,7 @@ def count_matches(cbio, item):
     """
 
     # build total date array.
-    today = datetime.date.today() + datetime.timedelta(1*365/12)
+    today = datetime.date.today() + datetime.timedelta(1 * 365 / 12)
     all_dates = pd.date_range(datetime.datetime(2013, 7, 1), today, freq='BM')
     all_dates = all_dates.map(lambda x: datetime.datetime(x.year, x.month, 1))
     all_dates = pd.Series(all_dates)
@@ -362,7 +357,8 @@ def count_matches(cbio, item):
         item['num_genomic'] = cbio.living_genomic
 
         # extract the actual dates.
-        hits = cbio.match_all_df.REPORT_DATE.map(lambda x: datetime.datetime(x.year, x.month, 1) if pd.notnull(x) else x)
+        hits = cbio.match_all_df.REPORT_DATE.map(
+            lambda x: datetime.datetime(x.year, x.month, 1) if pd.notnull(x) else x)
 
         # combine them and remove base counts.
         total_dates = all_dates.append(hits)
@@ -391,7 +387,6 @@ def count_matches(cbio, item):
 
 
 def insert_matches(cbio, item, from_filter=True, dpi=None):
-
     start_iter = time.time()
     filter_db = database.get_collection('filter')
 
@@ -491,7 +486,8 @@ def insert_matches(cbio, item, from_filter=True, dpi=None):
             'VARIANTS': val,
             'PATIENT_MRN': clinical_info_vals[clinical_info.index('MRN')],
             'MMID': binascii.b2a_hex(os.urandom(3)).upper(),
-            'ONCOTREE_PRIMARY_DIAGNOSIS_NAME': clinical_info_vals[clinical_info.index('ONCOTREE_PRIMARY_DIAGNOSIS_NAME')],
+            'ONCOTREE_PRIMARY_DIAGNOSIS_NAME': clinical_info_vals[
+                clinical_info.index('ONCOTREE_PRIMARY_DIAGNOSIS_NAME')],
             'ONCOTREE_BIOPSY_SITE_TYPE': clinical_info_vals[clinical_info.index('ONCOTREE_BIOPSY_SITE_TYPE')],
             'TRUE_HUGO_SYMBOL': true_hugo_symbol,
             'VARIANT_CATEGORY': clinical_info_vals[clinical_info.index('VARIANT_CATEGORY')],
@@ -516,9 +512,9 @@ def insert_matches(cbio, item, from_filter=True, dpi=None):
 
 
 def email_content(protocol_id, genomic, clinical):
-
     # check for template.
-    if not os.path.isfile("%s/templates/templates/%s.html" % (os.path.dirname(os.path.realpath(__file__)), protocol_id)):
+    if not os.path.isfile(
+            "%s/templates/templates/%s.html" % (os.path.dirname(os.path.realpath(__file__)), protocol_id)):
         return ""
 
     # setup variables.
@@ -545,7 +541,6 @@ def email_content(protocol_id, genomic, clinical):
 
 
 def update_match_status(cbio, item):
-
     # loop over all existing matches
     match_db = database.get_collection('match')
 
@@ -575,7 +570,6 @@ def update_match_status(cbio, item):
 
 
 def prepare_criteria(item):
-
     onco_tree = oncotreenx.build_oncotree(settings.DATA_ONCOTREE_FILE)
 
     c = {}
@@ -641,7 +635,6 @@ def prepare_criteria(item):
                 nodes = list(set(nodes1).union(set(nodes2)))
 
                 if txt == "_SOLID_":
-
                     all_nodes = set(list(onco_tree.nodes()))
                     tmp_nodes = all_nodes - set(nodes)
                     nodes = list(tmp_nodes)
@@ -790,6 +783,9 @@ def prepare_criteria(item):
                 'STRUCTURAL_VARIANT_COMMENT': {"$in": sv_clauses}
             }
             clauses.append(clause)
+            for gene in genes:
+                clauses.append({'LEFT_PARTNER_GENE': gene})
+                clauses.append({'RIGHT_PARTNER_GENE': gene})
 
         if len(clauses) > 0:
             g = {
