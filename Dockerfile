@@ -37,7 +37,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update --fix-missing && apt-get insta
 ENV PYTHONWARNINGS="ignore:a true SSLContext object"
 
 # copy over and install the requirements
-RUN pip install --upgrade setuptools pip numpy
+RUN pip install --upgrade setuptools pip
 COPY ./requirements.txt /var/www/apache-flask/api/requirements.txt
 RUN pip install --ignore-installed six -r /var/www/apache-flask/api/requirements.txt
 

@@ -3,7 +3,6 @@ import subprocess
 import pandas as pd
 import random
 
-from numpy.core import int64
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 from eve.flaskapp import Eve
@@ -707,8 +706,6 @@ def clinical_gen(clinical_df, clinical_schema=None):
             val = clinical_df.ix[i][key]
             if isinstance(val, pd.Timestamp):
                 val = formatdate(time.mktime(val.to_pydatetime(warn=False).timetuple()))
-            if isinstance(val, int64):
-                val = int(val)
 
             # convert nan
             if pd.isnull(val):
