@@ -63,7 +63,7 @@ def email_matches():
     user_db = database.get_collection('user')
     filter_db = database.get_collection('filter')
 
-    logging.info("starting email search")
+    logging.info("emailing filter matches - starting email search")
 
     # get distinct list of team ids
     teams = match_db.find().distinct("TEAM_ID")

@@ -139,6 +139,7 @@ def align_matches_genomic(a):
 
     # get the user.
     if settings.NO_AUTH:
+        logging.info("NO AUTH enabled. align_matches_genomic")
         accounts = app.data.driver.db['user']
         user = accounts.find_one({"last_name": "Doe"})
     else:
@@ -228,6 +229,34 @@ def align_matches_clinical(a):
     # embed in object.
     a['FILTER'] = filters
     a['ENROLLED'] = list(enrolled)
+
+
+def sort_trial_matches(resource):
+    """
+    In Matchengine V2, the sort order field is an array which delivers each dimension of the sort as an index.
+    This function will sort each protocol's match reasons according to this criteria:
+
+    MMR > Tier 1 > Tier 2 > CNV > Tier 3 > Tier 4 > wild type
+    Variant-level  > gene-level
+    Exact cancer match > all solid/liquid
+    Co-ordinating center: DFCI > others
+    Reverse protocol number: high > low
+
+    There is also a field show_in_ui which determines whether a match document
+    is viewable in the UI.
+    """
+    current_rank = 0
+    seen_protocol_nos = dict()
+    if resource['_items'] and isinstance(resource['_items'][0]['sort_order'], list):
+        resource['_items'] = sorted(resource['_items'], key=lambda x: (tuple(x['sort_order'][:-1]) + (1.0 / x['sort_order'][-1],)))
+        for item in resource['_items']:
+            if item['protocol_no'] not in seen_protocol_nos:
+                if any(map(lambda x: x < 0, item['sort_order'])):
+                    seen_protocol_nos[item['protocol_no']] = -1
+                else:
+                    seen_protocol_nos[item['protocol_no']] = current_rank
+                    current_rank += 1
+            item['sort_order'] = seen_protocol_nos[item['protocol_no']]
 
 
 def align_other_clinical(a):
@@ -339,11 +368,15 @@ def hipaa_logging_item(resource, response):
     # get the user_id.
     db = app.data.driver.db
     if app.auth is None:
+        logging.warning('Skipping HIPAA logging')
         return
     user = app.auth.get_request_auth_value()
 
     # set loggable user_name.
     user_name = user['user_name']
+
+    if user_name == 'cbioone':
+        return
 
     # deal with clinical.
     needs_it = False
@@ -408,6 +441,7 @@ def clinical_insert(items):
 
         # extract sample id
         sample_id = item['SAMPLE_ID']
+        logging.info("Adding clinical data for sample id " + str(sample_id))
 
         # check for existing sample_id.
         clinical = clinical_db.find_one({'SAMPLE_ID': sample_id})
@@ -420,6 +454,7 @@ def clinical_insert(items):
         # this is really just a PUT in disguise!
         #app.data.update(item)
 
+
 def clinical_delete(item):
 
     # get database lookup.
@@ -431,6 +466,14 @@ def clinical_delete(item):
 
     # delete associated matches.
     match_db.delete_many({"CLINICAL_ID": ObjectId(item['_id'])})
+
+
+def genomic_insert(items):
+    # modify each item.
+    for item in items:
+
+        # set strings to be object ids
+        item['CLINICAL_ID'] = ObjectId(item['CLINICAL_ID'])
 
 
 def clinical_replace(item, original):
@@ -456,21 +499,17 @@ def assess_vital_status(update, original):
 
 
 def status_insert(items):
+    """
+    Re runs all filters (created in UI)
+    :param items:
+    :return:
+    """
 
     # loop over each item.
     for item in items:
 
-        # check if its a pre-or-post status.
-        #if item['pre']:
-
         # log this.
         logging.info("recieved pre-status post")
-
-        # archive the site.
-        #backup_dir = utilities.backup_event(None, settings.BACKUP_STATUS_DIR, -1, settings.BACKUP_STATUS_MAX, True)
-
-        # add this to the resource.
-        #item['backup_path'] = backup_dir
 
         # this is the unique data push id to be assigned to all matches
         dpi = None
@@ -480,21 +519,9 @@ def status_insert(items):
         # re-run all filters.
         miner.rerun_filters(dpi)
 
-        # trigger email.
-        if not item['silent']:
-            miner.email_matches()
-        else:
-            logging.info("status post was silent, no email sent")
-
-        #else:
-        #    abort(422, "Not allowed to POST status which isn't pre=True")
-
         # adds a row to the MatchMiner Stats dashboard datatable for the new CAMD update
         if not item['silent']:
             add_dashboard_row(item)
-
-        # run matchengine on the entire database
-        utilities.run_matchengine()
 
 
 def add_dashboard_row(status):
@@ -797,6 +824,7 @@ def insert_data_other(trial_tree, node_id, n, other):
 
 def trial_replace(item, original):
 
+    logging.info("trial updated %s" % item['protocol_no'])
     trial_insert([item])
 
 
@@ -807,9 +835,6 @@ def trial_insert(items):
 
     # loop over each item.
     for item in items:
-
-        # log this.
-        logging.info("trial inserted")
 
         # build tree.
         me = MatchEngine(db)
@@ -848,6 +873,7 @@ def trial_insert(items):
         item['_suggest'], item['_elasticsearch'], item['_summary']['primary_tumor_types'] = \
             autocomplete.add_autocomplete()
 
+        logging.info("trial inserted " + item['protocol_no'])
     return items
 
 
@@ -1186,16 +1212,6 @@ def negative_genomic(items):
                 item['show_codon'] = True
 
 
-def trial_match_get(item):
-    """Does not return fusion matches"""
-    new_item = []
-    for i in item['_items']:
-        if "variant_category" in i and i["variant_category"] == "SV":
-            continue
-        new_item.append(i)
-    item['_items'] = new_item
-
-
 def hide_name(item):
     """Hides patient name"""
     for i, idx in zip(item['_items'][:], range(len(item['_items']))):
@@ -1307,6 +1323,8 @@ def register_hooks(app):
     app.on_update_clinical += clinical_update
     app.on_delete_item_clinical += clinical_delete
 
+    app.on_insert_genomic += genomic_insert
+
     # register the filter hooks.
     if settings.NO_AUTH is not True:
         app.on_fetched_item_filter += team_restricted_item
@@ -1330,10 +1348,11 @@ def register_hooks(app):
     app.on_fetched_item_clinical += align_matches_clinical
     app.on_fetched_item_clinical += align_other_clinical
 
+    # trial match get
+    app.on_fetched_resource_trial_match += sort_trial_matches
+
     # register the status update.
     app.on_insert_status += status_insert
-    #app.on_replaced_status += status_replaced
-    #app.on_delete_item_status += status_delete
 
     # hook to split the trial resource
     app.on_insert_trial += trial_insert
@@ -1352,9 +1371,6 @@ def register_hooks(app):
 
     # negative genomic coverage insertion
     app.on_insert_negative_genomic += negative_genomic
-
-    # trial match GET
-    app.on_fetched_resource_trial_match += trial_match_get
 
     # clinical GET
     app.on_fetched_resource_clinical += hide_name
