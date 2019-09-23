@@ -2,6 +2,8 @@ import time
 import subprocess
 import pandas as pd
 import random
+
+from numpy.core import int64
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 from eve.flaskapp import Eve
@@ -50,7 +52,6 @@ def normalize_fields(field):
 
 
 def parse_response(url):
-
     # looks for url
     is_response = False
     item_id = None
@@ -164,7 +165,6 @@ def nocache(view):
 
 
 def utility_post(ctx, resource, data, token=None):
-
     # add the defaults
     headers = list()
     headers.append(('Content-Type', 'application/json'))
@@ -179,7 +179,7 @@ def utility_post(ctx, resource, data, token=None):
 
             # debug server start.
             raise NotImplementedError
-            #for d in data:
+            # for d in data:
             #    resp = ctx.test_client().post(resource, data=d)
 
         else:
@@ -214,9 +214,8 @@ def utility_post(ctx, resource, data, token=None):
 
 
 def clear_db_completely():
-
     # connect to database.
-    #connection = MongoClient(MONGO_HOST, MONGO_PORT)
+    # connection = MongoClient(MONGO_HOST, MONGO_PORT)
     connection = MongoClient(MONGO_URI)
 
     # establish connection.
@@ -239,11 +238,10 @@ def clear_db_completely():
 
 
 def clear_db_partially():
-
     logging.warn("dropping all tables in database EXCEPT clinical and genomic")
 
     # connect to database.
-    #connection = MongoClient(MONGO_HOST, MONGO_PORT)
+    # connection = MongoClient(MONGO_HOST, MONGO_PORT)
     connection = MongoClient(MONGO_URI)
 
     # establish connection.
@@ -262,12 +260,11 @@ def clear_db_partially():
 
 
 def bootstrap(ctx, forced=False):
-
     # get the current time.
     cur_dt = formatdate(time.mktime(datetime.now().timetuple()))
 
     # connect to database.
-    #connection = MongoClient(MONGO_HOST, MONGO_PORT)
+    # connection = MongoClient(MONGO_HOST, MONGO_PORT)
     connection = MongoClient(MONGO_URI)
 
     # establish connection.
@@ -338,7 +335,7 @@ def bootstrap(ctx, forced=False):
             logging.error("unable to insert")
         assert status_code == 201
 
-        #if i > 1000:
+        # if i > 1000:
         #    break
         i += 1
         new_genomic += 1
@@ -359,9 +356,8 @@ def bootstrap(ctx, forced=False):
 
 
 def add_simulated_sv():
-
     # connect to database.
-    #connection = MongoClient(MONGO_HOST, MONGO_PORT)
+    # connection = MongoClient(MONGO_HOST, MONGO_PORT)
     connection = MongoClient(MONGO_URI)
 
     # setup the db pointer
@@ -376,12 +372,10 @@ def add_simulated_sv():
     from matchminer.constants import synonyms
     for key in synonyms:
         for val in synonyms[key]:
-
             # get clinical_id.
             idx = random.choice(pidx)
             clinical_id = str(patients[idx]['_id'])
             sample_id = str(patients[idx]['SAMPLE_ID'])
-
 
             # make a SV.
             sv = {
@@ -399,12 +393,11 @@ def add_simulated_sv():
 
 
 def init_user_debug(db=None, ctx=None):
-
     # only activate if necessary.
     if db is None:
 
         # connect to database.
-        #connection = MongoClient(MONGO_HOST, MONGO_PORT)
+        # connection = MongoClient(MONGO_HOST, MONGO_PORT)
         connection = MongoClient(MONGO_URI)
 
         # establish connection.
@@ -467,12 +460,11 @@ def init_user_debug(db=None, ctx=None):
 
     # add user.
     user = {
-        "_id": ObjectId("5697ecb48a6ba828126f8128"),
+        "_id": ObjectId("5697ecb48a6ba828126f8129"),
         "first_name": 'Jean-luc3',
         "last_name": 'Picard3',
         "title": "Captain3",
         "email": 'jlp3@jimmy.harvard.edu',
-        "token": 'abc1234',
         "user_name": "NULL",
         "roles": ["user"],
         'teams': [r['_id']]
@@ -490,7 +482,6 @@ def init_user_debug(db=None, ctx=None):
 
 
 def bootstrap_matches(ctx):
-
     # clear the database.
     clear_db_partially()
 
@@ -505,7 +496,6 @@ def bootstrap_matches(ctx):
 
 
 def parse_resource_field():
-
     # parse args.
     resource = request.args.get("resource")
     field = request.args.get("field")
@@ -514,8 +504,8 @@ def parse_resource_field():
     if resource is None or field is None:
         data = json.dumps({'error': 'missing parameters'})
         resp = Response(response=data,
-            status=400,
-            mimetype="application/json")
+                        status=400,
+                        mimetype="application/json")
 
         return 1, resp
 
@@ -524,8 +514,8 @@ def parse_resource_field():
     if resource not in whitelist:
         data = json.dumps({'error': 'bad resource: %s' % resource})
         resp = Response(response=data,
-            status=400,
-            mimetype="application/json")
+                        status=400,
+                        mimetype="application/json")
 
         return 1, resp
 
@@ -537,8 +527,8 @@ def parse_resource_field():
     if cnd1 or cnd2 or cnd3:
         data = json.dumps({'error': 'bad field: %s' % field})
         resp = Response(response=data,
-            status=400,
-            mimetype="application/json")
+                        status=400,
+                        mimetype="application/json")
 
         return 1, resp
 
@@ -546,7 +536,6 @@ def parse_resource_field():
 
 
 def backup_restore(dir_path):
-
     # create restore commands.
     cmd_restore = 'mongorestore --host %s --drop --db %s %s/%s' % \
                   (MONGO_HOST, MONGO_DBNAME, dir_path, MONGO_DBNAME)
@@ -556,7 +545,6 @@ def backup_restore(dir_path):
 
 
 def backup_event(scheduler, dir_path, freq, max_cnt, debug):
-
     logging.info("backup database: %s %s" % (str(time.time()), str(dir_path)))
 
     # make timestamp.
@@ -573,7 +561,7 @@ def backup_event(scheduler, dir_path, freq, max_cnt, debug):
 
     # create the dump commands.
     cmd_backup = 'mongodump --host %s --db %s --out %s' % \
-          (MONGO_HOST, MONGO_DBNAME, out_dir)
+                 (MONGO_HOST, MONGO_DBNAME, out_dir)
 
     # execute them.
     subprocess.call(cmd_backup.split(" "))
@@ -582,7 +570,6 @@ def backup_event(scheduler, dir_path, freq, max_cnt, debug):
     active_dirs = [os.path.join(dir_path, x) for x in os.listdir(dir_path)]
     files = sorted(active_dirs, key=os.path.getctime)
     if len(files) >= max_cnt:
-
         logging.info("remove old backup: %s" % files[0])
         shutil.rmtree(files[0])
 
@@ -595,10 +582,9 @@ def backup_event(scheduler, dir_path, freq, max_cnt, debug):
 
 
 def insert_users(data, from_file=False):
-
     # load the data.
     if from_file:
-        with open(data, "rb") as fin:
+        with open(data, "r") as fin:
             lines = fin.readlines()
 
         # build equivalent.
@@ -655,7 +641,7 @@ def clinical_load(file_path):
     """
 
     # load the clinical data.
-    #clinical_df = pd.read_csv(file_path, header=0, sep="\t")
+    # clinical_df = pd.read_csv(file_path, header=0, sep="\t")
     clinical_df = pd.read_pickle(file_path)
 
     # return the dataframe.
@@ -671,7 +657,7 @@ def genomic_load(file_path):
     """
 
     # load the genomics.
-    #genomic_df = pd.read_csv(file_path, header=0, sep='\t', low_memory=False, dtype={'TIER': np.int, 'POSITION': np.int})
+    # genomic_df = pd.read_csv(file_path, header=0, sep='\t', low_memory=False, dtype={'TIER': np.int, 'POSITION': np.int})
     genomic_df = pd.read_pickle(file_path)
 
     # return it.
@@ -689,7 +675,7 @@ def clinical_gen(clinical_df, clinical_schema=None):
     """
 
     # create validator.
-    #if clinical_schema is not None:
+    # if clinical_schema is not None:
     #    v = ConsentValidatorCerberus(clinical_schema)
 
     # build list of valid columns.
@@ -699,7 +685,6 @@ def clinical_gen(clinical_df, clinical_schema=None):
     clinical_df['ALT_MRN'] = clinical_df['ALT_MRN'].astype(str)
     clinical_df['MRN'] = clinical_df['MRN'].astype(str)
     clinical_df['POWERPATH_PATIENT_ID'] = clinical_df['POWERPATH_PATIENT_ID'].astype(str)
-
     clinical_df['DATE_RECEIVED_AT_SEQ_CENTER'] = pd.to_datetime(clinical_df['DATE_RECEIVED_AT_SEQ_CENTER'])
     clinical_df['BIRTH_DATE'] = pd.to_datetime(clinical_df['BIRTH_DATE'])
     clinical_df['REPORT_DATE'] = pd.to_datetime(clinical_df['REPORT_DATE'])
@@ -711,7 +696,7 @@ def clinical_gen(clinical_df, clinical_schema=None):
         entry = clinical_df.ix[i]
         # create dictionary.
         tmp = {}
-        #for key in clinical_df.columns:
+        # for key in clinical_df.columns:
         for key in clinical_schema:
 
             # sanitcy.
@@ -722,9 +707,8 @@ def clinical_gen(clinical_df, clinical_schema=None):
             val = clinical_df.ix[i][key]
             if isinstance(val, pd.Timestamp):
                 val = formatdate(time.mktime(val.to_pydatetime(warn=False).timetuple()))
-
-            if isinstance(val, str):
-                val = str(val, errors='replace')
+            if isinstance(val, int64):
+                val = int(val)
 
             # convert nan
             if pd.isnull(val):
@@ -734,7 +718,7 @@ def clinical_gen(clinical_df, clinical_schema=None):
             tmp[key] = val
 
         # validate it against schema.
-        #if clinical_schema is not None:
+        # if clinical_schema is not None:
         #    v.validate(tmp)
 
         # HACK: add in report version if not there.
@@ -768,7 +752,7 @@ def genomics_gen(genomic_df, genomic_schema=None):
     """
 
     # create validator.
-    #if genomic_schema is not None:
+    # if genomic_schema is not None:
     #    v = ConsentValidatorCerberus(genomic_schema)
 
     # convert known columns.
@@ -791,7 +775,7 @@ def genomics_gen(genomic_df, genomic_schema=None):
                 continue
 
             # extract value.
-            val = row[i+1]
+            val = row[i + 1]
 
             # convert nan
             if pd.isnull(val):
@@ -805,7 +789,7 @@ def genomics_gen(genomic_df, genomic_schema=None):
             tmp[key] = val
 
         # validate it against schema.
-        #if genomic_schema is not None:
+        # if genomic_schema is not None:
         #    v.validate(tmp)
 
         # yield it.
@@ -813,12 +797,11 @@ def genomics_gen(genomic_df, genomic_schema=None):
 
 
 def dump_collections(out_dir, settings):
-
     # create the dump commands.
     cmd_genomic = 'mongodump --host %s --db %s --collection %s --out %s' % \
-          (settings.MONGO_URI, settings.MONGO_DBNAME, settings.COLLECTION_GENOMIC, out_dir)
+                  (settings.MONGO_URI, settings.MONGO_DBNAME, settings.COLLECTION_GENOMIC, out_dir)
     cmd_clinical = 'mongodump --host %s --db %s --collection %s --out %s' % \
-          (settings.MONGO_URI, settings.MONGO_DBNAME, settings.COLLECTION_CLINICAL, out_dir)
+                   (settings.MONGO_URI, settings.MONGO_DBNAME, settings.COLLECTION_CLINICAL, out_dir)
 
     # execute them.
     subprocess.call(cmd_genomic.split(" "))
@@ -826,10 +809,8 @@ def dump_collections(out_dir, settings):
 
 
 def restore_collections(in_dir, settings):
-
     # create restore commands.
-    cmd_restore = 'mongorestore --host rs0/%s:%d --db %s --drop %s/%s' % \
-                  (settings.MONGO_HOST, settings.MONGO_PORT, settings.MONGO_DBNAME, in_dir, settings.MONGO_DBNAME)
+    cmd_restore = f'mongorestore --host rs0/{settings.MONGO_HOST}:{settings.MONGO_PORT} --db {settings.MONGO_DBNAME} --drop {in_dir}/{settings.MONGO_DBNAME}'
 
     logging.info(cmd_restore)
 

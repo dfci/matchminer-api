@@ -277,7 +277,7 @@ def detect_update(cbio, item):
         txt += json.dumps(item['genomic_filter'])
     if 'clinical_filter' in item:
         txt += json.dumps(item['clinical_filter'])
-    hash_new = hashlib.md5(txt).hexdigest()
+    hash_new = hashlib.md5(txt.encode('utf-8')).hexdigest()
 
     # compute status.
     updated = False

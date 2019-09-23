@@ -5,7 +5,7 @@ import datetime
 import time
 import json
 import hashlib
-from rfc822 import formatdate
+from email.utils import formatdate
 from bson.objectid import ObjectId
 
 from matchminer.constants import synonyms
@@ -19,7 +19,7 @@ class TestFilter(TestMinimal):
     def test_post_tmp(self):
 
         # make a complex query.
-        dt = formatdate(time.mktime(datetime.datetime(year=1995, month=1, day=1).timetuple()))
+        dt = formatdate(time.mktime(datetime.datetime(year=1995, month=1, day=1).timetuple()), localtime=False, usegmt=True)
         c = {
                 "BIRTH_DATE": {"$gte": dt},
         }
@@ -107,7 +107,7 @@ class TestFilter(TestMinimal):
     def test_post_dt(self):
 
         # make a complex query.
-        dt = formatdate(time.mktime(datetime.datetime(year=2000, month=1, day=1).timetuple()))
+        dt = formatdate(time.mktime(datetime.datetime(year=2000, month=1, day=1).timetuple()), localtime=False, usegmt=True)
         c = {
                 "BIRTH_DATE": {"$gte": dt},
         }
@@ -137,7 +137,7 @@ class TestFilter(TestMinimal):
         return # disabled until needed
 
         # make a complex query.
-        dt = formatdate(time.mktime(datetime.datetime(year=1995, month=1, day=1).timetuple()))
+        dt = formatdate(time.mktime(datetime.datetime(year=1995, month=1, day=1).timetuple()), localtime=False, usegmt=True)
         c = {
             "$and": [
                 {"BIRTH_DATE": {"$gte": dt}},
@@ -980,10 +980,10 @@ class TestFilter(TestMinimal):
         assert filter_doc['description'] == "ERCC2 V600E in Adrenocortical Adenoma, Gender: Male"
 
         # age specified.
-        dt = formatdate(time.mktime(datetime.datetime(year=1995, month=5, day=4).timetuple()))
+        dt = formatdate(time.mktime(datetime.datetime(year=1995, month=5, day=4).timetuple()), localtime=False, usegmt=True)
         rule['clinical_filter']['BIRTH_DATE'] = {"$gte": dt}
         r, status_code = self.post('filter', rule)
         self.assert201(status_code)
 
         filter_doc = self.db['filter'].find_one({"_id": ObjectId(r['_id'])})
-        assert filter_doc['description'] == "ERCC2 V600E in Adrenocortical Adenoma, Gender: Male, Age < 23"
+        assert filter_doc['description'] == "ERCC2 V600E in Adrenocortical Adenoma, Gender: Male, Age < 24"

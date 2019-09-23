@@ -4,7 +4,7 @@ import json
 import os
 import datetime
 import time
-from rfc822 import formatdate
+from email.utils import formatdate
 from bson.objectid import ObjectId
 import json
 
@@ -18,8 +18,8 @@ TEST_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../', 'da
 
 class TestResponseValidation(unittest.TestCase):
 
-    cur_dt = formatdate(time.mktime(datetime.datetime(year=2016, month=1, day=1).timetuple()))
-    exp_dt = formatdate(time.mktime(datetime.datetime(year=2020, month=1, day=1).timetuple()))
+    cur_dt = formatdate(time.mktime(datetime.datetime(year=2016, month=1, day=1).timetuple()), localtime=False, usegmt=True)
+    exp_dt = formatdate(time.mktime(datetime.datetime(year=2020, month=1, day=1).timetuple()), localtime=False, usegmt=True)
 
     fake_patient = {
         '_id': ObjectId(),

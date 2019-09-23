@@ -86,6 +86,46 @@ class TestMinimal(unittest.TestCase):
 
         # default values.
         self.connection = None
+        self.team = {
+            "_id": ObjectId("66a52871a8c829842fbe618b"),
+            "name": "purple monkey"
+        }
+        self.team_id = self.team['_id']
+        self.user = {
+            "_id": ObjectId("5697ecb48a6ba828126f8128"),
+            "first_name": 'John',
+            "last_name": 'Doe',
+            "title": "M.D. PhD",
+            "email": 'jdoe@demo',
+            "token": 'abc123',
+            "user_name": "jd00",
+            'teams': [self.team_id],
+            'roles': ['user']
+        }
+        self.service = {
+            "first_name": 'SERVICE',
+            "last_name": 'SERVICE',
+            "title": "",
+            "email": 'jdoe@demo',
+            "token": 'xyz946',
+            "user_name": "SERVICE",
+            'teams': [],
+            'roles': ['service']
+        }
+        self.curator = {
+            "first_name": 'CURATOR',
+            "last_name": 'CURATOR',
+            "title": "",
+            "email": 'jdoe@demo',
+            "token": 'kjdhfg76',
+            "user_name": "CURATOR",
+            'teams': [],
+            'roles': ['curator']
+        }
+        self.service_token = self.service['token']
+        self.user_id = self.user['_id']
+        self.user_token = self.user['token']
+        self.curator_token = self.curator['token']
 
         # create the engine.
         self.cbio = engine.CBioEngine(MONGO_URI,
@@ -135,7 +175,7 @@ class TestMinimal(unittest.TestCase):
     def _insert_match_small(self):
 
         # make a complex query.
-        dt = formatdate(time.mktime(datetime.datetime(year=1995, month=1, day=1).timetuple()))
+        dt = formatdate(time.mktime(datetime.datetime(year=1995, month=1, day=1).timetuple()), localtime=False, usegmt=True)
         c = {
             "BIRTH_DATE": {"$gte": dt},
         }
@@ -472,56 +512,16 @@ class TestMinimal(unittest.TestCase):
         user_db = self.db['user']
         team_db = self.db['team']
 
-        team = {
-            "_id": ObjectId("66a52871a8c829842fbe618b"),
-            "name": "purple monkey"
-        }
-        team_db.insert_one(team)
-        self.team_id = team['_id']
+        team_db.insert_one(self.team)
 
         # add user and team.
-        user = {
-            "_id": ObjectId("5697ecb48a6ba828126f8128"),
-            "first_name": 'John',
-            "last_name": 'Doe',
-            "title": "M.D. PhD",
-            "email": 'jdoe@demo',
-            "token": 'abc123',
-            "user_name": "jd00",
-            'teams': [self.team_id],
-            'roles': ['user']
-        }
-        self.user_id = user['_id']
-        self.user_token = user['token']
-        user_db.insert_one(user)
+        user_db.insert_one(self.user)
 
         # add service.
-        service = {
-            "first_name": 'SERVICE',
-            "last_name": 'SERVICE',
-            "title": "",
-            "email": 'jdoe@demo',
-            "token": 'xyz946',
-            "user_name": "SERVICE",
-            'teams': [],
-            'roles': ['service']
-        }
-        self.service_id = user_db.insert_one(service)
-        self.service_token = service['token']
-
+        self.service_id = user_db.insert_one(self.service)
         # add curator
-        curator = {
-            "first_name": 'CURATOR',
-            "last_name": 'CURATOR',
-            "title": "",
-            "email": 'jdoe@demo',
-            "token": 'kjdhfg76',
-            "user_name": "CURATOR",
-            'teams': [],
-            'roles': ['curator']
-        }
-        self.curator_id = user_db.insert_one(curator)
-        self.curator_token = curator['token']
+        self.curator_id = user_db.insert_one(self.curator)
+
 
 
     def setupDB(self):
@@ -617,8 +617,8 @@ class TestMinimal(unittest.TestCase):
         return r
 
     # Simulated Data
-    cur_dt = formatdate(time.mktime(datetime.datetime.now().timetuple()))
-    bir_dt = formatdate(time.mktime(datetime.datetime(year=1995, month=1, day=1).timetuple()))
+    cur_dt = formatdate(time.mktime(datetime.datetime.now().timetuple()), localtime=False, usegmt=True)
+    bir_dt = formatdate(time.mktime(datetime.datetime(year=1995, month=1, day=1).timetuple()), localtime=False, usegmt=True)
     clinical = {
         '_id': ObjectId(),
         "PCT_TARGET_BASE": 0.6764308658975878,

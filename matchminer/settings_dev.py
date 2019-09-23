@@ -219,7 +219,7 @@ negative_genomic = {
 
 patient_view = {
     'schema': matchminer.data_model.patient_view_schema,
-    'allow_unknown': True,
+    'allow_unknown': False,
     "allowed_read_roles": ["admin", "service", "user", "oncologist", "cti"],
     "allowed_write_roles": ["admin", "service", "user", "oncologist", "cti"],
     'item_methods': ['GET', 'PUT'],

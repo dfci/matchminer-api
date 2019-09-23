@@ -280,7 +280,7 @@ def generate_encryption_key_epic(shared_secret):
     :return:
     """
     sha1_hasher = CryptCreateHash(CALG_SHA1)
-    CryptHashData(sha1_hasher, shared_secret)
+    CryptHashData(sha1_hasher, shared_secret.encode('utf-8'))
     aes_key = CryptDeriveKey(sha1_hasher, CALG_AES_128)
     return aes_key
 
@@ -293,10 +293,10 @@ def encrypt_epic(aes_key, unencrypted_data):
     :return:
     """
 
-    encrypted = CryptEncrypt(aes_key, unencrypted_data)
+    encrypted = CryptEncrypt(aes_key, unencrypted_data.encode('utf-8'))
 
     # Display in human readable format
-    encrypted_readable = base64.b64encode(encrypted)
+    encrypted_readable = base64.b64encode(encrypted).decode('utf-8')
     return encrypted_readable
 
 
@@ -311,7 +311,7 @@ def decrypt_epic(aes_key, encrypted_data):
     decoded = base64.b64decode(encrypted_data)
 
     # Decrypt decoded string
-    decoded_readable = CryptDecrypt(aes_key, decoded)
+    decoded_readable = CryptDecrypt(aes_key, decoded).decode('utf-8')
     return decoded_readable
 
 
@@ -651,7 +651,7 @@ def autocomplete_query():
         hit_set = set()
         for n in onco_tree.nodes():
 
-            a = onco_tree.node[n]['text'].lower().decode('utf-8')
+            a = onco_tree.node[n]['text'].lower()
             b = value.lower()
             if a.count(b) > 0:
 

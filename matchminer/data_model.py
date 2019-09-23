@@ -1345,7 +1345,9 @@ patient_view_schema = {
     'view_date': {'type': 'datetime', 'readonly': True},
     'filter_label': {'type': 'string', 'nullable': True},
     'filter_protocol_no': {'type': 'string', 'nullable': True},
-    'requires_manual_review': {'type': 'boolean', 'default': False}
+    'requires_manual_review': {'type': 'boolean', 'default': False},
+    'from_details': {'type': 'boolean', 'required': False, 'nullable': True},
+    'filter_match': {'type': 'boolean', 'required': False, 'nullable': True}
 }
 
 enrollment_schema = {

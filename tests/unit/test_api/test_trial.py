@@ -153,7 +153,7 @@ class TestTrialValidation(TrialValidation):
                 assert 'wt PIK3CA' in data_json['_summary']["genes"]
                 assert 'Invasive Breast Carcinoma ER+/HER2-' in data_json['_summary']['tumor_types']
                 assert len(data_json['_summary']['tumor_types']) == 1
-                assert data_json['_summary']['disease_status'] == ['Metastatic', 'Advanced']
+                assert set(data_json['_summary']['disease_status']) == {'Metastatic', 'Advanced'}
                 executed_new_yaml = True
 
             if trial_name == '00-001.yml':

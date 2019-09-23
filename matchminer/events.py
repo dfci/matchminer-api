@@ -555,8 +555,8 @@ def add_dashboard_row(status):
     inactive_users = utilities.exclude_ksg(inactive_users)
 
     # sort users by activity
-    active_users.sort(reverse=True)
-    inactive_users.sort(reverse=True)
+    active_users.sort(reverse=True, key=lambda x: x['_id'])
+    inactive_users.sort(reverse=True, key=lambda x: x['_id'])
 
     # update the dashboard
     db['statistics'].update_one({}, {
@@ -983,7 +983,7 @@ def update_response(item):
     db['response'].update_one(
         {'_id': item['_id']},
         {'$set': {
-            'time_clicked': formatdate(time.mktime(datetime.datetime.now().timetuple())),
+            'time_clicked': formatdate(time.mktime(datetime.datetime.now().timetuple()), localtime=False, usegmt=True),
             'ip_address': _get_ip()
         }}
     )

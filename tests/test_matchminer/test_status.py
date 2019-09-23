@@ -4,7 +4,7 @@ import pprint
 import json
 import time
 import datetime
-from rfc822 import formatdate
+from email.utils import formatdate
 from bson import ObjectId
 
 from matchminer import miner, settings
@@ -24,43 +24,44 @@ class TestStatus(TestMinimal):
 
     # make an entry.
     now = '2017-01-01 05:00:00'
-    cur_dt = formatdate(time.mktime(datetime.datetime(year=1995, month=1, day=1).timetuple()))
+    cur_dt = formatdate(time.mktime(datetime.datetime(year=1995, month=1, day=1).timetuple()), localtime=False,
+                        usegmt=True)
     clin = {
-        "PCT_TARGET_BASE" : 0.6764308658975878,
-        "LAST_NAME" : "Mcginnis[Fake]",
-        "TUMOR_PURITY_PERCENT" : 0.6273209625954723,
-        "ONCOTREE_PRIMARY_DIAGNOSIS" : "PHC",
-        "ONCOTREE_BIOPSY_SITE" : "ADRENAL_GLAND",
-        "FIRST_NAME" : "Michael",
-        "PATIENT_ID" : "b3164f7b-c826-4e08-9ee6-8ff96d29b913",
-        "DATE_RECEIVED_AT_SEQ_CENTER" : cur_dt,
-        "SAMPLE_ID" : "TCGA-OR-TEST1",
-        "ONCOTREE_BIOPSY_SITE_TYPE" : "Metastatic",
-        "TOTAL_READS" : 123,
-        "ONCOTREE_PRIMARY_DIAGNOSIS_NAME" : "Pheochromocytoma",
-        "PANEL_VERSION" : 2,
-        "ONCOTREE_PRIMARY_DIAGNOSIS_META" : "Pheochromocytoma",
-        "TOTAL_ALIGNED_READS" : 10716821,
-        "POWERPATH_PATIENT_ID" : "b3164f7b-c826-4e08-9ee6-8ff96d29b913",
-        "TEST_TYPE" : "11-104 Profile",
-        "ORD_PHYSICIAN_NAME" : "Maria Bellantoni [fake] M.D.",
-        "ONCOTREE_BIOPSY_SITE_META" : "Pheochromocytoma",
-        "ONCOTREE_BIOPSY_SITE_COLOR" : "Purple",
-        "MEAN_SAMPLE_COVERAGE" : 147,
-        "VITAL_STATUS" : "alive",
-        "MRN" : "b3164f7b-c826-4e08-9ee6-8ff96d29b913",
-        "ONCOTREE_BIOPSY_SITE_NAME" : "Adrenal Gland",
-        "LAST_VISIT_DATE" : cur_dt,
-        "REPORT_COMMENT" : "age_at_initial_pathologic_diagnosis 58 ct_scan nan ct_scan_findings nan days_to_initial_pathologic_diagnosis 0 excess_adrenal_hormone_diagnosis_method_type nan excess_adrenal_hormone_history_type mineralocorticoids excess_adrenal_hormone_history_type-2 nan max nan nf1 nan nf1_clinical_diagnosis nan ret nan sdha nan sdhaf2_sdh5 nan sdhb nan sdhc nan sdhd nan tmem127 nan vhl nan molecular_analysis_performed_indicator no histological_type adrenocortical carcinoma- usual type laterality left lymph_node_examined_count nan metastatic_neoplasm_confirmed_diagnosis_method_name nan metastatic_neoplasm_confirmed_diagnosis_method_name-2 nan metastatic_neoplasm_confirmed_diagnosis_method_text nan distant_metastasis_anatomic_site nan metastatic_neoplasm_initial_diagnosis_anatomic_site nan metastatic_neoplasm_initial_diagnosis_anatomic_site-2 nan metastatic_neoplasm_initial_diagnosis_anatomic_site-3 nan mitoses_count 5 number_of_lymphnodes_positive_by_he nan primary_lymph_node_presentation_assessment nan residual_tumor r0 tumor_tissue_site adrenal atypical_mitotic_figures atypical mitotic figures absent cytoplasm_presence_less_than_equal_25_percent cytoplasm presence <= 25% present diffuse_architecture diffuse architecture present invasion_of_tumor_capsule invasion of tumor capsule absent mitotic_rate mitotic rate > 5/50 hpf absent necrosis necrosis present nuclear_grade_iii_iv nuclear grade iii or iv absent sinusoid_invasion sinusoid invasion absent weiss_venous_invasion venous invasion absent weiss_score 3 year_of_initial_pathologic_diagnosis 2000",
-        "ONCOTREE_PRIMARY_DIAGNOSIS_COLOR" : "Purple",
-        "ORD_PHYSICIAN_NPI" : 7728,
-        "DISEASE_CENTER_DESCR" : "Adrenal Gland oncology",
-        "REPORT_DATE" : cur_dt,
-        "BIRTH_DATE" : cur_dt,
-        "ALT_MRN" : "b3164f7b-c826-4e08-9ee6-8ff96d29b913",
-        "REPORT_VERSION" : 1,
-        "GENDER" : "Male",
-        "PATHOLOGIST_NAME" : "Kacie Smith [fake] M.D.",
+        "PCT_TARGET_BASE": 0.6764308658975878,
+        "LAST_NAME": "Mcginnis[Fake]",
+        "TUMOR_PURITY_PERCENT": 0.6273209625954723,
+        "ONCOTREE_PRIMARY_DIAGNOSIS": "PHC",
+        "ONCOTREE_BIOPSY_SITE": "ADRENAL_GLAND",
+        "FIRST_NAME": "Michael",
+        "PATIENT_ID": "b3164f7b-c826-4e08-9ee6-8ff96d29b913",
+        "DATE_RECEIVED_AT_SEQ_CENTER": cur_dt,
+        "SAMPLE_ID": "TCGA-OR-TEST1",
+        "ONCOTREE_BIOPSY_SITE_TYPE": "Metastatic",
+        "TOTAL_READS": 123,
+        "ONCOTREE_PRIMARY_DIAGNOSIS_NAME": "Pheochromocytoma",
+        "PANEL_VERSION": 2,
+        "ONCOTREE_PRIMARY_DIAGNOSIS_META": "Pheochromocytoma",
+        "TOTAL_ALIGNED_READS": 10716821,
+        "POWERPATH_PATIENT_ID": "b3164f7b-c826-4e08-9ee6-8ff96d29b913",
+        "TEST_TYPE": "11-104 Profile",
+        "ORD_PHYSICIAN_NAME": "Maria Bellantoni [fake] M.D.",
+        "ONCOTREE_BIOPSY_SITE_META": "Pheochromocytoma",
+        "ONCOTREE_BIOPSY_SITE_COLOR": "Purple",
+        "MEAN_SAMPLE_COVERAGE": 147,
+        "VITAL_STATUS": "alive",
+        "MRN": "b3164f7b-c826-4e08-9ee6-8ff96d29b913",
+        "ONCOTREE_BIOPSY_SITE_NAME": "Adrenal Gland",
+        "LAST_VISIT_DATE": cur_dt,
+        "REPORT_COMMENT": "age_at_initial_pathologic_diagnosis 58 ct_scan nan ct_scan_findings nan days_to_initial_pathologic_diagnosis 0 excess_adrenal_hormone_diagnosis_method_type nan excess_adrenal_hormone_history_type mineralocorticoids excess_adrenal_hormone_history_type-2 nan max nan nf1 nan nf1_clinical_diagnosis nan ret nan sdha nan sdhaf2_sdh5 nan sdhb nan sdhc nan sdhd nan tmem127 nan vhl nan molecular_analysis_performed_indicator no histological_type adrenocortical carcinoma- usual type laterality left lymph_node_examined_count nan metastatic_neoplasm_confirmed_diagnosis_method_name nan metastatic_neoplasm_confirmed_diagnosis_method_name-2 nan metastatic_neoplasm_confirmed_diagnosis_method_text nan distant_metastasis_anatomic_site nan metastatic_neoplasm_initial_diagnosis_anatomic_site nan metastatic_neoplasm_initial_diagnosis_anatomic_site-2 nan metastatic_neoplasm_initial_diagnosis_anatomic_site-3 nan mitoses_count 5 number_of_lymphnodes_positive_by_he nan primary_lymph_node_presentation_assessment nan residual_tumor r0 tumor_tissue_site adrenal atypical_mitotic_figures atypical mitotic figures absent cytoplasm_presence_less_than_equal_25_percent cytoplasm presence <= 25% present diffuse_architecture diffuse architecture present invasion_of_tumor_capsule invasion of tumor capsule absent mitotic_rate mitotic rate > 5/50 hpf absent necrosis necrosis present nuclear_grade_iii_iv nuclear grade iii or iv absent sinusoid_invasion sinusoid invasion absent weiss_venous_invasion venous invasion absent weiss_score 3 year_of_initial_pathologic_diagnosis 2000",
+        "ONCOTREE_PRIMARY_DIAGNOSIS_COLOR": "Purple",
+        "ORD_PHYSICIAN_NPI": 7728,
+        "DISEASE_CENTER_DESCR": "Adrenal Gland oncology",
+        "REPORT_DATE": cur_dt,
+        "BIRTH_DATE": cur_dt,
+        "ALT_MRN": "b3164f7b-c826-4e08-9ee6-8ff96d29b913",
+        "REPORT_VERSION": 1,
+        "GENDER": "Male",
+        "PATHOLOGIST_NAME": "Kacie Smith [fake] M.D.",
         'QUESTION1_YN': "Y",
         'QUESTION3_YN': "Y",
         'CRIS_YN': "Y",
@@ -102,7 +103,7 @@ class TestStatus(TestMinimal):
     def _new_status_random(self):
 
         # make a date.
-        cur_dt = formatdate(time.mktime(datetime.datetime.now().timetuple()))
+        cur_dt = formatdate(time.mktime(datetime.datetime.now().timetuple()), localtime=False, usegmt=True)
         status = {
             'last_update': cur_dt,
             'new_clinical': 5,
@@ -136,7 +137,7 @@ class TestStatus(TestMinimal):
             genomics[i]['CLINICAL_ID'] = clinical_id
             genomics[i]['SAMPLE_ID'] = sample_id
 
-            #if not genomics[i]['WILDTYPE']:
+            # if not genomics[i]['WILDTYPE']:
             #    print genomics[i]['TRUE_HUGO_SYMBOL'], genomics[i]['VARIANT_CATEGORY']
 
             # clear this.
@@ -173,7 +174,7 @@ class TestStatus(TestMinimal):
         g = {
             "TRUE_HUGO_SYMBOL": "SEMA6D",
             "WILDTYPE": False,
-            "VARIANT_CATEGORY": {"$in":["MUTATION"]}
+            "VARIANT_CATEGORY": {"$in": ["MUTATION"]}
         }
         rule = {
             'USER_ID': self.user_id,
@@ -245,7 +246,7 @@ class TestStatus(TestMinimal):
         g = {
             "TRUE_HUGO_SYMBOL": "SEMA6D",
             "WILDTYPE": False,
-            "VARIANT_CATEGORY": {"$in":["MUTATION"]}
+            "VARIANT_CATEGORY": {"$in": ["MUTATION"]}
         }
         rule = {
             'USER_ID': self.user_id,
@@ -302,7 +303,7 @@ class TestStatus(TestMinimal):
             assert match['data_push_id'] is None, match['data_push_id']
 
     def test_deleted_filter(self):
-        return ## disabled by james on 9/6/16 to be replaced by proper unit tests
+        return  ## disabled by james on 9/6/16 to be replaced by proper unit tests
 
         # insert a filter.
         filter_id = self._insert_filter()
@@ -343,7 +344,6 @@ class TestStatus(TestMinimal):
         assert self.db['match'].count() == 0
         assert self.db['filter'].count() > 0
 
-
     def test_post_status_newclinical(self):
 
         # create a filter.
@@ -375,7 +375,7 @@ class TestStatus(TestMinimal):
         self._new_entry()
 
         # make a date.
-        cur_dt = formatdate(time.mktime(datetime.datetime.now().timetuple()))
+        cur_dt = formatdate(time.mktime(datetime.datetime.now().timetuple()), localtime=False, usegmt=True)
         status = {
             'last_update': cur_dt,
             'new_clinical': 5,
@@ -472,7 +472,6 @@ class TestStatus(TestMinimal):
         # delete the PRPF8 call.
         for genomic in genomics:
             if 'TRUE_HUGO_SYMBOL' in genomic and genomic['TRUE_HUGO_SYMBOL'] == 'PRPF8':
-
                 # get the etag.
                 etag = genomic['_etag']
                 genomic_id = genomic['_id']
@@ -482,7 +481,7 @@ class TestStatus(TestMinimal):
                 self.assert204(status_code)
 
         # make a date.
-        cur_dt = formatdate(time.mktime(datetime.datetime.now().timetuple()))
+        cur_dt = formatdate(time.mktime(datetime.datetime.now().timetuple()), localtime=False, usegmt=True)
         status = {
             'last_update': cur_dt,
             'new_clinical': 5,
@@ -532,7 +531,7 @@ class TestStatus(TestMinimal):
         self.db.clinical.update_one({"_id": patient_id}, {"$set": {"VITAL_STATUS": "deceased"}})
 
         # post a status update.
-        cur_dt = formatdate(time.mktime(datetime.datetime.now().timetuple()))
+        cur_dt = formatdate(time.mktime(datetime.datetime.now().timetuple()), localtime=False, usegmt=True)
         status = {
             'last_update': cur_dt,
             'new_clinical': 5,
@@ -579,12 +578,12 @@ class TestStatus(TestMinimal):
         # assert its equal.
         assert html.count("matches") > 0
 
-
     def test_twopart_status(self):
 
         return
         # post pre-status update.
-        cur_dt = formatdate(time.mktime(datetime.datetime(year=2005, month=1, day=1).timetuple()))
+        cur_dt = formatdate(time.mktime(datetime.datetime(year=2005, month=1, day=1).timetuple()), localtime=False,
+                            usegmt=True)
         status = {
             'last_update': cur_dt,
             'new_clinical': 5,
@@ -645,6 +644,9 @@ class TestStatus(TestMinimal):
         self.db['genomic'].insert(self.genomic)
 
         r, status_code = self.post('status', self.status)
+        self.assert201(status_code)
+
+        r, status_code = self.post('utility/send_emails', self.status)
         self.assert201(status_code)
 
         email = self.db['email'].find_one()
