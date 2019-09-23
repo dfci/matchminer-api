@@ -13,7 +13,7 @@ from matchminer.miner import email_content
 from matchminer.utilities import *
 from matchminer.validation import ConsentValidatorEve
 from services.account import account_pipeline
-from eve_swagger import swagger, add_documentation
+from eve_swagger import swagger
 
 # logging
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
@@ -47,39 +47,23 @@ app.config['SAML_PATH'] = os.path.join(cur_dir, 'saml')
 app.register_blueprint(blueprint)
 
 
-if settings.MM_SETTINGS != 'PROD':
-    app.register_blueprint(swagger)
+app.register_blueprint(swagger)
 
-    # API documentation
-    app.config['SWAGGER_INFO'] = {
-        'title': 'Matchminer API',
-        'version': '1.0',
-        'description': 'Documentation of Matchminer\'s API',
+# API documentation
+app.config['SWAGGER_INFO'] = {
+    'title': 'Matchminer API',
+    'version': '1.0',
+    'description': 'Documentation of Matchminer\'s API',
         'termsOfService': 'Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.',
-        'contact': {
-            'name': 'James Lindsay',
-        },
-        'license': {
-            'name': 'MIT',
-            'url': 'https://github.com/pyeve/eve-swagger/blob/master/LICENSE',
-        },
-        'schemes': ['http', 'https'],
-    }
-
-
-# # optional. Will use flask.request.host if missing.
-# app.config['SWAGGER_HOST'] = 'myhost.com'
-#
-# # optional. Add/Update elements in the documentation at run-time without deleting subtrees.
-# add_documentation({'paths': {'/status': {'get': {'parameters': [
-#     {
-#         'in': 'query',
-#         'name': 'foobar',
-#         'required': False,
-#         'description': 'special query parameter',
-#         'type': 'string'
-#     }]
-# }}}})
+    'contact': {
+        'name': 'James Lindsay',
+    },
+    'license': {
+        'name': 'MIT',
+        'url': 'https://github.com/pyeve/eve-swagger/blob/master/LICENSE',
+    },
+    'schemes': ['http', 'https'],
+}
 
 # register the springify hook
 register_hooks(app)
@@ -119,7 +103,7 @@ def my_own_error_msg(err):
     return make_response("unauthorized access", 497)
 
 
-@app.errorhandler(333)
+@app.errorhandler(501)
 def redirect_response(err):
     logging.info("redirected to: %s" % err)
     return make_response(redirect(err))
@@ -130,8 +114,8 @@ def redirect_response(err):
 def generate_api_docs():
     import json
     try:
-        previous_api = json.load(open('api-swagger-documentation.json'))
-        current_api = requests.get('http://localhost:5000/api-docs')
+        previous_api = json.load(open('./api-swagger-documentation.json'))
+        current_api = requests.get(API_ADDRESS + '-docs')
         if not current_api.status_code == 200:
             logging.warn('API documentation request failed - /api-docs')
             return

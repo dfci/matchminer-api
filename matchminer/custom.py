@@ -1,6 +1,7 @@
 import os
 import uuid
 import datetime
+import base64
 from flask import Blueprint, current_app as app
 from flask import Response, request, render_template, redirect, session, make_response
 from flask_cors import CORS
@@ -14,12 +15,17 @@ import oncotreenx
 from matchminer import database
 from matchminer import settings
 from matchminer import data_model
-from matchminer.utilities import parse_resource_field, nocache, set_updated, run_matchengine
+import matchminer.miner
+from matchminer.settings import MONGO_DBNAME, SERVER, FRONT_END_ADDRESS, API_TOKEN, EPIC_DECRYPT_TOKEN, \
+    EMAIL_AUTHOR_PROTECTED
+from matchminer.utilities import parse_resource_field, nocache
 from matchminer.security import TokenAuth, authorize_custom_request
 from matchminer.services.filter import Filter
 from matchminer.services.match import Match
 from matchminer.templates.emails.emails import EAP_INQUIRY_BODY
 from matchminer.validation import check_valid_email_address
+from wincrypto import CryptCreateHash, CryptHashData, CryptDeriveKey, CryptEncrypt, CryptDecrypt
+from wincrypto.definitions import CALG_SHA1, CALG_AES_128
 
 import logging
 
@@ -119,24 +125,18 @@ def _count_matches_by_filter(matches, filters):
     return filter_dict
 
 
+@blueprint.route('/api/info', methods=['GET'])
+def api_info():
+    info = {
+        "server": SERVER,
+        "mongo_db": MONGO_DBNAME
+    }
+    return json.dumps(info), 200
+
+
 @blueprint.route('/api/utility/matchengine', methods=['GET'])
 def run_matchengine_route():
-    """Launches the MatchEngine on the entire database"""
-
-    # limit access to service account only
-    auth = request.authorization
-    if not auth:
-        return json.dumps({"error": "no authorization supplied"})
-
-    accounts = app.data.driver.db.user
-    user = accounts.find_one({'token': auth.username})
-    if not user:
-        return json.dumps({"error": "not authorized"})
-
-    # Match Engine #
-    run_matchengine()
-
-    return json.dumps({"success": True})
+    return json.dumps({"This route has been deprecated. Please run the matchengine through the stand-alone service": True})
 
 
 @blueprint.route('/api/vip_clinical', methods=['GET'])
@@ -176,6 +176,22 @@ def get_vip_clinical():
     return json.dumps(clinical_ll)
 
 
+@blueprint.route('/api/utility/send_emails', methods=['POST'])
+@nocache
+def send_emails():
+    # authorize request.
+    not_authed = authorize_custom_request(request)
+    if not_authed:
+        resp = Response(response="not authorized route",
+                        status=401,
+                        mimetype="application/json")
+        return resp
+
+    # trigger email.
+    matchminer.miner.email_matches()
+    return json.dumps({"success": True}), 201
+
+
 @blueprint.route('/api/gi_patient_view', methods=['POST'])
 @nocache
 def gi_patient_view():
@@ -195,22 +211,30 @@ def gi_patient_view():
     data = request.get_json()
     all_protocol_nos = data['all_protocol_nos']
     mrn = data['mrn']
+
+    # use the given view date if supplied in the POST body
+    if 'use_view_date' in data:
+        view_date = datetime.datetime.strptime(data['use_view_date'], '%Y-%m-%d %X')
+    else:
+        view_date = datetime.datetime.now()
+
     documents = []
     for protocol_no in all_protocol_nos:
         document = {
-            'requires_manual_review': False,
+            'requires_manual_review': True,
             'user_user_name': 'gi-automation',
             'user_first_name': 'gi-automation',
             'user_last_name': 'gi-automation',
             'mrn': mrn,
-            'view_date': datetime.datetime.now(),
+            'view_date': view_date,
             'protocol_no': protocol_no
         }
         documents.append(document)
 
     # insert into mongodb
-    patient_view_conn = app.data.driver.db['patient_view']
-    patient_view_conn.insert(documents)
+    if len(documents) > 0:
+        patient_view_conn = app.data.driver.db['patient_view']
+        patient_view_conn.insert(documents)
 
     return json.dumps({"success": True}), 201
 
@@ -232,7 +256,7 @@ def eap_email():
         return json.dumps({"success": False}), 403
 
     # create object
-    subject = '[EAP] - New Inquiry from %s' % email_address,
+    subject = '[EAP] - New Inquiry from %s' % email_address
     body = '''<html><head></head><body>%s</body></html>''' % EAP_INQUIRY_BODY.format(email_address)
     email = {
         'email_from': settings.EMAIL_AUTHOR_PROTECTED,
@@ -252,6 +276,197 @@ def eap_email():
     return json.dumps({"success": True}), 201
 
 
+def generate_encryption_key_epic(shared_secret):
+    """
+    Create hashed key based on CryptDeriveKey from Microsoft Desktop Cryptography package.
+    :param shared_secret:
+    :return:
+    """
+    sha1_hasher = CryptCreateHash(CALG_SHA1)
+    CryptHashData(sha1_hasher, shared_secret)
+    aes_key = CryptDeriveKey(sha1_hasher, CALG_AES_128)
+    return aes_key
+
+
+def encrypt_epic(aes_key, unencrypted_data):
+    """
+    NOTE: This function is used for testing and to ensure that the encryption mechanism used in MM matches the encryption schema used in EPIC.
+    :param aes_key: <AES_128> An object created in the WinCrypto Library.
+    :param unencrypted_data: <str> Whatever text you would like to encrypt
+    :return:
+    """
+
+    encrypted = CryptEncrypt(aes_key, unencrypted_data)
+
+    # Display in human readable format
+    encrypted_readable = base64.b64encode(encrypted)
+    return encrypted_readable
+
+
+def decrypt_epic(aes_key, encrypted_data):
+    """
+    Decrypt string encrypted with AES128 ciphering algorithm using custom wincrypt hash key
+    :param aes_key: <AES_128> Object created by WinCrypto Library
+    :param encrypted_data: Raw string data
+    :return:
+    """
+    # Decode encrypted string
+    decoded = base64.b64decode(encrypted_data)
+
+    # Decrypt decoded string
+    decoded_readable = CryptDecrypt(aes_key, decoded)
+    return decoded_readable
+
+
+def build_redirect_url_epic(user, trial_match):
+    """
+    When redirecting to a patient for integration with EPIC, set appropriate tokens, headers, and cookies
+    :param user:
+    :param trial_match:
+    :return:
+    """
+    db = database.get_db()
+
+    # Set token. Must match token set in cookie
+    token = str(uuid.uuid4())
+    db['user'].update_one({'_id': user['_id']}, {
+        '$set': {'token': token, 'last_auth': datetime.datetime.now()}
+    })
+
+    # Build redirect URL
+    patient_id = str(trial_match["_id"])
+    url = FRONT_END_ADDRESS + 'dashboard/patients/' + patient_id + '?epic=true'
+    redirect_to_patient = redirect(url)
+    logging.info('[EPIC] redirect to URL: ' + url)
+
+    # Build response headers
+    response = app.make_response(redirect_to_patient)
+    response.headers.add('Authorization', 'Basic' + str(base64.b64encode(API_TOKEN + ':')))
+    response.headers.add('Last-Modified', datetime.datetime.now())
+    response.headers.add('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0')
+    response.headers.add('Pragma', 'no-cache')
+    response.headers.add('Content-Type', 'application/json')
+    response.headers.add('Location', url)
+
+    # Set cookies
+    response.set_cookie('user_id', value=str(user['_id']), expires=0)
+    response.set_cookie('team_id', value=str(user['teams'][0]), expires=0)
+    response.set_cookie('token', value=token, expires=0)
+    return response
+
+
+@blueprint.route('/epic', methods=['POST', 'GET'])
+@nocache
+def dispatch_epic():
+    """
+    Process request from EPIC, redirect to patient page.
+    :return:
+    """
+    if request.method == 'GET':
+        return 'Method unsupported'
+
+    db = database.get_db()
+    logging.info('[EPIC] request origin: ' + str(request.remote_addr))
+
+    # Get patient data off request body
+    encrypted_patient_data = str(request.form['data'])
+
+    # Generate valid encryption key
+    aes_key = generate_encryption_key_epic(EPIC_DECRYPT_TOKEN)
+
+    # Decrypt encrypted string
+    decrypted = decrypt_epic(aes_key, encrypted_patient_data)
+
+    # JSON format data
+    epic_data = json.loads(decrypted)
+    logging.info('[EPIC] ' + str(epic_data))
+
+    # Get user
+    user = db['user'].find_one({'user_name': str(epic_data['UserNID']).lower()})
+
+    log = {k.replace('.', '_'):v for k,v in epic_data.iteritems()}
+    log['accessed_at'] = datetime.datetime.now()
+    log['exists_in_mm'] = True
+    log['is_BWH_MRN'] = False
+
+    # Redirect to error page if user is not authorized
+    if user is None:
+        logging.error('[EPIC] Error: No user found in db. UserID: ' + epic_data['UserNID'])
+        error_url = FRONT_END_ADDRESS + 'epic-auth-error'
+        redirect_to_patient = redirect(error_url)
+        response = app.make_response(redirect_to_patient)
+        response.headers.add('Location', error_url)
+        db.epic_log.insert(log)
+        return response
+
+    # Get patient MRN
+    mrn = epic_data['PatientID.SiteMRN']
+
+    # Find patient
+    patient = db['clinical'].find_one({'MRN': mrn})
+
+    # check BWH MRN
+    if patient is None:
+        logging.error('[EPIC] [BWH] No DFCI MRN present on request: Looking up using BWH MRN... ')
+        log['exists_in_mm'] = False
+        patient = db['clinical'].find_one({'ALT_MRN': mrn})
+
+        if patient is not None:
+            log['is_BWH_MRN'] = True
+        else:
+            # If still no patient redirect to error page
+            msg = '[EPIC] Error: No clinical document found matching MRN: %s' % mrn
+            log['is_BWH_MRN'] = False
+            logging.error(msg)
+
+            email_item = {
+                'email_from': EMAIL_AUTHOR_PROTECTED,
+                'email_to': EMAIL_AUTHOR_PROTECTED,
+                'subject': "[EPIC] MRN Error",
+                'body': msg,
+                'cc': [],
+                'sent': False,
+                'num_failures': 0,
+                'errors': []
+            }
+            db.email.insert(email_item)
+
+            # build url and redirect to error page
+            error_url = FRONT_END_ADDRESS + 'epic-mrn-error'
+            redirect_to_patient = redirect(error_url)
+            response = app.make_response(redirect_to_patient)
+            response.headers.add('Location', error_url)
+            db.epic_log.insert(log)
+            return response
+
+    db.epic_log.insert(log)
+    response = build_redirect_url_epic(user, patient)
+    return response
+
+
+@blueprint.route('/epic_ctrial', methods=['POST', 'GET'])
+@nocache
+def dispatch_epic_clinical_trial():
+    """
+    Process request from EPIC, redirect to clinical trial page.
+    :return:
+    """
+    if request.method == 'GET':
+        return 'Method unsupported'
+
+    url = FRONT_END_ADDRESS + 'clinicaltrials?epic=true'
+    redirect_to_search = redirect(url)
+    logging.info('[EPIC] redirect to search URL: ' + url)
+
+    # Build response headers
+    response = app.make_response(redirect_to_search)
+    response.headers.add('Location', url)
+
+    # Set cookies
+    response.set_cookie('epic', value='true', expires=0)
+    return response
+
+
 @blueprint.route('/api/utility/count_match', methods=['GET'])
 @nocache
 def count_query():
@@ -259,6 +474,7 @@ def count_query():
     # no auth version.
     accounts = app.data.driver.db['user']
     if settings.NO_AUTH:
+        logging.info("NO AUTH enabled. count_query.")
 
         # get the user_id
         user_id = str(request.args.get("user_id"))
