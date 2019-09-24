@@ -36,10 +36,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update --fix-missing && apt-get insta
 
 ENV PYTHONWARNINGS="ignore:a true SSLContext object"
 
-# copy over and install the requirements
+
 RUN pip install --upgrade setuptools pip
-COPY ./requirements.txt /var/www/apache-flask/api/requirements.txt
-RUN pip install --ignore-installed six -r /var/www/apache-flask/api/requirements.txt
 
 # set the timezone.
 RUN echo "America/New_York" > /etc/timezone
@@ -53,8 +51,9 @@ COPY ./cerberus1 /var/www/apache-flask/api/cerberus1
 COPY ./pymm_run.py /var/www/apache-flask/api/pymm_run.py
 COPY ./api-swagger-documentation.json /var/www/apache-flask/api/api-swagger-documentation.json
 
-# start apache
 WORKDIR /var/www/apache-flask/api
+COPY ./requirements.txt /var/www/apache-flask/api/requirements.txt
+RUN pip install -r requirements.txt
 
 # setup entrypoint.
 COPY ./entrypoint.sh /
