@@ -651,6 +651,7 @@ def autocomplete_query():
         hit_set = set()
         for n in onco_tree.nodes():
 
+            #TODO: Verify this doesn't need a decode
             a = onco_tree.node[n]['text'].lower()
             b = value.lower()
             if a.count(b) > 0:
