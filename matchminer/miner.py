@@ -783,9 +783,8 @@ def prepare_criteria(item):
                 'STRUCTURAL_VARIANT_COMMENT': {"$in": sv_clauses}
             }
             clauses.append(clause)
-            for gene in genes:
-                clauses.append({'LEFT_PARTNER_GENE': gene})
-                clauses.append({'RIGHT_PARTNER_GENE': gene})
+            clauses.append({'LEFT_PARTNER_GENE': {'$in': genes}})
+            clauses.append({'RIGHT_PARTNER_GENE': {'$in': genes}})
 
         if len(clauses) > 0:
             g = {
