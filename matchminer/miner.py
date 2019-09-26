@@ -151,7 +151,7 @@ def rerun_filters(dpi=None):
 
         if cbio.match_df is not None and cbio.genomic_df is not None and cbio.clinical_df is not None:
             logging.info("rerun_filters: new matches: match=%d, genomic=%d, clinical=%d" % (
-            len(cbio.match_df), len(cbio.genomic_df), len(cbio.clinical_df)))
+                len(cbio.match_df), len(cbio.genomic_df), len(cbio.clinical_df)))
 
         # get existing matches for this filter.
         matches = list(match_db.find({'FILTER_ID': ObjectId(filter_['_id'])}))
@@ -415,7 +415,7 @@ def insert_matches(cbio, item, from_filter=True, dpi=None):
     genomic_lu = {}
 
     matches = list()
-    for key, val in list(pf_pairz.items()):
+    for key, val in pf_pairz.items():
 
         clinical_id = key[1]
         genomic_id = val[0]
@@ -454,7 +454,7 @@ def insert_matches(cbio, item, from_filter=True, dpi=None):
 
                 true_hugo_symbol = filter_['genomic_filter']['TRUE_HUGO_SYMBOL']
                 if isinstance(true_hugo_symbol, dict):
-                    true_hugo_symbol = ', '.join([str(i) for i in list(true_hugo_symbol.values())[0]])
+                    true_hugo_symbol = ', '.join([str(i) for i in next(iter(true_hugo_symbol.values()))])
 
         if true_hugo_symbol is None:
             logging.error("error in filter logic")
@@ -579,7 +579,7 @@ def prepare_criteria(item):
     if 'clinical_filter' in item:
 
         clin_tmp = json.dumps(item['clinical_filter'])
-        for key, val in list(REREPLACEMENTS.items()):
+        for key, val in REREPLACEMENTS.items():
             clin_tmp = clin_tmp.replace(key, val)
 
         c = json.loads(clin_tmp)
@@ -588,8 +588,8 @@ def prepare_criteria(item):
             clin_txt_2_gender = item['clinical_filter']['GENDER']
 
         if 'BIRTH_DATE' in item['clinical_filter']:
-            op = list(item['clinical_filter']['BIRTH_DATE'].keys())[0]
-            val = list(item['clinical_filter']['BIRTH_DATE'].values())[0]
+            op = next(iter(item['clinical_filter']['BIRTH_DATE'].keys()))
+            val = next(iter(item['clinical_filter']['BIRTH_DATE'].values()))
 
             try:
                 val = datetime.datetime.strptime(val.replace(" GMT", ""), '%a, %d %b %Y %H:%M:%S')
@@ -613,7 +613,7 @@ def prepare_criteria(item):
                 continue
 
             # extract the expression value.
-            lkey, lval = list(c[key].keys())[0], list(c[key].values())[0]
+            lkey, lval = next(iter(c[key].keys())), next(iter(c[key].values()))
 
             try:
                 c[key][lkey] = datetime.datetime.strptime(lval.replace(" GMT", ""), '%a, %d %b %Y %H:%M:%S')
@@ -656,7 +656,7 @@ def prepare_criteria(item):
     if 'genomic_filter' in item:
 
         gen_tmp = json.dumps(item['genomic_filter'])
-        for key, val in list(REREPLACEMENTS.items()):
+        for key, val in REREPLACEMENTS.items():
             gen_tmp = gen_tmp.replace(key, val)
 
         g = json.loads(gen_tmp)
@@ -671,7 +671,7 @@ def prepare_criteria(item):
         if 'VARIANT_CATEGORY' in item['genomic_filter']:
             variant_category = item['genomic_filter']['VARIANT_CATEGORY']
             if isinstance(variant_category, dict):
-                for x in list(variant_category.values()):
+                for x in variant_category.values():
                     if "SV" in set(x):
                         sv_test = True
                     if "CNV" in set(x):
@@ -703,7 +703,7 @@ def prepare_criteria(item):
         if cnv_test:
             if 'CNV_CALL' in g:
                 if isinstance(g['CNV_CALL'], dict):
-                    gen_txt += list(g['CNV_CALL'].values())[0]
+                    gen_txt += next(iter(g['CNV_CALL'].values()))
                 else:
                     gen_txt.append(g['CNV_CALL'])
         if sv_test:
@@ -763,7 +763,7 @@ def prepare_criteria(item):
             true_hugo = item['genomic_filter']['TRUE_HUGO_SYMBOL']
 
             if isinstance(true_hugo, dict):
-                genes = list(true_hugo.values())[0]
+                genes = next(iter(true_hugo.values()))
             else:
                 genes = [true_hugo]
 
@@ -809,7 +809,7 @@ def prepare_criteria(item):
         get_recursively(g, "GMT")
         if 'TRUE_HUGO_SYMBOL' in item['genomic_filter']:
             if isinstance(item['genomic_filter']['TRUE_HUGO_SYMBOL'], dict):
-                genes = list(item['genomic_filter']['TRUE_HUGO_SYMBOL'].values())[0]
+                genes = next(iter(item['genomic_filter']['TRUE_HUGO_SYMBOL'].values()))
             else:
                 genes = [item['genomic_filter']['TRUE_HUGO_SYMBOL']]
 

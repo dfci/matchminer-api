@@ -32,7 +32,7 @@ REPLACEMENTS = {
     '$regex': '^regex'
 }
 REREPLACEMENTS = {}
-for key, val in list(REPLACEMENTS.items()):
+for key, val in REPLACEMENTS.items():
     REREPLACEMENTS[val] = key
 
 
@@ -777,10 +777,6 @@ def genomics_gen(genomic_df, genomic_schema=None):
             # convert nan
             if pd.isnull(val):
                 val = None
-
-            # fix bad encoding.
-            if isinstance(val, str):
-                val = str(val, errors='replace')
 
             # save it to dict.
             tmp[key] = val

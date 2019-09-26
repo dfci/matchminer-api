@@ -37,7 +37,7 @@ def clean_filter(items):
 
             # replace clinical.
             clin_tmp = json.dumps(item['clinical_filter'])
-            for key, val in list(REPLACEMENTS.items()):
+            for key, val in REPLACEMENTS.items():
                 clin_tmp = clin_tmp.replace(key, val)
             item['clinical_filter'] = json.loads(clin_tmp)
 
@@ -49,7 +49,7 @@ def clean_filter(items):
 
             # replace genomic
             gen_tmp = json.dumps(item['genomic_filter'])
-            for key, val in list(REPLACEMENTS.items()):
+            for key, val in REPLACEMENTS.items():
                 gen_tmp = gen_tmp.replace(key, val)
             item['genomic_filter'] = json.loads(gen_tmp)
 
@@ -348,7 +348,7 @@ def strip_metavars(resource, item, original):
     :param original:
     """
 
-    for key in list(item.keys()):
+    for key in item.keys():
         if key[0] == "_" and key != "_id":
             del item[key]
 
@@ -409,7 +409,7 @@ def hipaa_logging_item(resource, response):
 
         # dertermine keys.
         phi_list = list()
-        for x in list(response.keys()):
+        for x in response.keys():
             if x[0] == '_':
                 continue
             phi_list.append(x)
@@ -705,7 +705,7 @@ def flatten_json(y):
 def insert_data_genomic(data_dict, tree_node, node_id):
 
     # deal with other genomics
-    for key, val in list(tree_node.items()):
+    for key, val in tree_node.items():
 
         # dont need to compress this.
         if key == "wildtype":
@@ -736,7 +736,7 @@ def insert_data_genomic(data_dict, tree_node, node_id):
 def insert_data_clinical(data_dict, tree_node, node_id):
 
     # loop over every value.
-    for key, val in list(tree_node.items()):
+    for key, val in tree_node.items():
 
         # bootstrap
         if key not in data_dict:
@@ -765,7 +765,7 @@ def insert_data_other(trial_tree, node_id, n, other):
     closed_status = ['Closed to Accrual', 'Suspended', 'Terminated']
 
     # add other values
-    for key, val in list(trial_tree.node[n].items()):
+    for key, val in trial_tree.node[n].items():
 
         # skip hidden.
         if key[0] == '_' or key not in valid_keys:
@@ -790,7 +790,7 @@ def insert_data_other(trial_tree, node_id, n, other):
     # populate disease center and Study Site (special because only once)
     for key in fields:
         try:
-            val = list(trial_tree.node[n][key].keys())[0]
+            val = next(iter(trial_tree.node[n][key].keys()))
             # iterate through the list
             for name in trial_tree.node[n][key][val]:
                 # check if primary site or coordinating center
@@ -951,7 +951,7 @@ def pre_get_restricted(request, lookup):
 
             # check if it is legit.
             if isinstance(clause['TEAM_ID'], dict):
-                team_list = list(clause['TEAM_ID'].values())[0]
+                team_list = next(iter(clause['TEAM_ID'].values()))
             else:
                 team_list = [clause['TEAM_ID']]
 
@@ -1217,7 +1217,7 @@ def negative_genomic(items):
 
 def hide_name(item):
     """Hides patient name"""
-    for i, idx in zip(item['_items'][:], list(range(len(item['_items'])))):
+    for i, idx in zip(item['_items'][:], range(len(item['_items']))):
         for nm in ["FIRST_NAME", "LAST_NAME", "FIRST_LAST", "LAST_FIRST"]:
             del i[nm]
 

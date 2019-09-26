@@ -75,11 +75,11 @@ class ConsentValidatorEve(EveValidator):
             return
 
         for key, val in value.items():
-            if (isinstance(val, str) or isinstance(val, str)) and val[0] == "!":
+            if (isinstance(val, str)) and val[0] == "!":
                 val = val[1:]
 
             if key == 'oncotree_primary_diagnosis':
-                if val not in list(normalize_table['values']['oncotree_primary_diagnosis'].values()):
+                if val not in set(normalize_table['values']['oncotree_primary_diagnosis'].values()):
                     self._error(field, "%s is not a valid value for oncotree_primary_diagnosis" % val)
 
             elif key == 'hugo_symbol':
