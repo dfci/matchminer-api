@@ -774,15 +774,10 @@ def prepare_criteria(item):
 
             genes = genes + to_add
 
-            sv_clauses = []
-            for gene in genes:
-                abc = "(.*\W%s\W.*)|(^%s\W.*)|(.*\W%s$)" % (gene, gene, gene)
-                sv_clauses.append(re.compile(abc, re.IGNORECASE))
+            abc = '|'.join([rf"(.*\W{gene}\W.*)|(^{gene}\W.*)|(.*\W{gene}$)"
+                            for gene in genes])
 
-            clause = {
-                'STRUCTURAL_VARIANT_COMMENT': {"$in": sv_clauses}
-            }
-            clauses.append(clause)
+            clauses.append({'STRUCTURAL_VARIANT_COMMENT': {"$regex": abc}})
             clauses.append({'LEFT_PARTNER_GENE': {'$in': genes}})
             clauses.append({'RIGHT_PARTNER_GENE': {'$in': genes}})
 
