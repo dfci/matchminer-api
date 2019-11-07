@@ -1309,8 +1309,8 @@ trial_match_schema = {
     'wildtype': {'type': 'boolean', 'nullable': True},
     'match_type': {'type': 'string', 'allowed': ['variant', 'gene']},
     'tier': {'type': 'integer', 'allowed': [1, 2, 3, 4]},
-    'clinical_id': {'type': 'string'},
-    'genomic_id': {'type': 'string'},
+    'clinical_id': {'type': 'objectid'},
+    'genomic_id': {'type': 'objectid'},
     'sort_order': {'type': 'integer'},
     'trial_summary_status': {'type': 'string', 'required': False},
     'show_in_ui': {'type': 'boolean', 'required': False}
