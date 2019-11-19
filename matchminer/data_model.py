@@ -190,6 +190,7 @@ clinical_schema = {
     'FIRST_LAST': {'type': 'string', 'readonly': True},
     'LAST_FIRST': {'type': 'string', 'readonly': True},
     'BIRTH_DATE': {'type': 'datetime', 'required': True},
+    'BIRTH_DATE_INT': {'type': 'integer', 'required': True},
     'VITAL_STATUS': {'type': 'string', 'required': True, 'allowed': ['alive', 'deceased']},
     'LAST_VISIT_DATE': {'type': 'datetime'},
 
