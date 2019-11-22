@@ -231,7 +231,7 @@ def align_matches_clinical(a):
     a['ENROLLED'] = list(enrolled)
 
 
-def filter_and_sort(resource):
+def sort_trial_matches(resource):
     """
     In Matchengine V2, the sort order field is an array which delivers each dimension of the sort as an index.
     This function will sort each protocol's match reasons according to this criteria:
@@ -251,8 +251,7 @@ def filter_and_sort(resource):
         resource['_items'] = sorted(resource['_items'], key=lambda x: (tuple(x['sort_order'][:-1]) + (1.0 / x['sort_order'][-1],)))
         for item in resource['_items']:
             if item['protocol_no'] not in seen_protocol_nos:
-                # don't return trial match documents for trials which are closed
-                if item.get('trial_summary_status', None) == 'closed' or any(map(lambda x: x < 0, item['sort_order'])):
+                if any(map(lambda x: x < 0, item['sort_order'])):
                     seen_protocol_nos[item['protocol_no']] = -1
                 else:
                     seen_protocol_nos[item['protocol_no']] = current_rank
@@ -1351,7 +1350,7 @@ def register_hooks(app):
     app.on_fetched_item_clinical += align_other_clinical
 
     # trial match get
-    app.on_fetched_resource_trial_match += filter_and_sort
+    app.on_fetched_resource_trial_match += sort_trial_matches
 
     # register the status update.
     app.on_insert_status += status_insert

@@ -1267,7 +1267,7 @@ email_schema = {
     'subject': {'type': 'string', 'required': True},
     'body': {'type': 'string', 'required': True},
     'sent': {'type': 'boolean', 'default': False},
-    'cc': {'type': 'list', 'schema': {'type': 'string'}},
+    'cc': {'type': 'list', 'schema': {'type': 'string'}, 'required': True},
     'num_failures': {'type': 'integer', 'default': 0},
     'errors': {'type': 'list', 'schema': {'type': 'string'}, 'default': []}
 }
@@ -1314,7 +1314,8 @@ trial_match_schema = {
     'genomic_id': {'type': 'objectid'},
     'sort_order': {'type': 'integer'},
     'trial_summary_status': {'type': 'string', 'required': False},
-    'show_in_ui': {'type': 'boolean', 'required': False}
+    'show_in_ui': {'type': 'boolean', 'required': False},
+    'is_disabled': {'type': 'boolean', 'required': False}
 }
 
 negative_genomic_schema = {

@@ -2,6 +2,7 @@
 import logging
 import datetime
 import json
+import re
 from time import mktime
 
 from matchminer.database import get_db
@@ -219,11 +220,15 @@ class OncoreSync(object):
         mm_trial = json.loads(json.dumps(mm_trial, cls=MyEncoder), object_hook=OncoreSync.ascii_encode_dict)
         protocol_no = mm_trial['protocol_no']
 
+        # oncore used to send data from their API in snakecase but changed to
+        # camel case for unknown reasons 9/6/19
+        on_trial = recursive_snake_case(on_trial)
+
         # loop over each top-level excluding match and priors:
         updated = list()
         for key in on_trial.keys():
 
-            if key == "match" or key == "prior_treatment_requirements":
+            if key in ["match", "prior_treatment_requirements"]:
                 continue
 
             # special case for treatment list:
@@ -291,3 +296,28 @@ class OncoreSync(object):
 
         # return the updated trial
         return mm_trial, len(updated) > 0, updated
+
+
+def is_camelcase(s):
+    return s != s.lower() and s != s.upper() and "_" not in s
+
+
+def recursive_snake_case(on_trial):
+    on_trial_snakecase = {}
+    for key in on_trial.keys():
+        new_key = to_snake_case(key) if is_camelcase(key) else key
+        on_trial_val = on_trial[key]
+        if isinstance(on_trial_val, dict):
+            on_trial_snakecase[new_key] = recursive_snake_case(on_trial_val)
+        elif isinstance(on_trial_val, list):
+            new_list = list()
+            for val in on_trial_val:
+                new_list.append(recursive_snake_case(val))
+                on_trial_snakecase[new_key] = new_list
+        else:
+            on_trial_snakecase[new_key] = on_trial_val
+    return on_trial_snakecase
+
+
+def to_snake_case(val):
+    return re.sub('([A-Z]+)', r'_\1',val).lower()

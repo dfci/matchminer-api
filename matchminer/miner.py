@@ -594,8 +594,8 @@ def prepare_criteria(item):
             clin_txt_2_gender = item['clinical_filter']['GENDER']
 
         if 'BIRTH_DATE' in item['clinical_filter']:
-            op = item['clinical_filter']['BIRTH_DATE'].keys()[0]
-            val = item['clinical_filter']['BIRTH_DATE'].values()[0]
+            op = next(iter(item['clinical_filter']['BIRTH_DATE'].keys()))
+            val = next(iter(item['clinical_filter']['BIRTH_DATE'].values()))
 
             try:
                 val = datetime.datetime.strptime(val.replace(" GMT", ""), '%a, %d %b %Y %H:%M:%S')
@@ -619,7 +619,7 @@ def prepare_criteria(item):
                 continue
 
             # extract the expression value.
-            lkey, lval = c[key].keys()[0], c[key].values()[0]
+            lkey, lval = next(iter(c[key].keys())), next(iter(c[key].values()))
 
             try:
                 c[key][lkey] = datetime.datetime.strptime(lval.replace(" GMT", ""), '%a, %d %b %Y %H:%M:%S')
@@ -710,7 +710,7 @@ def prepare_criteria(item):
         if cnv_test:
             if 'CNV_CALL' in g:
                 if isinstance(g['CNV_CALL'], dict):
-                    gen_txt += g['CNV_CALL'].values()[0]
+                    gen_txt += next(iter(g['CNV_CALL'].values()))
                 else:
                     gen_txt.append(g['CNV_CALL'])
         if sv_test:
@@ -770,7 +770,7 @@ def prepare_criteria(item):
             true_hugo = item['genomic_filter']['TRUE_HUGO_SYMBOL']
 
             if isinstance(true_hugo, dict):
-                genes = true_hugo.values()[0]
+                genes = next(iter(true_hugo.values()))
             else:
                 genes = [true_hugo]
 
@@ -781,15 +781,12 @@ def prepare_criteria(item):
 
             genes = genes + to_add
 
-            sv_clauses = []
-            for gene in genes:
-                abc = "(.*\W%s\W.*)|(^%s\W.*)|(.*\W%s$)" % (gene, gene, gene)
-                sv_clauses.append(re.compile(abc, re.IGNORECASE))
+            abc = '|'.join(["(.*\W%s\W.*)|(^%s\W.*)|(.*\W%s$)" % (gene, gene, gene)
+                            for gene in genes])
 
-            clause = {
-                'STRUCTURAL_VARIANT_COMMENT': {"$in": sv_clauses}
-            }
-            clauses.append(clause)
+            clauses.append({'STRUCTURAL_VARIANT_COMMENT': {"$regex": abc}})
+            clauses.append({'LEFT_PARTNER_GENE': {'$in': genes}})
+            clauses.append({'RIGHT_PARTNER_GENE': {'$in': genes}})
 
         if len(clauses) > 0:
             g = {
@@ -814,7 +811,7 @@ def prepare_criteria(item):
         get_recursively(g, "GMT")
         if 'TRUE_HUGO_SYMBOL' in item['genomic_filter']:
             if isinstance(item['genomic_filter']['TRUE_HUGO_SYMBOL'], dict):
-                genes = item['genomic_filter']['TRUE_HUGO_SYMBOL'].values()[0]
+                genes = next(iter(item['genomic_filter']['TRUE_HUGO_SYMBOL'].values()))
             else:
                 genes = [item['genomic_filter']['TRUE_HUGO_SYMBOL']]
 
