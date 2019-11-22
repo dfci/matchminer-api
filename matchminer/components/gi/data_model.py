@@ -46,6 +46,10 @@ gi_gold_standard_truth = {
     'num_tier2_variants': {'type': 'integer', 'required': True},
     'num_tier3_variants': {'type': 'integer', 'required': True},
     'num_tier4_variants': {'type': 'integer', 'required': True},
+    'num_tier1_SV_variants': {'type': 'integer', 'required': True},
+    'num_tier2_SV_variants': {'type': 'integer', 'required': True},
+    'num_tier3_SV_variants': {'type': 'integer', 'required': True},
+    'num_tier4_SV_variants': {'type': 'integer', 'required': True},
     'num_cnvs': {'type': 'integer', 'required': True},
     'num_actionable_cnvs': {'type': 'integer', 'required': True},
     'num_investigational_cnvs': {'type': 'integer', 'required': True},
@@ -86,7 +90,32 @@ gi_gold_standard_truth = {
     # misc
     'is_unreviewed': {'type': 'boolean'},
     'display_caveat': {'type': 'boolean'},
-    'mrn_is_deceased': {'type': 'boolean'}
+    'mrn_is_deceased': {'type': 'boolean'},
+
+    # signatures
+    'apobec_status': {'type': 'string', 'required': False},
+    'apobec_sig_offlabel_therapies': {'type': 'list', 'required': False},
+    'temo_trial_matches': {'type': 'list', 'required': False},
+    'temo_sig_offlabel_therapies': {'type': 'list', 'required': False},
+    'temo_sig_fda_therapies': {'type': 'list', 'required': False},
+    'temozolomide_status': {'type': 'string', 'required': False},
+    'tobacco_trial_matches': {'type': 'list', 'required': False},
+    'tobacco_sig_offlabel_therapies': {'type': 'list', 'required': False},
+    'tobacco_status': {'type': 'string', 'required': False},
+    'tobacco_sig_fda_therapies': {'type': 'list', 'required': False},
+    'uva_trial_matches': {'type': 'list', 'required': False},
+    'uva_status': {'type': 'string', 'required': False},
+    'uva_sig_fda_therapies': {'type': 'list', 'required': False},
+    'uva_sig_offlabel_therapies': {'type': 'list', 'required': False},
+    'apobec_sig_fda_therapies': {'type': 'list', 'required': False},
+    'apobec_trial_matches': {'type': 'list', 'required': False},
+    'pole_trial_matches': {'type': 'list', 'required': False},
+    'pole_sig_offlabel_therapies': {'type': 'list', 'required': False},
+    'pole_sig_fda_therapies': {'type': 'list', 'required': False},
+
+    # sv
+    'sv_trial_matches': {'allow_unknown': True, 'required': True},
+    'sv_df': {'type': 'list', 'required': False},
 }
 
 gi_final_kb_schema = {
