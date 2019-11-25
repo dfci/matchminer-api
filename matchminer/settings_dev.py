@@ -234,7 +234,6 @@ enrollment = {
 
 gi = {
     'schema': gi_schema,
-    'allow_unknown': True,
     'allowed_read_roles': ["admin", "service", "user"],
     'allowed_write_roles': ["admin", "service", "user"],
     'item_methods': ['GET', 'PUT', 'PATCH']
