@@ -235,7 +235,7 @@ gi = {
     'schema': gi_gold_standard_truth,
     'allowed_read_roles': ["admin", "service", "user"],
     'allowed_write_roles': ["admin", "service", "user"],
-    'item_methods': ['GET', 'PUT', 'DELETE']
+    'item_methods': ['GET', 'PATCH', 'PUT', 'DELETE']
 }
 
 # schema

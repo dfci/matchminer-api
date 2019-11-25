@@ -8,8 +8,11 @@ gi_gold_standard_truth = {
 
     # clinical data
     'sample_id': {'type': 'string', 'required': True},
+    'provider_name': {'type': 'string', 'required': True},
+    'provider_npi': {'type': 'integer', 'required': True},
     'clinical_id': {'type': 'string', 'required': True},
     'patient_name': {'type': 'string', 'required': True},
+    'name': {'type': 'string', 'required': True},
     'patient_initials': {'type': 'string', 'required': True},
     'tumor_type': {'type': 'string', 'required': True},
     'tumor_type_meta': {'type': 'string', 'required': True, 'nullable': True},
@@ -101,6 +104,25 @@ gi_gold_standard_truth = {
     # sv
     'sv_trial_matches': {'allow_unknown': True, 'required': True},
     'sv_df': {'type': 'list', 'required': False},
+
+    "apobec_fda_therapies": {'type': 'list', 'required': False},
+    "apobec_offlabel_therapies": {'type': 'list', 'required': False},
+    "block_no": {'type': 'string', 'required': False},
+    "cnv_records": {'type': 'list', 'required': False},
+    "mutation_records": {'type': 'list', 'required': False},
+    "oncopanel_report_date": {'type': 'string', 'required': False},
+    "pole_fda_therapies": {'type': 'list', 'required': False},
+    "pole_offlabel_therapies": {'type': 'list', 'required': False},
+    "sv_records": {'type': 'list', 'required': False},
+    "temozolomide_fda_therapies": {'type': 'list', 'required': False},
+    "temozolomide_offlabel_therapies": {'type': 'list', 'required': False},
+    "tobacco_fda_therapies": {'type': 'list', 'required': False},
+    "tobacco_offlabel_therapies": {'type': 'list', 'required': False},
+    "trial_matches": {'type': 'dict', 'required': False},
+    "uva_fda_therapies": {'type': 'list', 'required': False},
+    "uva_offlabel_therapies": {'type': 'list', 'required': False},
+
+    "prelim_report_generated": {'type': 'boolean', 'required': False}
 }
 
 gi_final_kb_schema = {
