@@ -15,5 +15,5 @@ EAP_INQUIRY_BODY = ""
 
 with open(EMAIL_CONFIG) as fin:
     vars_ = json.load(fin)
-    for name, value in vars_.iteritems():
+    for name, value in vars_.items():
         setattr(sys.modules[__name__], name, value)

@@ -82,8 +82,7 @@ class TestTrial(TestMinimal):
         assert r['status'] == 'Open to Accrual'
         assert status_code == 201
 
-        # test _suggest field
-        assert '_suggest' in r, r
+        db_trial = self.db['trial'].find_one({'protocol_no': '00-003'})
 
         suggestor_options = [
             'cancer_type_suggest',
@@ -100,14 +99,14 @@ class TestTrial(TestMinimal):
             'mmr_status_suggest',
             'nct_number_suggest'
         ]
-        assert sorted(r['_suggest'].keys()) == sorted(suggestor_options)
+        assert sorted(db_trial['_suggest'].keys()) == sorted(suggestor_options)
 
-        genes = r['_suggest']['hugo_symbol_suggest']['input']
+        genes = db_trial['_suggest']['hugo_symbol_suggest']['input']
         assert isinstance(genes, list)
         assert 'MYC' in genes
         assert len(genes) == 1
 
-        assert r['_suggest']['cancer_type_suggest'] == [], r
+        assert db_trial['_suggest']['cancer_type_suggest'] == []
 
     def test_trial_put(self):
 
@@ -128,7 +127,7 @@ class TestTrial(TestMinimal):
         # update it.
         etag = r['_etag']
         trial_id = r['_id']
-        for key in r.keys():
+        for key in list(r.keys()):
             if key[0] == '_':
                 del r[key]
 

@@ -1,3 +1,3 @@
-from engine import CBioEngine
+from .engine import CBioEngine
 
 __all__ = ["CBioEngine"]

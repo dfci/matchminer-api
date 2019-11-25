@@ -13,7 +13,7 @@ COLLECTION_CLINICAL = "clinical"
 COLLECTION_GENOMIC = "genomic"
 
 # TOKEN TIMEOUT.
-TOKEN_TIMEOUT = sys.maxint
+TOKEN_TIMEOUT = sys.maxsize
 
 # data outdir.
 DATA_DIR = os.path.join(os.path.abspath(os.path.join(__file__ , "../..")), "data")
@@ -219,7 +219,7 @@ negative_genomic = {
 
 patient_view = {
     'schema': matchminer.data_model.patient_view_schema,
-    'allow_unknown': True,
+    'allow_unknown': False,
     "allowed_read_roles": ["admin", "service", "user", "oncologist", "cti"],
     "allowed_write_roles": ["admin", "service", "user", "oncologist", "cti"],
     'item_methods': ['GET', 'PUT'],

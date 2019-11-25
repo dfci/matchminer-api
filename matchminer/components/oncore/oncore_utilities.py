@@ -64,7 +64,7 @@ class OncoreSync(object):
         """
 
         diffs = []
-        for oncore_key, oncore_val in oncore_dict.iteritems():
+        for oncore_key, oncore_val in oncore_dict.items():
 
             if oncore_key not in mm_dict:
                 continue
@@ -106,17 +106,17 @@ class OncoreSync(object):
                 if oncore_key in TRIAL_SORT_DICT:
                     sortby = TRIAL_SORT_DICT[oncore_key]
                 else:
-                    sortby = oncore_val[0].keys()[0]
+                    sortby = list(oncore_val[0].keys())[0]
 
                 # preserve sort order
                 mm_vals_idx = [mm_val.index(i) for i in mm_val]
-                mm_vals_dict = dict(zip([i[sortby] for i in mm_val], mm_vals_idx))
+                mm_vals_dict = dict(list(zip([i[sortby] for i in mm_val], mm_vals_idx)))
 
                 oncore_vals_sorted = sorted(oncore_val, key=lambda x: str(x[sortby]).lower())
                 mm_vals_sorted = sorted(mm_val, key=lambda x: str(x[sortby]).lower())
 
                 for ll_oncore_val, ll_mm_val, i in zip(oncore_vals_sorted, mm_vals_sorted,
-                                                       range(len(oncore_vals_sorted))):
+                                                       list(range(len(oncore_vals_sorted)))):
 
                     if isinstance(ll_oncore_val, dict):
                         diffs.extend(
@@ -153,8 +153,8 @@ class OncoreSync(object):
 
     @staticmethod
     def ascii_encode_dict(data):
-        ascii_encode = lambda x: x.encode('ascii', 'ignore') if isinstance(x, unicode) else x
-        return dict(map(ascii_encode, pair) for pair in data.items())
+        ascii_encode = lambda x: x.encode('ascii', 'ignore') if isinstance(x, str) else x
+        return dict(list(map(ascii_encode, pair)) for pair in list(data.items()))
 
     def build_email_and_log(self, protocol_no, event):
         """
@@ -211,7 +211,7 @@ class OncoreSync(object):
     def compare_trials(self, on_trial, mm_trial):
 
         # strip all metadata and empty fields
-        for key in mm_trial.keys():
+        for key in list(mm_trial.keys()):
             if key[0] == "_":
                 del mm_trial[key]
 
@@ -226,7 +226,7 @@ class OncoreSync(object):
 
         # loop over each top-level excluding match and priors:
         updated = list()
-        for key in on_trial.keys():
+        for key in list(on_trial.keys()):
 
             if key in ["match", "prior_treatment_requirements"]:
                 continue
@@ -279,7 +279,7 @@ class OncoreSync(object):
                         updated.append(v)
 
         # strip all metadata and empty fields
-        for key in mm_trial.keys():
+        for key in list(mm_trial.keys()):
 
             # remove meta data
             if key[0] == "_":
@@ -304,7 +304,7 @@ def is_camelcase(s):
 
 def recursive_snake_case(on_trial):
     on_trial_snakecase = {}
-    for key in on_trial.keys():
+    for key in list(on_trial.keys()):
         new_key = to_snake_case(key) if is_camelcase(key) else key
         on_trial_val = on_trial[key]
         if isinstance(on_trial_val, dict):

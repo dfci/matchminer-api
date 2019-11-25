@@ -4,12 +4,13 @@ from tests.test_matchminer import TestMinimal
 from matchminer.events import email_user
 from matchminer import settings
 
-class TestEmail(TestMinimal):
 
+class TestEmail(TestMinimal):
     email = {
         '_id': ObjectId(),
         'email_from': 'FROM@gmail.com',
         'email_to': 'TO@gmail.com',
+        'cc': ['CC@gmail.com'],
         'subject': 'Test Email',
         'body': 'Hello World'
     }
@@ -58,7 +59,6 @@ class TestEmail(TestMinimal):
         settings.WELCOME_EMAIL = keep
 
     def test_not_approved(self):
-
         self.db.email.drop()
         email_user([{
             '_id': ObjectId(),
