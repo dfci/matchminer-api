@@ -1,8 +1,7 @@
 import os
 import sys
 import matchminer.data_model
-from matchminer.components.gi.data_model import gi_schema, gi_gold_standard_truth, gi_final_kb_schema, \
-    gi_kb1_schema, gi_kb2_schema, gi_kb3_schema, gi_provider_kb_schema
+from matchminer.components.gi.data_model import gi_gold_standard_truth
 
 # for API documentation, needs to be enabled
 ENFORCE_IF_MATCH = True
@@ -233,16 +232,9 @@ enrollment = {
 }
 
 gi = {
-    'schema': gi_schema,
-    'allowed_read_roles': ["admin", "service", "user"],
-    'allowed_write_roles': ["admin", "service", "user"],
-    'item_methods': ['GET', 'PUT', 'PATCH']
-}
-
-gi_gold_standard_truth = {
     'schema': gi_gold_standard_truth,
     'allowed_read_roles': ["admin", "service", "user"],
-    'allowed_write_roles': ["admin", "service"],
+    'allowed_write_roles': ["admin", "service", "user"],
     'item_methods': ['GET', 'PUT', 'DELETE']
 }
 
@@ -266,7 +258,7 @@ DOMAIN = {
     'patient_view': patient_view,
     'enrollment': enrollment,
     'gi': gi,
-    'gi_gold_standard_truth': gi_gold_standard_truth
+    'gi_gold_standard_truth': gi
 }
 
 MONGO_QUERY_BLACKLIST = ['$where']

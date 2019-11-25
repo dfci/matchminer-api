@@ -1,18 +1,3 @@
-gi_schema = {
-    'mrn': {'type': 'string', 'required': True},
-    'name': {'type': 'string', 'required': True},
-    'sample_id': {'type': 'string', 'required': True},
-    'prelim_report_generated': {'type': 'boolean'},
-    'final_report_generated': {'type': 'boolean'},
-    'trial_matches': {'allow_unknown': True},
-    'provider_name': {'type': 'string'},
-    'provider_npi': {'type': 'integer'},
-    'gi_report_date': {'type': 'string', 'nullable': True},
-    'mrn_is_deceased': {'type': 'boolean'},
-    'sign_out_date': {'type': 'integer', 'nullable': True},
-    'archived': {'type': 'boolean'}
-}
-
 gi_gold_standard_truth = {
     'mrn': {'type': 'string', 'required': True},
     'oncologist': {'type': 'string', 'required': True},
