@@ -231,6 +231,13 @@ enrollment = {
     'item_methods': ['GET']
 }
 
+gi_gold_standard_truth = {
+    'schema': gi_gold_standard_truth,
+    'allowed_read_roles': ["admin", "service", "user"],
+    'allowed_write_roles': ["admin", "service", "user"],
+    'item_methods': ['GET', 'PATCH', 'PUT', 'DELETE']
+}
+
 gi = {
     'schema': gi_gold_standard_truth,
     'allowed_read_roles': ["admin", "service", "user"],
@@ -258,7 +265,7 @@ DOMAIN = {
     'patient_view': patient_view,
     'enrollment': enrollment,
     'gi': gi,
-    'gi_gold_standard_truth': gi
+    'gi_gold_standard_truth': gi_gold_standard_truth
 }
 
 MONGO_QUERY_BLACKLIST = ['$where']
