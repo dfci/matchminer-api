@@ -122,7 +122,9 @@ gi_gold_standard_truth = {
     "uva_fda_therapies": {'type': 'list', 'required': False},
     "uva_offlabel_therapies": {'type': 'list', 'required': False},
 
-    "prelim_report_generated": {'type': 'boolean', 'required': False}
+    "prelim_report_generated": {'type': 'boolean', 'required': False},
+    "final_report_generated": {'type': 'boolean', 'required': False},
+    "sign_out_date": {'type': 'integer', 'required': False}
 }
 
 gi_final_kb_schema = {
