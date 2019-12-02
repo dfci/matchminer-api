@@ -48,28 +48,28 @@ gi_gold_standard_truth = {
     'cnv_df': {'allow_unknown': True, 'required': False},
     'sv_gene': {'allow_unknown': True, 'nullable': True},
     'filename': {'type': 'string'},
-    'sv_fda_therapies': {'type': 'list', 'schema': {'allow_unknown': True}, 'required': True, 'nullable': True},
-    'sv_offlabel_therapies': {'type': 'list', 'schema': {'allow_unknown': True}, 'required': True, 'nullable': True},
+    'sv_fda_therapies': {'type': 'list', 'schema': {'allow_unknown': True}, 'required': False, 'nullable': True},
+    'sv_offlabel_therapies': {'type': 'list', 'schema': {'allow_unknown': True}, 'required': False, 'nullable': True},
     'sv_comment': {'type': 'string', 'nullable': True},
 
     # mutational signature data
     'mmr_status': {'type': 'string', 'required': False},
-    'pole_status': {'type': 'string', 'required': True},
+    'pole_status': {'type': 'string', 'required': False},
 
     # mutational burden data
-    'tmb': {'type': 'float', 'required': True},
+    'tmb': {'type': 'float', 'required': False},
     'all_profile_percentile': {'type': 'integer', 'required': False},
-    'tumor_type_percentile': {'type': 'integer', 'required': True},
+    'tumor_type_percentile': {'type': 'integer', 'required': False},
     'num_oncopanel': {'type': 'integer', 'required': False},
     'num_tumor_type_oncopanel': {'type': 'integer', 'required': False},
 
     # therapy data
-    'sig_fda_therapies': {'type': 'list', 'schema': {'allow_unknown': True}, 'required': True},
-    'sig_offlabel_therapies': {'type': 'list', 'schema': {'allow_unknown': True}, 'required': True},
+    'sig_fda_therapies': {'type': 'list', 'schema': {'allow_unknown': True}, 'required': False},
+    'sig_offlabel_therapies': {'type': 'list', 'schema': {'allow_unknown': True}, 'required': False},
     'summary': {'allow_unknown': True},
 
     # trial match data
-    'sig_trial_matches': {'type': 'list', 'schema': {'allow_unknown': True}, 'required': True},
+    'sig_trial_matches': {'type': 'list', 'schema': {'allow_unknown': True}, 'required': False},
     'mutation_trial_matches': {'allow_unknown': True, 'required': False},
     'cnv_trial_matches': {'allow_unknown': True, 'required': False},
     'actionable_trial_matches': {'type': 'list', 'schema': {'allow_unknown': True}, 'required': False},
@@ -102,7 +102,7 @@ gi_gold_standard_truth = {
     'pole_sig_fda_therapies': {'type': 'list', 'required': False},
 
     # sv
-    'sv_trial_matches': {'allow_unknown': True, 'required': True},
+    'sv_trial_matches': {'allow_unknown': True, 'required': False},
     'sv_df': {'type': 'list', 'required': False},
 
     "apobec_fda_therapies": {'type': 'list', 'required': False},
