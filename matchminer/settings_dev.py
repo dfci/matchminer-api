@@ -258,7 +258,7 @@ DOMAIN = {
     'patient_view': patient_view,
     'enrollment': enrollment,
     'gi': gi,
-    'gi_gold_standard_truth': gi
+    'gi_gold_standard_truth': gi.copy()
 }
 
 MONGO_QUERY_BLACKLIST = ['$where']

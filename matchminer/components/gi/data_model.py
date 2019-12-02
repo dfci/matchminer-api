@@ -8,11 +8,11 @@ gi_gold_standard_truth = {
 
     # clinical data
     'sample_id': {'type': 'string', 'required': True},
-    'provider_name': {'type': 'string', 'required': True},
-    'provider_npi': {'type': 'integer', 'required': True},
+    'provider_name': {'type': 'string', 'required': False},
+    'provider_npi': {'type': 'integer', 'required': False},
     'clinical_id': {'type': 'string', 'required': True},
     'patient_name': {'type': 'string', 'required': True},
-    'name': {'type': 'string', 'required': True},
+    'name': {'type': 'string', 'required': False},
     'patient_initials': {'type': 'string', 'required': True},
     'tumor_type': {'type': 'string', 'required': True},
     'tumor_type_meta': {'type': 'string', 'required': True, 'nullable': True},
