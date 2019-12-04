@@ -72,6 +72,7 @@ gi_gold_standard_truth = {
     'sig_trial_matches': {'type': 'list', 'schema': {'allow_unknown': True}, 'required': False},
     'mutation_trial_matches': {'allow_unknown': True, 'required': False},
     'cnv_trial_matches': {'allow_unknown': True, 'required': False},
+    'tmb_trial_matches': {'allow_unknown': True, 'required': False},
     'actionable_trial_matches': {'type': 'list', 'schema': {'allow_unknown': True}, 'required': False},
     'tier4_trial_matchalterationses': {'type': 'list', 'schema': {'allow_unknown': True}, 'required': False},
 
