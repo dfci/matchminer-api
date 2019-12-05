@@ -84,9 +84,9 @@ gi_gold_standard_truth = {
     # signatures
     'apobec_status': {'type': 'string', 'required': False},
     'apobec_sig_offlabel_therapies': {'type': 'list', 'required': False},
-    'temo_trial_matches': {'type': 'list', 'required': False},
-    'temo_sig_offlabel_therapies': {'type': 'list', 'required': False},
-    'temo_sig_fda_therapies': {'type': 'list', 'required': False},
+    'temozolomide_trial_matches': {'type': 'list', 'required': False},
+    'temozolomide_sig_offlabel_therapies': {'type': 'list', 'required': False},
+    'temozolomide_sig_fda_therapies': {'type': 'list', 'required': False},
     'temozolomide_status': {'type': 'string', 'required': False},
     'tobacco_trial_matches': {'type': 'list', 'required': False},
     'tobacco_sig_offlabel_therapies': {'type': 'list', 'required': False},
