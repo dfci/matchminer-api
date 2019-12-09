@@ -57,7 +57,7 @@ def _real_get(email):
     # add the defaults
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic ' + str(base64.b64encode(API_TOKEN + ':'))
+        'Authorization': 'Basic ' + base64.b64encode(f'{API_TOKEN}:'.encode('utf-8')).decode()
     }
 
     # build the query string and actual URL.
@@ -98,7 +98,7 @@ def _real_insert_user(user):
     # add the defaults
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic ' + str(base64.b64encode(API_TOKEN + ':'))
+        'Authorization': 'Basic ' + base64.b64encode(f'{API_TOKEN}:'.encode('utf-8')).decode()
     }
 
     # create team.
@@ -142,7 +142,7 @@ def _real_update_user(user):
     # update it.
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic ' + str(base64.b64encode(API_TOKEN + ':')),
+        'Authorization': 'Basic ' + base64.b64encode(f'{API_TOKEN}:'.encode('utf-8')).decode(),
         'If-Match': user['_etag']
     }
     url = "%s/user/%s" % (API_ADDRESS, user['_id'])

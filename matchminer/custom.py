@@ -338,7 +338,7 @@ def build_redirect_url_epic(user, trial_match):
 
     # Build response headers
     response = app.make_response(redirect_to_patient)
-    response.headers.add('Authorization', 'Basic' + str(base64.b64encode(API_TOKEN + ':')))
+    response.headers.add('Authorization', 'Basic' + base64.b64encode(f'{token}:'.encode('utf-8')).decode())
     response.headers.add('Last-Modified', datetime.datetime.now())
     response.headers.add('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0')
     response.headers.add('Pragma', 'no-cache')
