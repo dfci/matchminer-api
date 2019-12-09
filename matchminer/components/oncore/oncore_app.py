@@ -67,7 +67,7 @@ def _render_trials():
     # set headers.
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic ' + str(base64.b64encode(API_TOKEN + ':')),
+        'Authorization': 'Basic ' + base64.b64encode(f'{API_TOKEN}:'.encode('utf-8')).decode('utf-8'),
     }
 
     # get the trial list from db.
@@ -204,7 +204,7 @@ def trial_request(trial_id):
     # set headers.
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic ' + str(base64.b64encode(API_TOKEN + ':')),
+        'Authorization': 'Basic ' + base64.b64encode(f'{API_TOKEN}:'.encode('utf-8')).decode('utf-8'),
     }
 
     # create the request.
@@ -327,7 +327,7 @@ def update_from_oncore(protocol_no):
 
         # set headers.
         headers = {'Content-Type': 'application/json',
-                   'Authorization': 'Basic ' + str(base64.b64encode(API_TOKEN + ':')),
+                   'Authorization': 'Basic ' + base64.b64encode(f'{API_TOKEN}:'.encode('utf-8')).decode('utf-8'),
                    'If-Match': etag}
 
         # set last updated field
