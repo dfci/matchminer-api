@@ -101,7 +101,7 @@ def index():
     # set headers.
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic ' + str(base64.b64encode(API_TOKEN + ':')),
+        'Authorization': 'Basic ' + base64.b64encode(f'{API_TOKEN}:'.encode('utf-8')).decode('utf-8'),
     }
 
     # render the form.
