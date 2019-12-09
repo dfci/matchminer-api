@@ -57,11 +57,11 @@ gi_gold_standard_truth = {
     'pole_status': {'type': 'string', 'required': False},
 
     # mutational burden data
-    'tmb': {'type': 'float', 'required': False},
-    'all_profile_percentile': {'type': 'integer', 'required': False},
-    'tumor_type_percentile': {'type': 'integer', 'required': False},
-    'num_oncopanel': {'type': 'integer', 'required': False},
-    'num_tumor_type_oncopanel': {'type': 'integer', 'required': False},
+    'tmb': {'type': 'float', 'required': False, 'nullable': True},
+    'all_profile_percentile': {'type': 'integer', 'required': False, 'nullable': True},
+    'tumor_type_percentile': {'type': 'integer', 'required': False, 'nullable': True},
+    'num_oncopanel': {'type': 'integer', 'required': False, 'nullable': True},
+    'num_tumor_type_oncopanel': {'type': 'integer', 'required': False, 'nullable': True},
 
     # therapy data
     'sig_fda_therapies': {'type': 'list', 'schema': {'allow_unknown': True}, 'required': False},
