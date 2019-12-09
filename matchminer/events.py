@@ -463,12 +463,16 @@ def clinical_delete(item):
     # get database lookup.
     genomic_db = app.data.driver.db['genomic']
     match_db = app.data.driver.db['match']
+    trial_match_db = app.data.driver.db['trial_match']
 
     # delete associated genomic entries.
     genomic_db.delete_many({"CLINICAL_ID": ObjectId(item['_id'])})
 
     # delete associated matches.
     match_db.delete_many({"CLINICAL_ID": ObjectId(item['_id'])})
+
+    # delete associated trial matches.
+    trial_match_db.delete_many({"clinical_id": ObjectId(item['_id'])})
 
 
 def genomic_insert(items):
