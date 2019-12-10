@@ -1,5 +1,5 @@
 -e git+https://github.com/jim-bo/oncotreenx.git#egg=Oncotree
--e git+https://github.com/dfci/matchminer-engine.git@master#egg=matchengine
+-e git+https://github.com/dfci/matchminer-engine.git@py3#egg=matchengine
 -e git+https://github.com/crappycrypto/wincrypto.git@master#egg=wincrypto
 Cerberus==1.2
 Eve==0.9.2
