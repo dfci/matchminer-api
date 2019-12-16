@@ -184,7 +184,7 @@ email = {
 
 statistics = {
     'schema': matchminer.data_model.dashboard_schema,
-    'allow_unknown': True,
+    'allow_unknown': False,
     "allowed_read_roles": ["admin", "service"],
     "allowed_write_roles": ["admin", "service"],
     'item_methods': ['GET', 'PATCH', 'PUT', 'DELETE']

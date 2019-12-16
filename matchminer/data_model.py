@@ -190,7 +190,7 @@ clinical_schema = {
     'FIRST_LAST': {'type': 'string', 'readonly': True},
     'LAST_FIRST': {'type': 'string', 'readonly': True},
     'BIRTH_DATE': {'type': 'datetime', 'required': True},
-    'BIRTH_DATE_INT': {'type': 'integer', 'required': False},
+    'BIRTH_DATE_INT': {'type': 'integer', 'required': True},
     'VITAL_STATUS': {'type': 'string', 'required': True, 'allowed': ['alive', 'deceased']},
     'LAST_VISIT_DATE': {'type': 'datetime'},
 
@@ -1272,7 +1272,12 @@ email_schema = {
     'errors': {'type': 'list', 'schema': {'type': 'string'}, 'default': []}
 }
 
-dashboard_schema = {}
+dashboard_schema = {
+    'active_filter_data_set': {'type': 'list', 'required': False},
+    'active_user_data_set': {'type': 'list', 'required': False},
+    'inactive_user_data_set': {'type': 'list', 'required': False},
+    'mm_data_set': {'type': 'list', 'required': False},
+}
 
 public_stats_schema = {
     'num_clinical_trials': {'type': 'integer'},
