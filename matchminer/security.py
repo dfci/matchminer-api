@@ -37,7 +37,7 @@ class TokenAuth(TokenAuth):
             lookup['roles'] = {"$in": allowed_roles}
 
         user = None
-        for attempt in xrange(5):
+        for attempt in range(5):
             try:
                 user = accounts.find_one(lookup)
             except Exception as e:

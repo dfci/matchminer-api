@@ -4,7 +4,7 @@ import json
 import base64
 import logging
 import datetime
-import StringIO
+import io
 import requests
 from flask_cors import CORS
 from functools import wraps, update_wrapper
@@ -52,7 +52,7 @@ def oncore_auth_required(view):
 def _yamlize(trial, trial_id):
 
     # turn into yaml
-    fout = StringIO.StringIO()
+    fout = io.StringIO()
     yaml.dump(yaml.load(json.dumps(trial)), fout, default_flow_style=False)
     output = fout.getvalue()
 
@@ -67,7 +67,7 @@ def _render_trials():
     # set headers.
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic ' + str(base64.b64encode(API_TOKEN + ':')),
+        'Authorization': 'Basic ' + base64.b64encode(f'{API_TOKEN}:'.encode('utf-8')).decode('utf-8'),
     }
 
     # get the trial list from db.
@@ -80,7 +80,7 @@ def _render_trials():
 def _handle_exc(trial):
     """Field name "diseasesite_code" can come in from the yaml as string or integer but must be stored as a string"""
 
-    for k, v in trial.iteritems():
+    for k, v in trial.items():
         if k == 'disease_site_code':
             trial[k] = str(v)
         elif isinstance(v, list):
@@ -101,7 +101,7 @@ def index():
     # set headers.
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic ' + str(base64.b64encode(API_TOKEN + ':')),
+        'Authorization': 'Basic ' + base64.b64encode(f'{API_TOKEN}:'.encode('utf-8')).decode('utf-8'),
     }
 
     # render the form.
@@ -167,7 +167,7 @@ def index():
                 etag = trial['_etag']
 
                 # strip meta
-                for key in trial.keys():
+                for key in list(trial.keys()):
                     if key[0] == "_":
                         del trial[key]
                 trial['_id'] = trial_id
@@ -204,7 +204,7 @@ def trial_request(trial_id):
     # set headers.
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic ' + str(base64.b64encode(API_TOKEN + ':')),
+        'Authorization': 'Basic ' + base64.b64encode(f'{API_TOKEN}:'.encode('utf-8')).decode('utf-8'),
     }
 
     # create the request.
@@ -227,7 +227,7 @@ def trial_request(trial_id):
     headers['If-Match'] = etag
 
     # strip meta
-    for key in trial.keys():
+    for key in list(trial.keys()):
         if key[0] == "_":
             del trial[key]
 
@@ -320,14 +320,14 @@ def update_from_oncore(protocol_no):
     if updated:
 
         # strip meta
-        for key in mm_trial.keys():
+        for key in list(mm_trial.keys()):
             if key[0] == "_":
                 del mm_trial[key]
         mm_trial['_id'] = trial_id
 
         # set headers.
         headers = {'Content-Type': 'application/json',
-                   'Authorization': 'Basic ' + str(base64.b64encode(API_TOKEN + ':')),
+                   'Authorization': 'Basic ' + base64.b64encode(f'{API_TOKEN}:'.encode('utf-8')).decode('utf-8'),
                    'If-Match': etag}
 
         # set last updated field

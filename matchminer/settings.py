@@ -59,7 +59,7 @@ if file_path is None:
 if file_path is not None:
     with open(file_path) as fin:
         vars_ = json.load(fin)
-        for name, value in vars_.iteritems():
+        for name, value in vars_.items():
             globals()[name] = value
 
 

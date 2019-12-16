@@ -57,7 +57,7 @@ def _real_get(email):
     # add the defaults
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic ' + str(base64.b64encode(API_TOKEN + ':'))
+        'Authorization': 'Basic ' + base64.b64encode(f'{API_TOKEN}:'.encode('utf-8')).decode()
     }
 
     # build the query string and actual URL.
@@ -98,7 +98,7 @@ def _real_insert_user(user):
     # add the defaults
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic ' + str(base64.b64encode(API_TOKEN + ':'))
+        'Authorization': 'Basic ' + base64.b64encode(f'{API_TOKEN}:'.encode('utf-8')).decode()
     }
 
     # create team.
@@ -128,7 +128,7 @@ def _test_update_user(user, test):
 
     # delete the user name and trip extras.
     user['user_name'] = ''
-    for x in user.keys():
+    for x in list(user.keys()):
         if x[0] == '_':
             del user[x]
 
@@ -142,14 +142,14 @@ def _real_update_user(user):
     # update it.
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic ' + str(base64.b64encode(API_TOKEN + ':')),
+        'Authorization': 'Basic ' + base64.b64encode(f'{API_TOKEN}:'.encode('utf-8')).decode(),
         'If-Match': user['_etag']
     }
     url = "%s/user/%s" % (API_ADDRESS, user['_id'])
 
     # delete the user name and trip extras.
     user['user_name'] = ''
-    for x in user.keys():
+    for x in list(user.keys()):
         if x[0] == '_':
             del user[x]
 

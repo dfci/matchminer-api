@@ -68,3 +68,5 @@ target/
 
 # osx
 .DS_Store
+
+python-xmlsec/*

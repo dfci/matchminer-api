@@ -27,7 +27,7 @@ class TrialValidation(unittest.TestCase):
                             validator = ConsentValidatorEve)
 
         # load normalization.
-        with open(BSON_FILE) as fin:
+        with open(BSON_FILE, 'rb') as fin:
             mappings = list(bson.decode_iter(fin.read()))
 
         # add normalization.

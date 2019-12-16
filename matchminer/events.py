@@ -3,8 +3,10 @@ import time
 import json
 import logging
 import datetime
+from email.utils import formatdate
+
 from bson import ObjectId
-from rfc822 import formatdate
+
 
 from flask import abort, Response, request
 from flask import current_app as app
@@ -16,7 +18,7 @@ from matchminer import miner
 from matchminer import settings
 from matchminer import utilities
 from matchminer.utilities import REPLACEMENTS, get_data_push_id
-from trial_search import Summary, Autocomplete
+from .trial_search import Summary, Autocomplete
 
 from tcm.engine import CBioEngine
 from matchengine.engine import MatchEngine
@@ -39,7 +41,7 @@ def clean_filter(items):
                 clin_tmp = clin_tmp.replace(key, val)
             item['clinical_filter'] = json.loads(clin_tmp)
 
-            for key in item['clinical_filter'].keys():
+            for key in list(item['clinical_filter'].keys()):
                 if item['clinical_filter'][key] is None:
                     del item['clinical_filter'][key]
 
@@ -51,7 +53,7 @@ def clean_filter(items):
                 gen_tmp = gen_tmp.replace(key, val)
             item['genomic_filter'] = json.loads(gen_tmp)
 
-            for key in item['genomic_filter'].keys():
+            for key in list(item['genomic_filter'].keys()):
                 if item['genomic_filter'][key] is None:
                     del item['genomic_filter'][key]
 
@@ -251,7 +253,7 @@ def sort_trial_matches(resource):
         resource['_items'] = sorted(resource['_items'], key=lambda x: (tuple(x['sort_order'][:-1]) + (1.0 / x['sort_order'][-1],)))
         for item in resource['_items']:
             if item['protocol_no'] not in seen_protocol_nos:
-                if any(map(lambda x: x < 0, item['sort_order'])):
+                if any([x < 0 for x in item['sort_order']]):
                     seen_protocol_nos[item['protocol_no']] = -1
                 else:
                     seen_protocol_nos[item['protocol_no']] = current_rank
@@ -461,12 +463,16 @@ def clinical_delete(item):
     # get database lookup.
     genomic_db = app.data.driver.db['genomic']
     match_db = app.data.driver.db['match']
+    trial_match_db = app.data.driver.db['trial_match']
 
     # delete associated genomic entries.
     genomic_db.delete_many({"CLINICAL_ID": ObjectId(item['_id'])})
 
     # delete associated matches.
     match_db.delete_many({"CLINICAL_ID": ObjectId(item['_id'])})
+
+    # delete associated trial matches.
+    trial_match_db.delete_many({"clinical_id": ObjectId(item['_id'])})
 
 
 def genomic_insert(items):
@@ -553,8 +559,8 @@ def add_dashboard_row(status):
     inactive_users = utilities.exclude_ksg(inactive_users)
 
     # sort users by activity
-    active_users.sort(reverse=True)
-    inactive_users.sort(reverse=True)
+    active_users.sort(reverse=True, key=lambda x: x['_id'])
+    inactive_users.sort(reverse=True, key=lambda x: x['_id'])
 
     # update the dashboard
     db['statistics'].update_one({}, {
@@ -788,7 +794,7 @@ def insert_data_other(trial_tree, node_id, n, other):
     # populate disease center and Study Site (special because only once)
     for key in fields:
         try:
-            val = trial_tree.node[n][key].keys()[0]
+            val = next(iter(trial_tree.node[n][key].keys()))
             # iterate through the list
             for name in trial_tree.node[n][key][val]:
                 # check if primary site or coordinating center
@@ -949,7 +955,7 @@ def pre_get_restricted(request, lookup):
 
             # check if it is legit.
             if isinstance(clause['TEAM_ID'], dict):
-                team_list = clause['TEAM_ID'].values()[0]
+                team_list = next(iter(clause['TEAM_ID'].values()))
             else:
                 team_list = [clause['TEAM_ID']]
 
@@ -981,7 +987,7 @@ def update_response(item):
     db['response'].update_one(
         {'_id': item['_id']},
         {'$set': {
-            'time_clicked': formatdate(time.mktime(datetime.datetime.now().timetuple())),
+            'time_clicked': formatdate(time.mktime(datetime.datetime.now().timetuple()), localtime=False, usegmt=True),
             'ip_address': _get_ip()
         }}
     )

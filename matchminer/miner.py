@@ -26,13 +26,13 @@ logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
 
 def _email_text(user, num_matches, match_str, num_filters, cur_date, cur_stamp):
     html = '''<html><head></head><body>%s</body></html>''' % emails.FILTER_MATCH_BODY.format(
-      user['first_name'],
-      user['last_name'],
-      num_matches,
-      match_str,
-      num_filters,
-      cur_date,
-      cur_stamp
+        user['first_name'],
+        user['last_name'],
+        num_matches,
+        match_str,
+        num_filters,
+        cur_date,
+        cur_stamp
     )
     return html
 
@@ -153,7 +153,8 @@ def rerun_filters(dpi=None):
         cbio.match(c=c, g=g)
 
         if cbio.match_df is not None and cbio.genomic_df is not None and cbio.clinical_df is not None:
-            logging.info("rerun_filters: new matches: match=%d, genomic=%d, clinical=%d" % (len(cbio.match_df), len(cbio.genomic_df), len(cbio.clinical_df)))
+            logging.info("rerun_filters: new matches: match=%d, genomic=%d, clinical=%d" % (
+                len(cbio.match_df), len(cbio.genomic_df), len(cbio.clinical_df)))
 
         # get existing matches for this filter.
         matches = list(match_db.find({'FILTER_ID': ObjectId(filter_['_id'])}))
@@ -277,7 +278,7 @@ def detect_update(cbio, item):
         txt += json.dumps(item['genomic_filter'])
     if 'clinical_filter' in item:
         txt += json.dumps(item['clinical_filter'])
-    hash_new = hashlib.md5(txt).hexdigest()
+    hash_new = hashlib.md5(txt.encode('utf-8')).hexdigest()
 
     # compute status.
     updated = False
@@ -326,7 +327,7 @@ def count_matches(cbio, item):
     """
 
     # build total date array.
-    today = datetime.date.today() + datetime.timedelta(1*365/12)
+    today = datetime.date.today() + datetime.timedelta(1 * 365 / 12)
     all_dates = pd.date_range(datetime.datetime(2013, 7, 1), today, freq='BM')
     all_dates = all_dates.map(lambda x: datetime.datetime(x.year, x.month, 1))
     all_dates = pd.Series(all_dates)
@@ -362,7 +363,8 @@ def count_matches(cbio, item):
         item['num_genomic'] = cbio.living_genomic
 
         # extract the actual dates.
-        hits = cbio.match_all_df.REPORT_DATE.map(lambda x: datetime.datetime(x.year, x.month, 1) if pd.notnull(x) else x)
+        hits = cbio.match_all_df.REPORT_DATE.map(
+            lambda x: datetime.datetime(x.year, x.month, 1) if pd.notnull(x) else x)
 
         # combine them and remove base counts.
         total_dates = all_dates.append(hits)
@@ -459,7 +461,7 @@ def insert_matches(cbio, item, from_filter=True, dpi=None):
 
                 true_hugo_symbol = filter_['genomic_filter']['TRUE_HUGO_SYMBOL']
                 if isinstance(true_hugo_symbol, dict):
-                    true_hugo_symbol = ', '.join([str(i) for i in true_hugo_symbol.values()[0]])
+                    true_hugo_symbol = ', '.join([str(i) for i in next(iter(true_hugo_symbol.values()))])
 
         if true_hugo_symbol is None:
             logging.error("error in filter logic")
@@ -491,7 +493,8 @@ def insert_matches(cbio, item, from_filter=True, dpi=None):
             'VARIANTS': val,
             'PATIENT_MRN': clinical_info_vals[clinical_info.index('MRN')],
             'MMID': binascii.b2a_hex(os.urandom(3)).upper(),
-            'ONCOTREE_PRIMARY_DIAGNOSIS_NAME': clinical_info_vals[clinical_info.index('ONCOTREE_PRIMARY_DIAGNOSIS_NAME')],
+            'ONCOTREE_PRIMARY_DIAGNOSIS_NAME': clinical_info_vals[
+                clinical_info.index('ONCOTREE_PRIMARY_DIAGNOSIS_NAME')],
             'ONCOTREE_BIOPSY_SITE_TYPE': clinical_info_vals[clinical_info.index('ONCOTREE_BIOPSY_SITE_TYPE')],
             'TRUE_HUGO_SYMBOL': true_hugo_symbol,
             'VARIANT_CATEGORY': clinical_info_vals[clinical_info.index('VARIANT_CATEGORY')],
@@ -518,7 +521,8 @@ def insert_matches(cbio, item, from_filter=True, dpi=None):
 def email_content(protocol_id, genomic, clinical):
 
     # check for template.
-    if not os.path.isfile("%s/templates/templates/%s.html" % (os.path.dirname(os.path.realpath(__file__)), protocol_id)):
+    if not os.path.isfile(
+            "%s/templates/templates/%s.html" % (os.path.dirname(os.path.realpath(__file__)), protocol_id)):
         return ""
 
     # setup variables.
@@ -781,7 +785,7 @@ def prepare_criteria(item):
 
             genes = genes + to_add
 
-            abc = '|'.join(["(.*\W%s\W.*)|(^%s\W.*)|(.*\W%s$)" % (gene, gene, gene)
+            abc = '|'.join([rf"(.*\W{gene}\W.*)|(^{gene}\W.*)|(.*\W{gene}$)"
                             for gene in genes])
 
             clauses.append({'STRUCTURAL_VARIANT_COMMENT': {"$regex": abc}})

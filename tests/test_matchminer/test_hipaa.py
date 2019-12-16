@@ -2,7 +2,7 @@
 import os
 import pprint
 import json
-from rfc822 import formatdate
+from email.utils import formatdate
 import time
 import datetime
 
@@ -61,7 +61,7 @@ class TestHipaa(TestMinimal):
     def _insert_match(self):
 
         # make a complex query.
-        dt = formatdate(time.mktime(datetime.datetime(year=1995, month=1, day=1).timetuple()))
+        dt = formatdate(time.mktime(datetime.datetime(year=1995, month=1, day=1).timetuple()), localtime=False, usegmt=True)
         c = {
             "BIRTH_DATE": {"$gte": dt},
         }

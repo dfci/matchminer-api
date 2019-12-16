@@ -3,7 +3,7 @@ import os
 import pprint
 import datetime
 import time
-from rfc822 import formatdate
+from email.utils import formatdate
 from bson.objectid import ObjectId
 import json
 import random
@@ -18,7 +18,7 @@ class TestMatch(TestMinimal):
     def _insert_match_small(self):
 
         # make a complex query.
-        dt = formatdate(time.mktime(datetime.datetime(year=1995, month=1, day=1).timetuple()))
+        dt = formatdate(time.mktime(datetime.datetime(year=1995, month=1, day=1).timetuple()), localtime=False, usegmt=True)
         c = {
             "BIRTH_DATE": {"$gte": dt},
         }
@@ -45,7 +45,7 @@ class TestMatch(TestMinimal):
     def _insert_match_large(self):
 
         # make a complex query.
-        dt = formatdate(time.mktime(datetime.datetime(year=1975, month=1, day=1).timetuple()))
+        dt = formatdate(time.mktime(datetime.datetime(year=1975, month=1, day=1).timetuple()), localtime=False, usegmt=True)
         c = {
             "BIRTH_DATE": {"$gte": dt},
         }
@@ -160,7 +160,7 @@ class TestMatch(TestMinimal):
     def test_get_email(self):
 
         # make a complex query.
-        dt = formatdate(time.mktime(datetime.datetime(year=1975, month=1, day=1).timetuple()))
+        dt = formatdate(time.mktime(datetime.datetime(year=1975, month=1, day=1).timetuple()), localtime=False, usegmt=True)
         c = {
             "BIRTH_DATE": {"$gte": dt},
         }
@@ -254,7 +254,7 @@ class TestMatch(TestMinimal):
         etag = match['_etag']
 
         # strip it.
-        for key in match.keys():
+        for key in list(match.keys()):
 
             # strip meta vars.
             if key[0] == "_" and key != "_id":
@@ -277,7 +277,7 @@ class TestMatch(TestMinimal):
         self.user_token = self.service_token
 
         # make a date
-        cur_dt = formatdate(time.mktime(datetime.datetime(year=1995, month=1, day=1).timetuple()))
+        cur_dt = formatdate(time.mktime(datetime.datetime(year=1995, month=1, day=1).timetuple()), localtime=False, usegmt=True)
 
         # make ten clinical entries containing equal proportions VITAL_STATUS values
         num_entries = 10
@@ -298,7 +298,7 @@ class TestMatch(TestMinimal):
             'ONCOTREE_PRIMARY_DIAGNOSIS_NAME': 'TEST',
             'ONCOTREE_BIOPSY_SITE_TYPE': 'TEST',
             'MRN': 'TEST'
-        } for _ in range(num_entries / 2)]
+        } for _ in range(int(num_entries / 2))]
 
         clinical += [{
             '_id': str(ObjectId()),
@@ -317,7 +317,7 @@ class TestMatch(TestMinimal):
             'ONCOTREE_PRIMARY_DIAGNOSIS_NAME': 'TEST',
             'ONCOTREE_BIOPSY_SITE_TYPE': 'TEST',
             'MRN': 'TEST'
-        } for _ in range(num_entries / 2)]
+        } for _ in range(int(num_entries / 2))]
 
         clinical = self.add_remaining_required_fields(clinical)
 

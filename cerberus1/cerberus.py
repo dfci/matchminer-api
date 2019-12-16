@@ -844,7 +844,7 @@ class Validator(object):
 
     def __validate_dependencies_mapping(self, dependencies, field):
         validated_deps = 0
-        for dep_name, dep_values in dependencies.items():
+        for dep_name, dep_values in list(dependencies.items()):
             if (not isinstance(dep_values, Sequence) or
                     isinstance(dep_values, _str_type)):
                 dep_values = [dep_values]
@@ -1021,8 +1021,8 @@ class Validator(object):
             validator = self._get_child_validator(
                 document_crumb=field,
                 schema_crumb=(field, 'keyschema'),
-                schema=dict(((k, schema) for k in value.keys())))
-            if not validator(dict(((k, k) for k in value.keys())),
+                schema=dict(((k, schema) for k in list(value.keys()))))
+            if not validator(dict(((k, k) for k in list(value.keys()))),
                              normalize=False):
                 self._drop_nodes_from_errorpaths(validator._errors,
                                                  [], [2, 4])
@@ -1054,7 +1054,7 @@ class Validator(object):
         :param document: The document being validated.
         """
         try:
-            required = set(field for field, definition in self.schema.items()
+            required = set(field for field, definition in list(self.schema.items())
                            if self._resolve_rules_set(definition).
                            get('required') is True)
         except AttributeError:

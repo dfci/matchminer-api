@@ -12,7 +12,7 @@ class NormalizeHook(BaseHook):
         """
 
         # loop over every key, value pair.
-        for key, value in search_dict.iteritems():
+        for key, value in search_dict.items():
 
             # look for field in dictionary.
             if key in mapping:
