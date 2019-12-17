@@ -40,39 +40,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update --fix-missing && apt-get insta
  && apt-get clean \
  && apt-get autoremove
 
-#WORKDIR /tmp/build/openssl
-#RUN curl -L "https://github.com/openssl/openssl/archive/OpenSSL_1_1_1d.tar.gz" -o OpenSSL_1_1_1d.tar.gz && \
-#    tar xvf OpenSSL_1_1_1d.tar.gz && \
-#    cd openssl-OpenSSL_1_1_1d && \
-#    ./config && \
-#    make -j $(nproc) && \
-#    make install && \
-#    /sbin/ldconfig -v
-
-#WORKDIR /tmp/build/python
-#RUN curl "https://www.python.org/ftp/python/3.7.4/Python-3.7.4.tar.xz" -o Python-3.7.4.tar.xz && \
-#    tar xvf Python-3.7.4.tar.xz && \
-#    cd Python-3.7.4 && \
-#    #./configure --enable-shared --enable-optimizations --with-lto && \
-#    ./configure --enable-shared --with-lto && \
-#    make -j $(nproc) && \
-#    make install && \
-#    echo "/usr/local/lib/python3.7" >> /etc/ld.so.conf && \
-#    /sbin/ldconfig -v
-
-#WORKDIR /tmp/build/mod_wsgi
-#RUN apt-get update && apt-get install -y apache2-dev
-#RUN curl -L "https://github.com/GrahamDumpleton/mod_wsgi/archive/4.6.5.tar.gz" -o 4.6.5.tar.gz && \
-#    tar xvf 4.6.5.tar.gz && \
-#    cd mod_wsgi-4.6.5 && \
-#    ./configure --with-python=/usr/local/bin/python3.7 && \
-#    make -j $(nproc) && \
-#    make install
-
-#WORKDIR /tmp/build/pip
-#RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
-#    /usr/local/bin/python3.7 get-pip.py
-
 WORKDIR /
 RUN rm -rf /tmp/build*
 
@@ -102,4 +69,3 @@ ENTRYPOINT  ["/entrypoint.sh"]
 
 # enable nano debugging (i hate vi)
 ENV TERM xterm
-

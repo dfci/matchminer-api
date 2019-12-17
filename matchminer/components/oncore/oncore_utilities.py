@@ -216,8 +216,8 @@ class OncoreSync(object):
                 del mm_trial[key]
 
         # force encoding
-        on_trial = json.loads(json.dumps(on_trial), object_hook=OncoreSync.ascii_encode_dict)
-        mm_trial = json.loads(json.dumps(mm_trial, cls=MyEncoder), object_hook=OncoreSync.ascii_encode_dict)
+        on_trial = json.loads(json.dumps(on_trial))
+        mm_trial = json.loads(json.dumps(mm_trial, cls=MyEncoder))
         protocol_no = mm_trial['protocol_no']
 
         # oncore used to send data from their API in snakecase but changed to
