@@ -18,3 +18,4 @@ python-dateutil==2.7.3
 requests==2.20.1
 setuptools==38.4.0
 simplejson==3.8.1
+mattermostdriver==6.2.0

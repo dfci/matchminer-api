@@ -16,8 +16,7 @@ import shutil
 
 from matchminer import database
 from .settings import *
-
-from matchengine.engine import MatchEngine
+from mattermostdriver import Driver
 
 # logging
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
@@ -34,6 +33,59 @@ REPLACEMENTS = {
 REREPLACEMENTS = {}
 for key, val in REPLACEMENTS.items():
     REREPLACEMENTS[val] = key
+
+
+def post_mattermost(msg, hashtag="", data=None):
+    """
+    Post a message to a mattermost server.
+
+    Optionally pass a dictionary to print as a table.
+
+    All messages prefixed with #API
+
+    :param msg: String message
+    :param hashtag: e.g. #Oncore
+    :param data: Dictionary
+    :return:
+    """
+    try:
+        driver = Driver(
+            dict(
+                url=MATTERMOST_URL,
+                login_id=MATTERMOST_USER,
+                password=MATTERMOST_PW,
+                scheme='https',
+                verify=False,
+                port=443
+            )
+        )
+
+        if data is not None:
+            msg = f'| #API  {hashtag} | {msg} |\n' \
+                  f'| :--- | :--- |\n'
+            for k in data:
+                v = data[k]
+                if isinstance(v, str) and v is not "":
+                    msg += f'| {k} | {v} |\n'
+                elif isinstance(v, dict):
+                    for inner_key in v:
+                        inner_val = v[inner_key]
+                        if isinstance(inner_val, str) and inner_val is not "":
+                            msg += f'| {inner_key} | {v[inner_key]} |\n'
+        else:
+            msg = f'#API {hashtag} {msg}'
+
+        driver.login()
+        channel_id = driver.channels.get_channel_by_name_and_team_name(MATTERMOST_TEAM,
+                                                                       MATTERMOST_CHANNEL)['id']
+        driver.posts.create_post(options={
+            'channel_id': channel_id,
+            'message': msg
+        })
+        driver.logout()
+    except Exception as e:
+        logging.error("Error while posting to mattermost")
+        logging.error(e)
 
 
 def normalize_fields(field):

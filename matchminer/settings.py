@@ -44,6 +44,11 @@ EXCLUDE_FROM_STATISTICS = ""
 ONCORE_CURATION_AUTH_TOKEN = ""
 FRONT_END_ADDRESS = ""
 EPIC_DECRYPT_TOKEN = ""
+MATTERMOST_URL = ""
+MATTERMOST_USER = ""
+MATTERMOST_PW = ""
+MATTERMOST_CHANNEL = ""
+MATTERMOST_TEAM = ""
 
 
 TUMOR_TREE = os.path.abspath(os.path.join(os.path.dirname(__file__), './data/tumor_tree.txt'))
