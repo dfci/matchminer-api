@@ -41,7 +41,6 @@ else:
 
 
 # hot-swappable variables
-app.config['SECRET_KEY'] = '2d159b3bd49bc76e93d640f86e46ad29545fc909'
 app.config['SAML_PATH'] = os.path.join(cur_dir, 'saml')
 
 # register blueprint to the main Eve application.
