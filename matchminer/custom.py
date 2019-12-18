@@ -5,7 +5,7 @@ import base64
 from flask import Blueprint, current_app as app
 from flask import Response, request, render_template, redirect, session, make_response
 from flask_cors import CORS
-from urlparse import urlparse
+from urllib.parse import urlparse
 from bson import ObjectId
 
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
@@ -24,16 +24,13 @@ from matchminer.services.filter import Filter
 from matchminer.services.match import Match
 from matchminer.templates.emails.emails import EAP_INQUIRY_BODY
 from matchminer.validation import check_valid_email_address
-from wincrypto import CryptCreateHash, CryptHashData, CryptDeriveKey, CryptEncrypt, CryptDecrypt
-from wincrypto.definitions import CALG_SHA1, CALG_AES_128
-
 import logging
 
 # logging
-logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
+from src.wincrypto.wincrypto import CryptCreateHash, CryptDeriveKey, CryptHashData, CryptDecrypt, CryptEncrypt
+from src.wincrypto.wincrypto.constants import CALG_SHA1, CALG_AES_128
 
-API_ADDRESS = os.getenv('API_ADDRESS', None)
-API_TOKEN = os.getenv('API_TOKEN', None)
+logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
 
 blueprint = Blueprint('', __name__, template_folder="templates/templates")
 CORS(blueprint)
@@ -166,7 +163,7 @@ def get_vip_clinical():
 
     clinical_ll = list(db.clinical.find(query))
     for clinical in clinical_ll:
-        for field, val in clinical.iteritems():
+        for field, val in clinical.items():
             if not isinstance(field, float) and not isinstance(field, int):
                 try:
                     clinical[field] = str(val)
@@ -283,7 +280,7 @@ def generate_encryption_key_epic(shared_secret):
     :return:
     """
     sha1_hasher = CryptCreateHash(CALG_SHA1)
-    CryptHashData(sha1_hasher, shared_secret)
+    CryptHashData(sha1_hasher, shared_secret.encode('utf-8'))
     aes_key = CryptDeriveKey(sha1_hasher, CALG_AES_128)
     return aes_key
 
@@ -296,10 +293,10 @@ def encrypt_epic(aes_key, unencrypted_data):
     :return:
     """
 
-    encrypted = CryptEncrypt(aes_key, unencrypted_data)
+    encrypted = CryptEncrypt(aes_key, unencrypted_data.encode('utf-8'))
 
     # Display in human readable format
-    encrypted_readable = base64.b64encode(encrypted)
+    encrypted_readable = base64.b64encode(encrypted).decode('utf-8')
     return encrypted_readable
 
 
@@ -314,7 +311,7 @@ def decrypt_epic(aes_key, encrypted_data):
     decoded = base64.b64decode(encrypted_data)
 
     # Decrypt decoded string
-    decoded_readable = CryptDecrypt(aes_key, decoded)
+    decoded_readable = CryptDecrypt(aes_key, decoded).decode('utf-8')
     return decoded_readable
 
 
@@ -341,7 +338,7 @@ def build_redirect_url_epic(user, trial_match):
 
     # Build response headers
     response = app.make_response(redirect_to_patient)
-    response.headers.add('Authorization', 'Basic' + str(base64.b64encode(API_TOKEN + ':')))
+    response.headers.add('Authorization', 'Basic' + base64.b64encode(f'{token}:'.encode('utf-8')).decode())
     response.headers.add('Last-Modified', datetime.datetime.now())
     response.headers.add('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0')
     response.headers.add('Pragma', 'no-cache')
@@ -384,7 +381,7 @@ def dispatch_epic():
     # Get user
     user = db['user'].find_one({'user_name': str(epic_data['UserNID']).lower()})
 
-    log = {k.replace('.', '_'):v for k,v in epic_data.iteritems()}
+    log = {k.replace('.', '_'):v for k,v in epic_data.items()}
     log['accessed_at'] = datetime.datetime.now()
     log['exists_in_mm'] = True
     log['is_BWH_MRN'] = False
@@ -654,7 +651,8 @@ def autocomplete_query():
         hit_set = set()
         for n in onco_tree.nodes():
 
-            a = onco_tree.node[n]['text'].lower().decode('utf-8')
+            #TODO: Verify this doesn't need a decode
+            a = onco_tree.node[n]['text'].lower()
             b = value.lower()
             if a.count(b) > 0:
 
@@ -854,7 +852,7 @@ def saml(page=None):
 
         # redirect to error if user not present.
         if user is None:
-            print "user is not found in database"
+            print("user is not found in database")
             return response
 
         # disable the login.
@@ -978,7 +976,7 @@ def attrs():
     if 'samlUserdata' in session:
         paint_logout = True
         if len(session['samlUserdata']) > 0:
-            attributes = session['samlUserdata'].items()
+            attributes = list(session['samlUserdata'].items())
 
     return render_template('attrs.html', paint_logout=paint_logout,
                            attributes=attributes)

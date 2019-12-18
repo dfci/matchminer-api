@@ -1,7 +1,7 @@
 import json
 import time
 import datetime as dt
-from rfc822 import formatdate
+from email.utils import formatdate
 from bson.objectid import ObjectId
 
 from tests.test_matchminer import TestMinimal
@@ -17,7 +17,7 @@ class TestPatientView(TestMinimal):
         # switch to service account.
         self.user_token = self.service_token
 
-        now = formatdate(time.mktime(dt.datetime.now().timetuple()))
+        now = formatdate(time.mktime(dt.datetime.now().timetuple()), localtime=False, usegmt=True)
         self.patient_view = {
             'mrn': 'FAKE-MRN',
             'protocol_no': '00-000',

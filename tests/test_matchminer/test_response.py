@@ -1,6 +1,6 @@
 import time
 import datetime
-from rfc822 import formatdate
+from email.utils import formatdate
 from bson.objectid import ObjectId
 
 from matchminer import settings
@@ -11,8 +11,8 @@ from tests.unit.test_api import demo_resps
 
 
 class TestResponse(TestMinimal):
-
-    cur_dt = formatdate(time.mktime(datetime.datetime(year=2016, month=1, day=1).timetuple()))
+    cur_dt = formatdate(time.mktime(datetime.datetime(year=2016, month=1, day=1).timetuple()), localtime=False,
+                        usegmt=True)
 
     fake_patient = {
         '_id': ObjectId(),
@@ -54,7 +54,6 @@ class TestResponse(TestMinimal):
     }
 
     def setUp(self, settings_file=None, url_converters=None):
-
         super(TestResponse, self).setUp(settings_file=None, url_converters=None)
         self.user_token = None
 
@@ -78,7 +77,6 @@ class TestResponse(TestMinimal):
         self.db['user'].remove({'_id': self.fake_filter_owner['_id']})
 
     def test_url_parsing(self):
-
         # set the url
         url = "/api/response/57d2b05921dc021157786e4f?cacheBuster=1473684720168"
 

@@ -4,7 +4,7 @@ import pprint
 import json
 import time
 import datetime
-from rfc822 import formatdate
+from email.utils import formatdate
 from bson import ObjectId
 
 from matchminer import miner
@@ -92,7 +92,7 @@ class TestSecurity(TestMinimal):
         self.assert401(status_code)
 
         # insert a status and it should fail.
-        cur_dt = formatdate(time.mktime(datetime.datetime.now().timetuple()))
+        cur_dt = formatdate(time.mktime(datetime.datetime.now().timetuple()), localtime=False, usegmt=True)
         status = {
             'last_update': cur_dt,
             'new_clinical': 5,
@@ -155,7 +155,7 @@ class TestSecurity(TestMinimal):
         self.assert201(status_code)
 
         # insert a status and it should pass.
-        cur_dt = formatdate(time.mktime(datetime.datetime.now().timetuple()))
+        cur_dt = formatdate(time.mktime(datetime.datetime.now().timetuple()), localtime=False, usegmt=True)
         status = {
             'last_update': cur_dt,
             'new_clinical': 5,
@@ -219,7 +219,7 @@ class TestSecurity(TestMinimal):
         self.assert401(status_code)
 
         # insert a status and it should fail.
-        cur_dt = formatdate(time.mktime(datetime.datetime.now().timetuple()))
+        cur_dt = formatdate(time.mktime(datetime.datetime.now().timetuple()), localtime=False, usegmt=True)
         status = {
             'last_update': cur_dt,
             'new_clinical': 5,

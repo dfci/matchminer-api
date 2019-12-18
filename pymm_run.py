@@ -12,6 +12,7 @@ from matchminer.events import register_hooks
 from matchminer.miner import email_content
 from matchminer.utilities import *
 from matchminer.validation import ConsentValidatorEve
+from matchminer.components.oncore.oncore_app import oncore_blueprint
 from services.account import account_pipeline
 from eve_swagger import swagger
 
@@ -40,11 +41,11 @@ else:
 
 
 # hot-swappable variables
-app.config['SECRET_KEY'] = '2d159b3bd49bc76e93d640f86e46ad29545fc909'
 app.config['SAML_PATH'] = os.path.join(cur_dir, 'saml')
 
 # register blueprint to the main Eve application.
 app.register_blueprint(blueprint)
+app.register_blueprint(oncore_blueprint)
 
 
 app.register_blueprint(swagger)
@@ -54,7 +55,6 @@ app.config['SWAGGER_INFO'] = {
     'title': 'Matchminer API',
     'version': '1.0',
     'description': 'Documentation of Matchminer\'s API',
-        'termsOfService': 'Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.',
     'contact': {
         'name': 'James Lindsay',
     },
@@ -107,28 +107,6 @@ def my_own_error_msg(err):
 def redirect_response(err):
     logging.info("redirected to: %s" % err)
     return make_response(redirect(err))
-
-
-# Generate swagger.io API documentation automatically
-@app.before_first_request
-def generate_api_docs():
-    import json
-    try:
-        previous_api = json.load(open('./api-swagger-documentation.json'))
-        current_api = requests.get(API_ADDRESS + '-docs')
-        if not current_api.status_code == 200:
-            logging.warn('API documentation request failed - /api-docs')
-            return
-
-        if not previous_api == current_api.json():
-            new_api = open('api-swagger-documentation.json','w')
-            new_api.write(json.dumps(current_api.json()))
-            new_api.close()
-            logging.info('API changes detected. Successfully generated new swagger documentation => api-swagger-documentation.json')
-        else:
-            logging.info('No API changes detected. No documentation generated.')
-    except:
-        logging.warn('Exception occured during API documentation generation. Check that api-swagger-documentation.json exists')
 
 
 def run_server(args):

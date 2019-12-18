@@ -2,14 +2,15 @@
 import os
 import yaml
 import datetime
+import binascii
 from matchminer.utilities import set_curated, set_updated
 from matchminer.miner import prepare_criteria
+from matchminer.custom import generate_encryption_key_epic, encrypt_epic, decrypt_epic
 
 from tests.test_matchminer import TestMinimal
 
 
 class TestCustom(TestMinimal):
-
     i = 0
 
     def setUp(self, settings_file=None, url_converters=None):
@@ -47,7 +48,7 @@ class TestCustom(TestMinimal):
         self.assert200(status_code)
 
         # assert we have values.
-        assert set(r['values']) == set(['MUTATION', 'CNV', 'SV'])
+        assert set(r['values']) == {'MUTATION', 'CNV', 'SV'}
 
     def test_unique_oncotree(self):
 
@@ -65,7 +66,6 @@ class TestCustom(TestMinimal):
 
         assert len(c) == len(a)
 
-
     def test_autocomplete(self):
 
         # gene completetion.
@@ -74,7 +74,8 @@ class TestCustom(TestMinimal):
         assert set(r['values']) == set(['BRCA2', 'BRCA1'])
 
         # gene + integer.
-        r, status_code = self.get('utility/autocomplete?resource=genomic&field=TRUE_TRANSCRIPT_EXON&value=8&gene=PIK3R1')
+        r, status_code = self.get(
+            'utility/autocomplete?resource=genomic&field=TRUE_TRANSCRIPT_EXON&value=8&gene=PIK3R1')
         self.assert200(status_code)
         assert set(r['values']) == set([8])
 
@@ -87,7 +88,6 @@ class TestCustom(TestMinimal):
         r, status_code = self.get('utility/autocomplete?resource=genomic&field=TRUE_PROTEIN_CHANGE&value=p&gene=APC')
         self.assert200(status_code)
         assert set(r['values']) == set(['p.K1462fs', 'p.R1435T', 'p.N125S', 'p.R2543K'])
-
 
         # gene + empty string.
         r, status_code = self.get('utility/autocomplete?resource=genomic&field=TRUE_PROTEIN_CHANGE&value=&gene=APC')
@@ -103,9 +103,11 @@ class TestCustom(TestMinimal):
     def test_autocomplete_oncotree(self):
 
         # oncotree field.
-        r, status_code = self.get('utility/autocomplete?resource=clinical&field=ONCOTREE_PRIMARY_DIAGNOSIS_NAME&value=Adrenal')
+        r, status_code = self.get(
+            'utility/autocomplete?resource=clinical&field=ONCOTREE_PRIMARY_DIAGNOSIS_NAME&value=Adrenal')
         self.assert200(status_code)
-        assert set(r['values']) == set(['Adrenal Gland', 'Pheochromocytoma', 'Adrenocortical Adenoma', 'Adrenocortical Carcinoma'])
+        assert set(r['values']) == set(
+            ['Adrenal Gland', 'Pheochromocytoma', 'Adrenocortical Adenoma', 'Adrenocortical Carcinoma'])
 
     def test_set_update(self):
         trial = set_updated(self.trial)
@@ -212,3 +214,20 @@ class TestCustom(TestMinimal):
                 }
             ]
         }
+
+    # Values taken from EPIC's encryption tool
+    # See: https://open.epic.com/Tech/TechSpec?spec=Epic.EncryptionValidator.exe&specType=tools
+    def test_generate_epic_key(self):
+        shared_secret = 'PartnersTest'
+        key = generate_encryption_key_epic(shared_secret).key
+        assert binascii.hexlify(key).decode('utf-8').upper() == '73FB225DE1361CA4A1232244EC4EA55A'
+
+    def test_encrypt_epic(self):
+        key = generate_encryption_key_epic('PartnersTest')
+        assert encrypt_epic(key,
+                            'Field1|Field2|Field3|DSGGNCRASTKMSOXMR') == '18sQogCGwZUnIzVQvI7nNycKqth2t8RkiW3BPN14UJ/ZBkL4wEtuKq1ovZqotORO'
+
+    def test_decrypt_epic(self):
+        key = generate_encryption_key_epic('PartnersTest')
+        assert decrypt_epic(key,
+                            '18sQogCGwZUnIzVQvI7nNycKqth2t8RkiW3BPN14UJ/ZBkL4wEtuKq1ovZqotORO') == 'Field1|Field2|Field3|DSGGNCRASTKMSOXMR'

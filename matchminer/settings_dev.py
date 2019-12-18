@@ -1,6 +1,7 @@
 import os
 import sys
 import matchminer.data_model
+from matchminer.components.gi.data_model import gi_gold_standard_truth
 
 # for API documentation, needs to be enabled
 ENFORCE_IF_MATCH = True
@@ -11,7 +12,7 @@ COLLECTION_CLINICAL = "clinical"
 COLLECTION_GENOMIC = "genomic"
 
 # TOKEN TIMEOUT.
-TOKEN_TIMEOUT = sys.maxint
+TOKEN_TIMEOUT = sys.maxsize
 
 # data outdir.
 DATA_DIR = os.path.join(os.path.abspath(os.path.join(__file__ , "../..")), "data")
@@ -183,7 +184,7 @@ email = {
 
 statistics = {
     'schema': matchminer.data_model.dashboard_schema,
-    'allow_unknown': True,
+    'allow_unknown': False,
     "allowed_read_roles": ["admin", "service"],
     "allowed_write_roles": ["admin", "service"],
     'item_methods': ['GET', 'PATCH', 'PUT', 'DELETE']
@@ -217,7 +218,7 @@ negative_genomic = {
 
 patient_view = {
     'schema': matchminer.data_model.patient_view_schema,
-    'allow_unknown': True,
+    'allow_unknown': False,
     "allowed_read_roles": ["admin", "service", "user", "oncologist", "cti"],
     "allowed_write_roles": ["admin", "service", "user", "oncologist", "cti"],
     'item_methods': ['GET', 'PUT'],
@@ -230,6 +231,12 @@ enrollment = {
     'item_methods': ['GET']
 }
 
+gi = {
+    'schema': gi_gold_standard_truth,
+    'allowed_read_roles': ["admin", "service", "user"],
+    'allowed_write_roles': ["admin", "service", "user"],
+    'item_methods': ['GET', 'PATCH', 'PUT', 'DELETE']
+}
 
 # schema
 DOMAIN = {
@@ -250,6 +257,8 @@ DOMAIN = {
     'negative_genomic': negative_genomic,
     'patient_view': patient_view,
     'enrollment': enrollment,
+    'gi': gi,
+    'gi_gold_standard_truth': gi.copy()
 }
 
 MONGO_QUERY_BLACKLIST = ['$where']

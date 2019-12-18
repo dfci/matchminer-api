@@ -1,6 +1,6 @@
 yaml_test_json = {
     "protocol_no": "00-001",
-    "protocol_id": 0001,
+    "protocol_id": 0o001,
     "principal_investigator": "pi",
     "long_title": "title",
     "short_title": "title",
@@ -29,13 +29,13 @@ yaml_test_json = {
                     {
                         "dose_level": [
                             {
-                                "level_internal_id": 001,
+                                "level_internal_id": 0o01,
                                 "level_code": "code",
                                 "level_description": "description",
                                 "level_suspended": "Y",
                             }
                         ],
-                        "arm_internal_id": 002,
+                        "arm_internal_id": 0o02,
                         "arm_code": "code",
                         "arm_description": "description",
                         "arm_suspended": "N"
@@ -44,13 +44,13 @@ yaml_test_json = {
                         "dose_level": [
 
                         ],
-                        "arm_internal_id": 003,
+                        "arm_internal_id": 0o03,
                         "arm_code": "code",
                         "arm_description": "description",
                         "arm_suspended": "Y"
                     }
                 ],
-                "step_internal_id": 004,
+                "step_internal_id": 0o04,
                 "step_code": "code",
                 "step_type": "type"
             }

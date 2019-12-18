@@ -149,7 +149,7 @@ class TestClinical(TestMinimal):
         clinical_id = r['_id']
 
         # sanitize object except for _id.
-        for key in r.keys():
+        for key in list(r.keys()):
             if key[0] == "_" and key != "_id":
                 del r[key]
 
@@ -197,7 +197,7 @@ class TestClinical(TestMinimal):
         clinical_id = r['_id']
 
         # sanitize object except for _id.
-        for key in r.keys():
+        for key in list(r.keys()):
             if key[0] == "_" and key != "_id":
                 del r[key]
         r['QUESTION1_YN'] = "N"
@@ -225,7 +225,7 @@ class TestClinical(TestMinimal):
             genomics[i]['SAMPLE_ID'] = sample_id
 
             # clear this.
-            for key in genomics[i].keys():
+            for key in list(genomics[i].keys()):
                 if key[0] == '_':
                     del genomics[i][key]
 

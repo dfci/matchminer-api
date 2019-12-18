@@ -32,7 +32,7 @@ class ConsentValidatorEve(EveValidator):
                       'tmb_numerical']
 
         if isinstance(item, dict):
-            for k, v in item.iteritems():
+            for k, v in item.items():
                 if k == 'genomic':
                     if v in signatures:
                         item[k]['hugo_symbol'] = 'None'
@@ -74,12 +74,12 @@ class ConsentValidatorEve(EveValidator):
         if not normalize_table:
             return
 
-        for key, val in value.iteritems():
-            if (isinstance(val, str) or isinstance(val, unicode)) and val[0] == "!":
+        for key, val in value.items():
+            if (isinstance(val, str)) and val[0] == "!":
                 val = val[1:]
 
             if key == 'oncotree_primary_diagnosis':
-                if val not in normalize_table['values']['oncotree_primary_diagnosis'].values():
+                if val not in set(normalize_table['values']['oncotree_primary_diagnosis'].values()):
                     self._error(field, "%s is not a valid value for oncotree_primary_diagnosis" % val)
 
             elif key == 'hugo_symbol':

@@ -1,16 +1,7 @@
-# MatchMiner API
+## Overview
 Matchminer API written in python. This API utilizes the [Eve](http://python-eve.org/) framework and 
 mongodb to build a lightweight and intuitive web app. Utilizing Eve's opinioned choices and direct 
 integration with MongoDB enabled us to create a level 3 REST compliant application.
-
-
-## Built with
-* Python2.7
-* [Virtualenv](https://virtualenv.pypa.io/en/stable/) - Tool to create isolated Python environments.
-* [Eve](http://python-eve.org/) - REST API framework.
-* [MongoDB](https://docs.mongodb.com/) - NoSQL document database for data storage.
-* [Docker](https://docs.docker.com/machine/) - Container platform for deployment.
-* [nose](http://nose.readthedocs.io/en/latest/) - Python library for unit testing.
 
 ## Development guide
 The following sections detail steps necessary to begin development on MatchMiner.
@@ -31,19 +22,56 @@ cd matchminer-api
 ###### 3) install dependencies
 `pip install -r requirements.txt`
 
+If on MacOS, additionally run:
+```brew install libxml2 libxmlsec1```
+
 ###### 4) create mongodb docker container
 The following commands will start and test the mongo container. A local instance of mongo can also be used,
  by over-ridding the configuration variables for the DB host.
+ 
+ Start Docker, then run:
 ```bash
 docker run --name match-mongo -d -p 27017:27017 mongo mongod --smallfiles --replSet=rs0
 docker exec -it match-mongo mongo matchminer --eval "rs.initiate();"
 ```
 
 ###### 5) add test data
-`python pymm_run.py restore`
+Then load the data from the following database collections:
+1. ./tests/data/clinical.bson
+2. ./tests/data/genomic.bson
+3. user.bson
+4. status.bson
+5. trial.bson
 
-###### 6) run unit tests
-Due to the sensitive nature of the application test driven development is a must. 
+You will need to drop the db and restore after every full test run.
+
+```mongorestore --db matchminer --dir=tests/data``` 
+
+###### 6) setup local secrets file
+You must setup a local secrets file as an OS environmental variable named SECRETS_JSON. It's contents should contain:
+```
+{  
+  "SERVER": "immuno6", 
+  "ONCOTREE_CUSTOM_DIR": "/where/you/cloned/thedir/matchminerAPI/tests/data/oncotree_file.txt", 
+  "MONGO_HOST": "localhost", 
+  "MONGO_PORT": 27017, 
+  "MONGO_USERNAME": "", 
+  "MONGO_PASSWORD": "", 
+  "MONGO_DBNAME": "matchminer",
+  "MONGO_URI":"mongodb://localhost:27017"
+}
+```
+
+Save this somewhere. Then, edit your .bash_profile (or bashrc on linux) to save the secrets file as an environment variable.
+
+```
+vi ~/.bash_profile                          # open your bash profile
+export SECRETS_JSON=/dir/of/secrets.json    # add this line 
+. ~/.bash_profile                           # reload your bash session
+```
+ 
+
+###### 7) run unit tests 
 Unit tests are located in the /tests folder and roughly correspond to the application structure itself.
 ```bash
 nosetests tests
@@ -54,8 +82,11 @@ e.g.
 nosetests tests/test_matchminer/test_filter.py:TestFiler.test_put_dirty
 ```
 
-
-
+You must also point the application at your local copy of `oncotree_file.txt` by setting the `ONCOTREE_CUSTOM_DIR` environment variable:
+```bash
+export ONCOTREE_CUSTOM_DIR=$PATH_TO_YOUR_REPO/matchminerAPI/tests/data/oncotree_file.txt
+```
+You can add the above command to your `.bashrc` to load the environment variable everytime you open a new shell.
 
 ### DEV server ###
 
@@ -100,7 +131,11 @@ docker-compose down
 docker-compose up -d
 ```
 
-##### tagging convention #####
-* dev: is used to development candidates (it will only ever contain simulated data)
-* stage: is used for the staging enviroment
-* latest: is the *master* or the *production* image
+
+## Built with
+* Python2.7
+* [Virtualenv](https://virtualenv.pypa.io/en/stable/) - Tool to create isolated Python environments.
+* [Eve](http://python-eve.org/) - REST API framework.
+* [MongoDB](https://docs.mongodb.com/) - NoSQL document database for data storage.
+* [Docker](https://docs.docker.com/machine/) - Container platform for deployment.
+* [nose](http://nose.readthedocs.io/en/latest/) - Python library for unit testing.

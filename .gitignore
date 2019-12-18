@@ -5,6 +5,9 @@ apache-*
 # ignore pycharm
 .idea/
 
+# ignore vscode
+.vscode/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -65,3 +68,6 @@ target/
 
 # osx
 .DS_Store
+
+python-xmlsec/*
+dev_data/*

@@ -190,6 +190,7 @@ clinical_schema = {
     'FIRST_LAST': {'type': 'string', 'readonly': True},
     'LAST_FIRST': {'type': 'string', 'readonly': True},
     'BIRTH_DATE': {'type': 'datetime', 'required': True},
+    'BIRTH_DATE_INT': {'type': 'integer', 'required': True},
     'VITAL_STATUS': {'type': 'string', 'required': True, 'allowed': ['alive', 'deceased']},
     'LAST_VISIT_DATE': {'type': 'datetime'},
 
@@ -1271,7 +1272,12 @@ email_schema = {
     'errors': {'type': 'list', 'schema': {'type': 'string'}, 'default': []}
 }
 
-dashboard_schema = {}
+dashboard_schema = {
+    'active_filter_data_set': {'type': 'list', 'required': False},
+    'active_user_data_set': {'type': 'list', 'required': False},
+    'inactive_user_data_set': {'type': 'list', 'required': False},
+    'mm_data_set': {'type': 'list', 'required': False},
+}
 
 public_stats_schema = {
     'num_clinical_trials': {'type': 'integer'},
@@ -1309,8 +1315,8 @@ trial_match_schema = {
     'wildtype': {'type': 'boolean', 'nullable': True},
     'match_type': {'type': 'string', 'allowed': ['variant', 'gene']},
     'tier': {'type': 'integer', 'allowed': [1, 2, 3, 4]},
-    'clinical_id': {'type': 'string'},
-    'genomic_id': {'type': 'string'},
+    'clinical_id': {'type': 'objectid'},
+    'genomic_id': {'type': 'objectid'},
     'sort_order': {'type': 'integer'},
     'trial_summary_status': {'type': 'string', 'required': False},
     'show_in_ui': {'type': 'boolean', 'required': False},
@@ -1345,7 +1351,9 @@ patient_view_schema = {
     'view_date': {'type': 'datetime', 'readonly': True},
     'filter_label': {'type': 'string', 'nullable': True},
     'filter_protocol_no': {'type': 'string', 'nullable': True},
-    'requires_manual_review': {'type': 'boolean', 'default': False}
+    'requires_manual_review': {'type': 'boolean', 'default': False},
+    'from_details': {'type': 'boolean', 'required': False, 'nullable': True},
+    'filter_match': {'type': 'boolean', 'required': False, 'nullable': True}
 }
 
 enrollment_schema = {
@@ -1362,4 +1370,3 @@ enrollment_schema = {
     'filter_label': {'type': 'string', 'nullable': True},
     'filter_protocol_no': {'type': 'string', 'nullable': True}
 }
-

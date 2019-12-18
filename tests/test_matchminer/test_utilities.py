@@ -43,7 +43,7 @@ class TestUtilities(TestMinimal):
 4/26/2016,Tom,Test1,test1,TEST1@test.com,00-000,PI,YES
 4/27/2016,Joe,Test2,test2,TEST2@test.com,Several,Dz Ctr leader,YES
 4/26/2016,Philippe,Test3,test3,TEST3@test.com,00-000,PI,YES
-'''
+'''.encode('utf-8')
 
         temp = tempfile.NamedTemporaryFile()
         try:
