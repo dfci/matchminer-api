@@ -11,7 +11,7 @@ from functools import wraps, update_wrapper
 from flask import Blueprint, Response, make_response, render_template, request, redirect
 
 from matchminer.database import get_db
-from matchminer.utilities import set_updated, set_curated
+from matchminer.utilities import set_updated, set_curated, post_mattermost
 from matchminer.components.oncore.oncore_utilities import OncoreSync
 from matchminer.settings import API_TOKEN, API_ADDRESS, ONCORE_ADDRESS
 from matchminer.security import authorize_oncore_curation
@@ -314,6 +314,9 @@ def update_from_oncore(protocol_no):
     mm_trial, updated, changes = cmp.compare_trials(on_trial, mm_trial)
     for log_entry in cmp.log_entries:
         db.oncore_trial_log.insert(log_entry)
+        post_mattermost(msg='Trial Update',
+                        hashtag='#OnCore',
+                        data=log_entry)
     cmp.send_email()
 
     # if it is updated then do the update.
