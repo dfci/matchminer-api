@@ -31,7 +31,7 @@ node {
             sh "cat SECRETS_JSON.json"
 
             sh """
-               . /container_mounts/api_build_slave/test_env/bin/activate && \
+               apt-get update && apt-get -y install libxmlsec1-dev && \
                pip install -r requirements.txt && \
                export SECRETS_JSON=SECRETS_JSON.json && \
                export ONCOTREE_CUSTOM_DIR="${pwd()}/data/oncotree_file.txt" && \
