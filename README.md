@@ -102,6 +102,11 @@ You'll notice there are several commands inside the application.
 * *dump* creates the serialized database files used for restoring.
 
 
+### Endpoint Documentation ###
+The endpoint documentation can be found when the server is running at `localhost:5000/api-docs`. That json file which is output can be 
+input into a [Swagger Editor](https://editor.swagger.io/)
+
+
 ## Deployment guide
 
 MatchMiner can be deployed in development or production mode. In *development* a built in webserver is used to host the API. In *production* Docker is used.
