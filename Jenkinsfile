@@ -13,7 +13,6 @@ node {
             sh "mongorestore -d matchminer --host ${c.id} --dir=data/matchminer"
         }
 
-        //use api test image TODO move dockerfile into API repo
         docker.image('python:3.7').inside("--link ${c.id}") {
             sh """
                cat << 'EOF' > SECRETS_JSON.json

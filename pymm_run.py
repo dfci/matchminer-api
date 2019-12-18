@@ -110,28 +110,6 @@ def redirect_response(err):
     return make_response(redirect(err))
 
 
-# Generate swagger.io API documentation automatically
-@app.before_first_request
-def generate_api_docs():
-    import json
-    try:
-        previous_api = json.load(open('./api-swagger-documentation.json'))
-        current_api = requests.get('https://mm-stage.dfci.harvard.edu/api-docs')
-        if not current_api.status_code == 200:
-            logging.warn('API documentation request failed - /api-docs')
-            return
-
-        if not previous_api == current_api.json():
-            new_api = open('api-swagger-documentation.json','w')
-            new_api.write(json.dumps(current_api.json()))
-            new_api.close()
-            logging.info('API changes detected. Successfully generated new swagger documentation => api-swagger-documentation.json')
-        else:
-            logging.info('No API changes detected. No documentation generated.')
-    except:
-        logging.warn('Exception occured during API documentation generation. Check that api-swagger-documentation.json exists')
-
-
 def run_server(args):
 
     # set enviromental variables.
