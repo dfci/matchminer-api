@@ -1,0 +1,45 @@
+{
+  "index": {
+    "analysis": {
+      "analyzer": {
+        "my_lowercase_analyzer": {
+          "filter": [
+            "lowercase"
+          ],
+          "type": "custom",
+          "tokenizer": "keyword"
+        },
+        "variant_analyzer": {
+          "filter": [
+            "lowercase",
+            "variant_filter"
+          ],
+          "type": "custom",
+          "tokenizer": "keyword"
+        },
+        "drug_analyzer": {
+          "filter": [
+            "lowercase"
+          ],
+          "type": "custom",
+          "tokenizer": "keyword"
+        },
+        "protocol_no_analyzer": {
+          "filter": [
+            "lowercase"
+          ],
+          "type": "custom",
+          "tokenizer": "whitespace"
+        },
+        "synonyms_expand": {
+          "filter": [
+            "lowercase",
+            "synonyms_expand"
+          ],
+          "type": "custom",
+          "tokenizer": "keyword"
+        }
+      }
+    }
+  }
+}

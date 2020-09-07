@@ -3,7 +3,7 @@ import unittest
 from bson.objectid import ObjectId
 
 from matchminer.database import get_db
-from matchminer.events import negative_genomic
+from matchminer.event_hooks.genomic import negative_genomic
 
 
 class TestNegGenomic(unittest.TestCase):

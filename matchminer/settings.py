@@ -2,6 +2,7 @@ import os
 import logging
 import json
 import datetime as dt
+from pathlib import Path
 
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
 
@@ -26,9 +27,7 @@ API_PORT = ""
 API_TOKEN = ""
 API_ADDRESS = ""
 ONCORE_ADDRESS = ""
-EMAIL_CONFIG = os.getenv('EMAIL_CONFIG', os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                                                      '../',
-                                                                      'email.config.json')))
+EMAIL_CONFIG = os.getenv('EMAIL_CONFIG', str(Path().resolve()) + '/email.config.json')
 EMAIL_SERVER = ""
 EMAIL_USER = ""
 EMAIL_PASSWORD = ""
@@ -49,6 +48,20 @@ MATTERMOST_USER = ""
 MATTERMOST_PW = ""
 MATTERMOST_CHANNEL = ""
 MATTERMOST_TEAM = ""
+SAML_SECRET = ""
+SWAGGER_INFO = {
+    'title': 'Matchminer API',
+    'version': '1.0',
+    'description': 'Documentation of Matchminer\'s API',
+    'contact': {
+        'name': 'James Lindsay',
+    },
+    'license': {
+        'name': 'MIT',
+        'url': 'https://github.com/pyeve/eve-swagger/blob/master/LICENSE',
+    },
+    'schemes': ['http', 'https'],
+}
 
 
 TUMOR_TREE = os.path.abspath(os.path.join(os.path.dirname(__file__), './data/tumor_tree.txt'))
@@ -82,8 +95,8 @@ if MM_SETTINGS == "PROD":
 else:
     from matchminer.settings_dev import *
 
-logging.warn("settings: %s" % MM_SETTINGS)
-logging.warn("settings: %s" % MONGO_URI)
+logging.warning("settings: %s" % MM_SETTINGS)
+logging.warning("settings: %s" % MONGO_URI)
 
 match_status_mapping = {
     'New': 0,
@@ -96,4 +109,3 @@ match_status_mapping = {
     'Deferred': 7,
     'Deceased': 3
 }
-enrollment_date_filter = dt.datetime(year=2016, month=8, day=1)

@@ -1,0 +1,1 @@
+{"options":{},"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"matchminer.filter"}],"uuid":"8b27c0833e28498b960013dd49e618b9"}

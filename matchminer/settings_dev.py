@@ -21,25 +21,6 @@ DATA_CLINICAL_CSV = os.path.join(DATA_DIR, "tcga.clinical.pkl")
 DATA_GENOMIC_CSV = os.path.join(DATA_DIR, "tcga.genomic.pkl")
 DATA_ONCOTREE_FILE = os.getenv("ONCOTREE_CUSTOM_DIR", "/var/www/apache-flask/api/matchminer/data/oncotree_file.txt")
 
-# backup dir in data.
-BACKUP_DIR = os.path.join(DATA_DIR, "backup")
-BACKUP_HOURLY_DIR = os.path.join(BACKUP_DIR, "hourly")
-BACKUP_HOURLY_FREQ = 3600
-BACKUP_HOURLY_MAX = 24
-BACKUP_DAILY_DIR = os.path.join(BACKUP_DIR, "daily")
-BACKUP_DAILY_FREQ = 86400
-BACKUP_DAILY_MAX = 7
-BACKUP_WEEKLY_DIR = os.path.join(BACKUP_DIR, "weekly")
-BACKUP_WEEKLY_FREQ = 604800
-BACKUP_WEEKLY_MAX = 8
-BACKUP_STATUS_DIR = os.path.join(BACKUP_DIR, "status")
-BACKUP_STATUS_MAX = 10
-
-# services.
-#EMPI_SYNC_FREQ = 86400
-EMPI_SYNC_FREQ = 60
-ACCOUNT_SYNC_FREQ = 1800
-
 TREATMENT_LIST_AUTO_UPDATE_KEYS = ["arm_suspended", "level_suspended"]
 TRIAL_SORT_DICT = {
     'oncology_group': 'group_name',
@@ -73,7 +54,7 @@ BANDWIDTH_SAVER = False
 
 # cors support.
 X_DOMAINS = '*'
-X_HEADERS = ['Authorization', 'If-Match', 'Content-Type', 'Pragma', 'Cache-Control', 'If-Modified-Since' ,'Expires']
+X_HEADERS = ['Authorization', 'If-Match', 'Content-Type', 'Pragma', 'Cache-Control', 'If-Modified-Since', 'Expires']
 
 # disable caching.
 CACHE_CONTROL = ''
@@ -82,7 +63,7 @@ CACHE_EXPIRES = 0
 # Enable reads (GET), inserts (POST) and DELETE for resources/collections
 # (if you omit this line, the API will default to ['GET'] and provide
 # read-only access to the endpoint).
-RESOURCE_METHODS = ['GET', 'POST', 'DELETE']
+RESOURCE_METHODS = ['GET', 'POST']
 
 # Enable reads (GET), edits (PATCH), replacements (PUT) and deletes of
 # individual items  (defaults to read-only item access).
@@ -123,7 +104,14 @@ clinical = {
     "allowed_read_roles": ["admin", "service", "user"],
     "allowed_write_roles": ["admin", "service"],
     'item_methods': ['GET', 'PATCH', 'PUT', 'DELETE']
- }
+}
+
+immunoprofile = {
+    'schema': matchminer.data_model.immunoprofile_schema,
+    "allowed_read_roles": ["admin", "service", "user"],
+    "allowed_write_roles": ["admin", "service"],
+    'item_methods': ['GET', 'PATCH', 'PUT', 'DELETE']
+}
 
 genomic = {
     'schema': matchminer.data_model.genomic_schema,
@@ -151,6 +139,20 @@ status = {
     'datasource': {
         'default_sort': [('last_updated', -1)]
     },
+    "allowed_read_roles": ["admin", "service", "user"],
+    "allowed_write_roles": ["admin", "service"],
+    'item_methods': ['GET', 'PATCH', 'PUT', 'DELETE']
+}
+
+import_log = {
+    'schema': matchminer.data_model.import_log_schema,
+    "allowed_read_roles": ["admin", "service", "user"],
+    "allowed_write_roles": ["admin", "service"],
+    'item_methods': ['GET', 'PATCH', 'PUT', 'DELETE']
+}
+
+user_log = {
+    'schema': matchminer.data_model.user_log_schema,
     "allowed_read_roles": ["admin", "service", "user"],
     "allowed_write_roles": ["admin", "service"],
     'item_methods': ['GET', 'PATCH', 'PUT', 'DELETE']
@@ -244,10 +246,13 @@ DOMAIN = {
     'team': team,
     'clinical': clinical,
     'genomic': genomic,
+    'immunoprofile': immunoprofile,
     'filter': rule,
     'match': match,
     'hipaa': hipaa_transaction,
     'status': status,
+    'import_log': import_log,
+    'user_log': user_log,
     'trial': trial,
     'response': response,
     'email': email,

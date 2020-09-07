@@ -1,0 +1,21 @@
+FROM python:3.7
+
+# install ubuntu packages.
+RUN DEBIAN_FRONTEND=noninteractive apt-get update --fix-missing && apt-get install -y \
+    libxml2-dev \
+    libxslt1-dev \
+    libxmlsec1-dev \
+ && apt-get clean \
+ && apt-get autoremove
+
+RUN mkdir /matchminerAPI
+COPY ./requirements.txt /matchminerAPI/requirements.txt
+WORKDIR /matchminerAPI
+
+RUN pip install -r requirements.txt
+
+# move github dependencies to other dir to not be overridden by volume mount
+# add to pythonpath
+RUN mkdir -p /ext/lib/ && mv /matchminerAPI/src /ext/lib/
+ENV PYTHONPATH=/ext/lib:/ext/lib/src/oncotree/:/ext/lib/src/matchenginev2:/ext/lib/src/wincrypto
+

@@ -2,7 +2,7 @@ import random
 from bson.objectid import ObjectId
 
 from tests.test_matchminer import TestMinimal
-from matchminer.events import add_dashboard_row
+from matchminer.event_hooks.statistics import add_dashboard_row
 
 
 class TestDashboard(TestMinimal):

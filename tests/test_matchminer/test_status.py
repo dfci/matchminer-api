@@ -22,6 +22,10 @@ class TestStatus(TestMinimal):
         self.tmp_token = self.user_token
         self.user_token = self.service_token
 
+    def tearDown(self):
+        self.db['run_log_match'].drop()
+        self.db['clinical_run_history_match'].drop()
+
     # make an entry.
     now = '2017-01-01 05:00:00'
     cur_dt = formatdate(time.mktime(datetime.datetime(year=1995, month=1, day=1).timetuple()), localtime=False,
@@ -86,7 +90,7 @@ class TestStatus(TestMinimal):
         "PATIENT_MRN": "XXXXXX",
         "EMAIL_SUBJECT": "",
         "EMAIL_ADDRESS": "test@test.test",
-        "EMAIL_BODY": "",
+        "EMAIL_BODY": ""
     }
 
     status = {
@@ -97,7 +101,8 @@ class TestStatus(TestMinimal):
         "new_clinical": 0,
         "updated_clinical": 0,
         "last_update": cur_dt,
-        "data_push_id": now
+        "data_push_id": now,
+        'test_name': 'oncopanel'
     }
 
     def _new_status_random(self):
@@ -137,16 +142,13 @@ class TestStatus(TestMinimal):
             genomics[i]['CLINICAL_ID'] = clinical_id
             genomics[i]['SAMPLE_ID'] = sample_id
 
-            # if not genomics[i]['WILDTYPE']:
-            #    print genomics[i]['TRUE_HUGO_SYMBOL'], genomics[i]['VARIANT_CATEGORY']
-
             # clear this.
             for key in list(genomics[i].keys()):
                 if key[0] == '_':
                     del genomics[i][key]
 
         # insert them.
-        r, status_code = self.post('genomic', genomics)
+        r, status_code = self.post('genomic', genomics[0:20])
         self.assert201(status_code)
 
         # return the entry.
@@ -174,7 +176,7 @@ class TestStatus(TestMinimal):
         g = {
             "TRUE_HUGO_SYMBOL": "SEMA6D",
             "WILDTYPE": False,
-            "VARIANT_CATEGORY": {"$in": ["MUTATION"]}
+            "VARIANT_CATEGORY": ["MUTATION"]
         }
         rule = {
             'USER_ID': self.user_id,
@@ -246,7 +248,7 @@ class TestStatus(TestMinimal):
         g = {
             "TRUE_HUGO_SYMBOL": "SEMA6D",
             "WILDTYPE": False,
-            "VARIANT_CATEGORY": {"$in": ["MUTATION"]}
+            "VARIANT_CATEGORY":  ["MUTATION"]
         }
         rule = {
             'USER_ID': self.user_id,
@@ -302,54 +304,14 @@ class TestStatus(TestMinimal):
             assert 'data_push_id' in match
             assert match['data_push_id'] is None, match['data_push_id']
 
-    def test_deleted_filter(self):
-        return  ## disabled by james on 9/6/16 to be replaced by proper unit tests
-
-        # insert a filter.
-        filter_id = self._insert_filter()
-
-        # force the status to be new.
-        self.db['match'].update_many({'FILTER_ID': ObjectId(filter_id)}, {'$set': {'MATCH_STATUS': 0}})
-
-        # call update.
-        msgs = miner.email_matches()
-
-        # check that email was created
-        self._check_email()
-
-        # assert we have messages, matches and filter.
-        assert len(msgs) > 0
-        assert self.db['match'].count() > 0
-        assert self.db['filter'].count() > 0
-
-        # delete the filter by setting status to 2
-        self.user_token = self.tmp_token
-        r, status_code = self.get('filter/%s' % filter_id)
-        self.assert200(status_code)
-        etag = r['_etag']
-        r['status'] = 2
-
-        # patch it.
-        for key in list(r.keys()):
-            if key[0] == "_" and key != "_id":
-                del r[key]
-        r, status_code = self.put('filter/%s' % filter_id, r, headers=[('If-Match', etag)])
-
-        # call update.
-        msgs = miner.email_matches()
-        self._check_email()
-
-        # should be no messages.
-        assert len(msgs) == 0
-        assert self.db['match'].count() == 0
-        assert self.db['filter'].count() > 0
-
     def test_post_status_newclinical(self):
+        self.db.run_log_match.drop()
+        self.db.clinical_run_history_match.drop()
 
         # create a filter.
         g = {
-            'TRUE_HUGO_SYMBOL': 'PRPF8',
-            'VARIANT_CATEGORY': 'MUTATION',
+            'TRUE_HUGO_SYMBOL': ['PRPF8'],
+            'VARIANT_CATEGORY': ['MUTATION'],
             'WILDTYPE': False
         }
         rule = {
@@ -358,7 +320,8 @@ class TestStatus(TestMinimal):
             'genomic_filter': g,
             'label': 'test',
             'temporary': False,
-            'status': 1
+            'status': 1,
+            'protocol_id': '11-11111'
         }
         r, status_code = self.post('filter', rule)
         self.assert201(status_code)
@@ -382,7 +345,7 @@ class TestStatus(TestMinimal):
             'updated_clinical': 6,
             'new_genomic': 7,
             'updated_genomic': 8,
-            'silent': True,
+            'silent': False,
             'data_push_id': self.now
         }
         r, status_code = self.post('status', status)
@@ -390,7 +353,7 @@ class TestStatus(TestMinimal):
 
         # count again
         new_count = self.db['match'].count()
-        assert new_count == 3
+        assert new_count == original_count + 1
         assert new_count != original_count
 
         # get the new matches.
@@ -425,73 +388,6 @@ class TestStatus(TestMinimal):
             assert match['data_push_id'] == self.now, '\nM: %s\nC: %s' % (
                 match['data_push_id'], datetime.datetime(year=1995, month=1, day=1).strftime('%Y-%m-%d %H:%M:%S'))
 
-    def test_post_status_modifygenomic(self):
-
-        return
-
-        # add the new entry first.
-        clinical, genomics = self._new_entry()
-
-        # create a filter.
-        g = {
-            'TRUE_HUGO_SYMBOL': 'SUFU'
-        }
-        rule = {
-            'USER_ID': self.user_id,
-            'TEAM_ID': self.team_id,
-            'genomic_filter': g,
-            'label': 'test',
-            'temporary': False,
-            'status': 1
-        }
-        r, status_code = self.post('filter', rule)
-        self.assert201(status_code)
-
-        # UPDATE the matches status.
-        results = self.db['match'].update_many({}, {'$set': {'MATCH_STATUS': 2}})
-
-        # assert we have matches
-        old_matches = list(self.db['match'].find())
-        original_count = len(old_matches)
-        assert original_count == 1
-
-        # modify clinical header to reflect report version change.
-        clinical['REPORT_VERSION'] += 1
-        etag = clinical['_etag']
-        clinical_id = clinical['_id']
-
-        # sanitize object except for _id.
-        for key in list(clinical.keys()):
-            if key[0] == "_" and key != "_id":
-                del clinical[key]
-
-        # UDPATE the clinical record.
-        new_clinical, status_code = self.put('clinical/%s' % clinical_id, clinical, headers=[('If-Match', etag)])
-        self.assert200(status_code)
-
-        # delete the PRPF8 call.
-        for genomic in genomics:
-            if 'TRUE_HUGO_SYMBOL' in genomic and genomic['TRUE_HUGO_SYMBOL'] == 'PRPF8':
-                # get the etag.
-                etag = genomic['_etag']
-                genomic_id = genomic['_id']
-
-                # delete this.
-                r, status_code = self.delete('genomic/%s' % genomic_id, headers=[('If-Match', etag)])
-                self.assert204(status_code)
-
-        # make a date.
-        cur_dt = formatdate(time.mktime(datetime.datetime.now().timetuple()), localtime=False, usegmt=True)
-        status = {
-            'last_update': cur_dt,
-            'new_clinical': 5,
-            'updated_clinical': 6,
-            'new_genomic': 7,
-            'updated_genomic': 8,
-            'silent': True
-        }
-        r, status_code = self.post('status', status)
-        self.assert201(status_code)
 
     def test_post_status_vital(self):
 
@@ -501,7 +397,7 @@ class TestStatus(TestMinimal):
 
         # create a filter.
         g = {
-            'TRUE_HUGO_SYMBOL': 'SUFU'
+            'TRUE_HUGO_SYMBOL': ['SUFU']
         }
         rule = {
             'USER_ID': self.user_id,
@@ -518,7 +414,7 @@ class TestStatus(TestMinimal):
         # count matches
         matches = list(self.db['match'].find({'FILTER_ID': ObjectId(filter_id)}))
         match_cnt = len(matches)
-        assert match_cnt > 0
+        assert match_cnt == 61
 
         # assert our patient is in matches.
         found = False
@@ -528,7 +424,7 @@ class TestStatus(TestMinimal):
         assert found
 
         # cause the patient to become deceased.
-        self.db.clinical.update_one({"_id": patient_id}, {"$set": {"VITAL_STATUS": "deceased"}})
+        self.db.clinical.update_one({"_id": patient_id}, {"$set": {"VITAL_STATUS": "deceased", "_updated": datetime.datetime.now()}})
 
         # post a status update.
         cur_dt = formatdate(time.mktime(datetime.datetime.now().timetuple()), localtime=False, usegmt=True)
@@ -538,7 +434,7 @@ class TestStatus(TestMinimal):
             'updated_clinical': 6,
             'new_genomic': 7,
             'updated_genomic': 8,
-            'silent': True,
+            'silent': False,
             'data_push_id': self.now
         }
         r, status_code = self.post('status', status)
@@ -548,7 +444,7 @@ class TestStatus(TestMinimal):
         self.db.clinical.update_one({"_id": patient_id}, {"$set": {"VITAL_STATUS": "alive"}})
 
         # we should see fewer matches.
-        matches = list(self.db['match'].find({'FILTER_ID': ObjectId(filter_id)}))
+        matches = list(self.db['match'].find({'FILTER_ID': ObjectId(filter_id), 'is_disabled': False}))
         match_cnt_new = len(matches)
         assert match_cnt_new > 0
         assert match_cnt_new < match_cnt
@@ -573,45 +469,14 @@ class TestStatus(TestMinimal):
         }
 
         # make the email
-        html = miner._email_text(user, num_matches, match_str, num_filters, cur_date, cur_stamp)
+        html = miner._email_text(user, cur_stamp, {})
 
         # assert its equal.
         assert html.count("matches") > 0
 
-    def test_twopart_status(self):
-
-        return
-        # post pre-status update.
-        cur_dt = formatdate(time.mktime(datetime.datetime(year=2005, month=1, day=1).timetuple()), localtime=False,
-                            usegmt=True)
-        status = {
-            'last_update': cur_dt,
-            'new_clinical': 5,
-            'updated_clinical': 6,
-            'new_genomic': 7,
-            'updated_genomic': 8,
-            'silent': True,
-            'pre': True
-        }
-        r, status_code = self.post('status', status)
-        self.assert201(status_code)
-
-        # PUT status update.
-        r['pre'] = False
-        etag = r['_etag']
-        status_id = r['_id']
-        for key in list(r.keys()):
-            if key[0] == "_" and key != "_id":
-                del r[key]
-        r, status_code = self.put('status/%s' % status_id, r, headers=[('If-Match', etag)])
-
-        # DELETE status.
-        etag = r['_etag']
-        status_id = r['_id']
-        r, status_code = self.delete('status/%s' % status_id, headers=[('If-Match', etag)])
-
     def test_new_matches(self):
-
+        self.db.run_log_match.drop()
+        self.db.clinical_run_history_match.drop()
         # POST filter
         c = {
             "ONCOTREE_PRIMARY_DIAGNOSIS_NAME": "Pheochromocytoma"
@@ -622,7 +487,10 @@ class TestStatus(TestMinimal):
             'clinical_filter': c,
             'label': 'test',
             'temporary': False,
-            'status': 1
+            'status': 1,
+            'EMAIL': True,
+            'test_name': 'oncopanel',
+            'protocol_id': '11-1111'
         }
         filter_resp, status_code = self.post('filter', rule)
         filter_id = ObjectId(filter_resp['_id'])
@@ -631,25 +499,33 @@ class TestStatus(TestMinimal):
         # assert that all matches associated with this filter are in the pending bin
         matches = list(self.db['match'].find({'FILTER_ID': filter_id}))
         assert matches
+        assert len(matches) == 19
         for match in matches:
             assert match['MATCH_STATUS'] == 1
-            assert '_new_match' not in match
+
+        assert len(list(self.db.run_log_match.find())) == 1
 
         # add clinical entry and status POST and check that the email count of new matches is correct
-        # check that the new matches are in the new bin and have the _new_match field set
+        # check that the new matches are in the new bin
         clin = self.clinical.copy()
         clin['VITAL_STATUS'] = 'alive'
         r, status_code = self.post('clinical', clin)
         self.assert201(status_code)
         self.db['genomic'].insert(self.genomic)
 
+        time.sleep(1)
+        self.db['filter'].update({'_id': filter_id}, {'$set': {'_updated': datetime.datetime.now()}})
+
         r, status_code = self.post('status', self.status)
         self.assert201(status_code)
+
+        assert len(list(self.db.run_log_match.find())) == 2
 
         r, status_code = self.post('utility/send_emails', self.status)
         self.assert201(status_code)
 
         email = self.db['email'].find_one()
+        assert len(list(self.db.clinical.find())) == 93
         assert email
         assert int(email['body'].split('identified ')[1].split(' new')[0]) == 1
 
@@ -658,34 +534,8 @@ class TestStatus(TestMinimal):
         for match in matches:
             if match['CLINICAL_ID'] == ObjectId(clin['_id']):
                 assert match['MATCH_STATUS'] == 0
-                assert '_new_match' in match and match['_new_match']
             else:
                 assert match['MATCH_STATUS'] == 1
-                assert '_new_match' not in match
-
-        # simulate a manual move of a match from pending to new and check
-        # that they are not included in the status POST
-        self.db['match'].update_many(
-            {'FILTER_ID': filter_id, 'MATCH_STATUS': 1},
-            {'$set': {'MATCH_STATUS': 0, '_new_match': True}}
-        )
-        statuscopy = self.status.copy()
-        del statuscopy['_id']
-        r, status_code = self.post('status', statuscopy)
-        self.assert201(status_code)
-
-        matches = list(self.db['match'].find({'FILTER_ID': filter_id}))
-        assert matches
-        for match in matches:
-            if match['CLINICAL_ID'] == clin['_id']:
-                assert match['MATCH_STATUS'] == 0
-                assert '_new_match' in match and match['_new_match']
-            else:
-                assert match['MATCH_STATUS'] == 0
-                assert '_new_match' in match
-
-        emails = list(self.db['email'].find())
-        assert len(emails) == 1
 
     def _check_matches(self):
         matches = list(self.db['match'].find())

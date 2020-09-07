@@ -1,4 +1,3 @@
-import tempfile
 import oncotreenx
 
 from matchminer.utilities import *
@@ -15,87 +14,6 @@ class TestUtilities(TestMinimal):
 
     def tearDown(self):
         self.db.registration.drop()
-
-    def test_insertion_memory(self):
-
-        # create temporary data.
-        txt = '''Timestamp,First Name,Last Name,Partners ID,Institutional Email Address,Protocol Number for you are requesting access to MatchMiner,Indicate your reason for requesting access to MatchMiner,Approved by ??
-4/26/2016,Tom,Test1,test1,TEST1@test.com,00-000,PI,YES
-4/27/2016,Joe,Test2,test2,TEST2@test.com,Several,Dz Ctr leader,YES
-4/26/2016,Philippe,Test3,test3,TEST3@test.com,00-000,PI,YES
-'''
-
-        # build equivalent.
-        data = list()
-        for line in txt.split("\n"):
-            if len(line) == 0: continue
-            data.append(line.strip().split(","))
-
-        # test insertion.
-        insert_users(data, from_file=False)
-
-        assert self.db.user.find().count() == 6
-
-    def test_insertion_file(self):
-
-        # create temporary data.
-        txt = '''Timestamp,First Name,Last Name,Partners ID,Institutional Email Address,Protocol Number for you are requesting access to MatchMiner,Indicate your reason for requesting access to MatchMiner,Approved by ??
-4/26/2016,Tom,Test1,test1,TEST1@test.com,00-000,PI,YES
-4/27/2016,Joe,Test2,test2,TEST2@test.com,Several,Dz Ctr leader,YES
-4/26/2016,Philippe,Test3,test3,TEST3@test.com,00-000,PI,YES
-'''.encode('utf-8')
-
-        temp = tempfile.NamedTemporaryFile()
-        try:
-
-            # write.
-            temp.write(txt)
-            temp.seek(0)
-
-            # test insertion.
-            insert_users(temp.name, from_file=True)
-            assert self.db.user.find().count() == 6
-
-        finally:
-            # Automatically cleans up the file
-            temp.close()
-
-    def test_revoke_access(self):
-
-        # create temporary data.
-        txt = '''Timestamp,First Name,Last Name,Partners ID,Institutional Email Address,Protocol Number for you are requesting access to MatchMiner,Indicate your reason for requesting access to MatchMiner,Approved by ??
-4/26/2016,Tom,Test1,test1,TEST1@test.com,00-000,PI,YES
-4/27/2016,Joe,Test2,test2,TEST2@test.com,Several,Dz Ctr leader,YES
-4/26/2016,Philippe,Test3,test3,TEST3@test.com,00-000,PI,YES
-'''
-
-        # build equivalent.
-        data = list()
-        for line in txt.split("\n"):
-            if len(line) == 0: continue
-            data.append(line.strip().split(","))
-
-        # test insertion.
-        insert_users(data, from_file=False)
-        assert self.db.user.find().count() == 6
-
-        # revoke access
-        txt = '''Timestamp,First Name,Last Name,Partners ID,Institutional Email Address,Protocol Number for you are requesting access to MatchMiner,Indicate your reason for requesting access to MatchMiner,Approved by ??
-4/26/2016,Tom,Test1,test1,TEST1@test.com,00-000,PI,YES
-4/27/2016,Joe,Test2,test2,TEST2@test.com,Several,Dz Ctr leader,NO
-4/26/2016,Philippe,Test3,test3,TEST3@test.com,00-000,PI,YES
-'''
-
-        # build equivalent.
-        data = list()
-        for line in txt.split("\n"):
-            if len(line) == 0: continue
-            data.append(line.strip().split(","))
-
-        # test insertion.
-        insert_users(data, from_file=False)
-        assert self.db.user.find().count() == 6
-        assert self.db.user.find_one({"first_name": "Joe"})['user_name'] == ''
 
     def test_get_investigator_suggest(self):
 

@@ -1,14 +1,40 @@
-image: localhost:5000/pymatchminer-api:latest
-
-services:
-  - mongo:latest
-
-test:
-  script:
-    - nosetests test
+default:
+    image: python:3.7
 
 variables:
-  -MM_SETTINGS: "DEV"
-  -MONGO_HOST: "mongo"
-  -NO_AUTH: "True"
-  -API_PORT: "5555"
+    MONGO_HOST: "localhost"
+    MONGO_PORT: 27017
+    MONGO_USERNAME: ""
+    MONGO_PASSWORD: ""
+    MONGO_DBNAME: matchminer_test
+    MONGO_URI: mongodb://localhost:27017/matchminer_test
+    ONCOTREE_CUSTOM_DIR: /builds/matchminer/matchminerAPI/data/oncotree_file.txt
+    EMAIL_CONFIG: /builds/matchminer/matchminerAPI/email.config.json
+    SECRETS_JSON: /builds/matchminer/matchminerAPI/SECRETS_JSON.json
+
+before_script:
+    # install mongo
+    - apt-get update && apt install -y dirmngr gnupg apt-transport-https software-properties-common ca-certificates curl
+    - wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add -
+    - add-apt-repository 'deb https://repo.mongodb.org/apt/debian buster/mongodb-org/4.2 main'
+    - apt-get update
+    - apt-get install -y mongodb-org libxml2-dev libxslt1-dev libxmlsec1-dev
+    - DEBIAN_FRONTEND=noninteractive apt-get update --fix-missing && apt-get update
+    - mkdir -p /data/db && touch mongod.log
+    - mongod --logpath /builds/matchminer/matchminerAPI/mongod.log --quiet &
+
+    # load test data
+    - mongorestore -d matchminer_test --dir=tests/data
+    - pip install -r requirements.txt
+
+    # set secrets file and run tests
+    - echo "{\"MONGO_HOST\":\"$MONGO_HOST\",\"MONGO_PORT\":\"$MONGO_PORT\",\"MONGO_USERNAME\":\"$MONGO_USERNAME\",\"MONGO_PASSWORD\":\"$MONGO_PASSWORD\",\"MONGO_DBNAME\":\"$MONGO_DBNAME\",\"MONGO_URI\":\"$MONGO_URI\"}" > SECRETS_JSON.json
+
+run_test:
+  script:
+    - nosetests -v tests/unit
+    - nosetests -v --with-xunit --with-coverage tests
+
+  artifacts:
+    reports:
+      junit: nosetests.xml

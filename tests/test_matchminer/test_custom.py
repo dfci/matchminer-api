@@ -4,7 +4,6 @@ import yaml
 import datetime
 import binascii
 from matchminer.utilities import set_curated, set_updated
-from matchminer.miner import prepare_criteria
 from matchminer.custom import generate_encryption_key_epic, encrypt_epic, decrypt_epic
 
 from tests.test_matchminer import TestMinimal
@@ -24,22 +23,6 @@ class TestCustom(TestMinimal):
     def tearDown(self):
         self.db.trial.remove({'protocol_no': '00-003'})
 
-    def test_match_count(self):
-
-        # insert matches.
-        filter_id = self._insert_match_small()
-
-        # get the match-count.
-        r, status_code = self.get('utility/count_match')
-        self.assert200(status_code)
-
-        # assert we have values.
-        r = r[str(filter_id)]
-        assert r['new'] == 0
-        assert r['pending'] > 0
-        assert r['flagged'] == 0
-        assert r['not_eligible'] == 0
-        assert r['enrolled'] == 0
 
     def test_unique(self):
 
@@ -93,8 +76,7 @@ class TestCustom(TestMinimal):
         r, status_code = self.get('utility/autocomplete?resource=genomic&field=TRUE_PROTEIN_CHANGE&value=&gene=APC')
         self.assert200(status_code)
         tmp = {"$or": [
-            {'TRUE_HUGO_SYMBOL': 'APC'},
-            {'CNV_HUGO_SYMBOL': 'APC'},
+            {'TRUE_HUGO_SYMBOL': 'APC'}
         ]}
         x = set(self.db['genomic'].find(tmp).distinct("TRUE_PROTEIN_CHANGE"))
         x.remove(None)
@@ -175,45 +157,6 @@ class TestCustom(TestMinimal):
             newtrial[field] = trial[field]
         self.i += 1
         return newtrial
-
-    def test_prepare_criteria(self):
-
-        item = {
-            'clinical_filter': {
-                'BIRTH_DATE': {'^lte': "1999-05-16T17:09:46.737Z"},
-                'ONCOTREE_PRIMARY_DIAGNOSIS_NAME': 'Breast'
-            },
-            'genomic_filter': {
-                'WILDTYPE': False,
-                'VARIANT_CATEGORY': {'^in': ['MUTATION']},
-                'TRUE_HUGO_SYMBOL': {'^in': ['ERBB2']},
-                'TRUE_PROTEIN_CHANGE': {'^in': ['p.G309A', 'p.G309E']}
-            }
-        }
-        c, g, _ = prepare_criteria(item)
-        assert g == {
-            '$or': [
-                {
-                    'WILDTYPE': False,
-                    'TRUE_PROTEIN_CHANGE': {'$in': ['p.G309A', 'p.G309E']},
-                    'VARIANT_CATEGORY': 'MUTATION',
-                    'TRUE_HUGO_SYMBOL': {'$in': ['ERBB2']}
-                }
-            ]
-        }
-
-        item['genomic_filter']['TRUE_PROTEIN_CHANGE'] = 'p.G309A'
-        c, g, _ = prepare_criteria(item)
-        assert g == {
-            '$or': [
-                {
-                    'WILDTYPE': False,
-                    'TRUE_PROTEIN_CHANGE': 'p.G309A',
-                    'VARIANT_CATEGORY': 'MUTATION',
-                    'TRUE_HUGO_SYMBOL': {'$in': ['ERBB2']}
-                }
-            ]
-        }
 
     # Values taken from EPIC's encryption tool
     # See: https://open.epic.com/Tech/TechSpec?spec=Epic.EncryptionValidator.exe&specType=tools

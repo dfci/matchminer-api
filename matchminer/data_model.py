@@ -9,29 +9,90 @@ status_schema = {
     },
     'updated_clinical': {
         'type': 'integer',
-        'required': True
+        'required': False
     },
     'new_genomic': {
         'type': 'integer',
-        'required': True
+        'required': True,
+        'nullable': True
     },
     'updated_genomic': {
         'type': 'integer',
-        'required': True
+        'required': False,
+        'nullable': True
     },
     'silent': {
         'type': 'boolean',
         'required': True
     },
-    # 'pre': {
-    #    'type': 'boolean',
-    #    'required': True
-    # },
     'backup_path': {
         'type': 'string',
         'readonly': True
     },
-    'data_push_id': {'type': 'string', 'required': True}
+    'data_push_id': {
+        'type': 'string',
+        'required': True
+    },
+    'test_name': {
+        'type': 'string',
+        'required': False
+    },
+    'deleted': {
+        'type': 'integer',
+        'required': False,
+        'nullable': True
+    }
+}
+
+import_log_schema = {
+    'new_samples': {
+        'type': 'list',
+        'required': False
+    },
+    'updated_samples': {
+        'type': 'list',
+        'required': False
+    },
+    'deleted_samples': {
+        'type': 'list',
+        'required': False
+    },
+    'new_samples_count': {
+        'type': 'integer',
+        'required': False
+    },
+    'updated_samples_count': {
+        'type': 'integer',
+        'required': False
+    },
+    'deleted_samples_count': {
+        'type': 'integer',
+        'required': False
+    },
+    'test_name': {
+        'type': 'string',
+        'required': False
+    },
+    'data_push_id': {
+        'type': 'string',
+        'required': False
+    }
+}
+
+user_log_schema = {
+    'service': {
+        'type': 'string',
+        'required': True
+    },
+    'action': {
+        'type': 'string',
+        'allowed': ["add", "update", "delete"]
+    },
+    'user': {
+        'type': 'dict',
+        'schema': {},
+        'allow_unknown': True
+    }
 }
 
 user_schema = {
@@ -112,6 +173,10 @@ filter_schema = {
         'schema': {},
         'allow_unknown': True
     },
+    'match': {
+        'type': 'list',
+        'allow_unknown': True
+    },
     'label': {
         'type': 'string'
     },
@@ -120,6 +185,9 @@ filter_schema = {
         'readonly': True
     },
     'protocol_id': {
+        'type': 'string'
+    },
+    'test_name': {
         'type': 'string'
     },
     'badgeColor': {
@@ -154,6 +222,10 @@ filter_schema = {
         'type': 'boolean',
         'required': True,
     },
+    'EMAIL': {
+        'type': 'boolean',
+        'required': False,
+    },
     'filter_hash': {
         'type': 'string',
     },
@@ -173,7 +245,6 @@ filter_schema = {
 }
 
 clinical_schema = {
-
     'ALT_MRN': {'type': 'string'},
     'MRN': {'type': 'string', 'required': True},
     'POWERPATH_PATIENT_ID': {'type': 'string'},
@@ -190,61 +261,69 @@ clinical_schema = {
     'FIRST_LAST': {'type': 'string', 'readonly': True},
     'LAST_FIRST': {'type': 'string', 'readonly': True},
     'BIRTH_DATE': {'type': 'datetime', 'required': True},
+    'COLLECTION_DATE': {'type': 'datetime', 'required': False, 'nullable': True},
     'BIRTH_DATE_INT': {'type': 'integer', 'required': True},
-    'VITAL_STATUS': {'type': 'string', 'required': True, 'allowed': ['alive', 'deceased']},
+    'VITAL_STATUS': {'type': 'string', 'required': True, 'allowed': ['alive', 'deceased', None], 'nullable': True},
     'LAST_VISIT_DATE': {'type': 'datetime'},
 
-    'TOTAL_ALIGNED_READS': {'type': 'integer', 'required': True},
-    'PCT_TARGET_BASE': {'type': 'float', 'required': True},
-    'MEAN_SAMPLE_COVERAGE': {'type': 'integer', 'required': True},
-    'DISEASE_CENTER_DESCR': {'type': 'string', 'nullable': True, 'required': True},
-    'ONCOTREE_BIOPSY_SITE_TYPE': {'type': 'string'},
+    'TOTAL_ALIGNED_READS': {'type': 'integer', 'required': False},
+    'PCT_TARGET_BASE': {'type': 'float', 'required': False},
+    'MEAN_SAMPLE_COVERAGE': {'type': 'integer', 'required': False},
+    'DISEASE_CENTER_DESCR': {'type': 'string', 'nullable': True, 'required': False},
+    'ONCOTREE_BIOPSY_SITE_TYPE': {'type': 'string', 'nullable': True},
+    'ORI_PATH_DIAGNOSIS': {'type': 'string', 'required': False, 'nullable': True},
+    'PANEL_TEST_IND': {'type': 'string', 'required': False},
+    'PLATE_NAME': {'type': 'string', 'required': False},
 
-    'ONCOTREE_BIOPSY_SITE': {'type': 'string'},
-    'ONCOTREE_BIOPSY_SITE_NAME': {'type': 'string'},
-    'ONCOTREE_BIOPSY_SITE_META': {'type': 'string'},
-    'ONCOTREE_BIOPSY_SITE_COLOR': {'type': 'string'},
-    'ONCOTREE_PRIMARY_DIAGNOSIS': {'type': 'string', 'required': True},
-    'ONCOTREE_PRIMARY_DIAGNOSIS_NAME': {'type': 'string', 'required': True},
-    'ONCOTREE_PRIMARY_DIAGNOSIS_META': {'type': 'string', 'nullable': True},
-    'ONCOTREE_PRIMARY_DIAGNOSIS_COLOR': {'type': 'string'},
-    'ORD_PHYSICIAN_NAME': {'type': 'string', 'required': True},
-    'ORD_PHYSICIAN_NPI': {'type': 'integer', 'nullable': True, 'required': True},
+    'ONCOTREE_BIOPSY_SITE': {'type': 'string', 'nullable': True},
+    'ONCOTREE_BIOPSY_SITE_NAME': {'type': 'string', 'nullable': True},
+    'ONCOTREE_BIOPSY_SITE_META': {'type': 'string', 'required': False, 'nullable': True},
+    'ONCOTREE_BIOPSY_SITE_COLOR': {'type': 'string', 'required': False, 'nullable': True},
+    'ONCOTREE_PRIMARY_DIAGNOSIS': {'type': 'string', 'required': True, 'nullable': True},
+    'ONCOTREE_PRIMARY_DIAGNOSIS_NAME': {'type': 'string', 'required': True, 'nullable': True},
+    'ONCOTREE_PRIMARY_DIAGNOSIS_META': {'type': 'string', 'nullable': True, 'required': False},
+    'ONCOTREE_PRIMARY_DIAGNOSIS_COLOR': {'type': 'string', 'required': False},
+    'ORD_PHYSICIAN_NAME': {'type': 'string', 'required': False},
+    'ORD_PHYSICIAN_NPI': {'type': 'integer', 'nullable': True, 'required': False},
     'ORD_PHYSICIAN_EMAIL': {'type': 'string', 'nullable': True, 'required': True},
     'PATHOLOGIST_NAME': {'type': 'string', 'nullable': True, 'required': True},
 
     'PANEL_VERSION': {'type': 'integer', 'required': True},
-    'REPORT_COMMENT': {'type': 'string', 'nullable': True, 'required': True},
-    'DATE_RECEIVED_AT_SEQ_CENTER': {'type': 'datetime', 'required': True},
+    'REPORT_COMMENT': {'type': 'string', 'nullable': True, 'required': False},
+    'DATE_RECEIVED_AT_SEQ_CENTER': {'type': 'datetime', 'required': False, 'nullable': True},
     'REPORT_DATE': {
         'type': 'datetime',
-        'required': True
+        'required': True,
+        'nullable': True
     },
     'REPORT_VERSION': {'type': 'integer', 'nullable': True, 'required': True},
-    'TEST_TYPE': {'type': 'string', 'required': True},
+    'TEST_TYPE': {'type': 'string', 'required': False},
 
-    'BLOCK_NUMBER': {'type': 'string', 'nullable': True, 'required': True},
-    'QC_RESULT': {'type': 'string', 'required': True},
-    'CNV_RESULTS': {'type': 'string'},
-    'SNV_RESULTS': {'type': 'string'},
+    'BLOCK_NUMBER': {'type': 'string', 'nullable': True, 'required': False},
+    'QC_RESULT': {'type': 'string', 'required': False},
+    'CNV_RESULTS': {'type': 'string', 'required': False},
+    'SNV_RESULTS': {'type': 'string', 'required': False},
 
-    'QUESTION1_YN': {'type': 'string', 'consented': True, 'required': True},
-    'QUESTION2_YN': {'type': 'string', 'required': True},
-    'QUESTION3_YN': {'type': 'string', 'required': True},
-    'QUESTION4_YN': {'type': 'string', 'required': True},
-    'QUESTION5_YN': {'type': 'string', 'required': True},
-    'CRIS_YN': {'type': 'string', 'required': True},
-    'CONSENT_17000': {'type': 'string'},
+    'QUESTION1_YN': {'type': 'string', 'consented': True, 'required': False},
+    'QUESTION2_YN': {'type': 'string', 'required': False},
+    'QUESTION3_YN': {'type': 'string', 'required': False},
+    'QUESTION4_YN': {'type': 'string', 'required': False},
+    'QUESTION5_YN': {'type': 'string', 'required': False},
+    'TEST_NAME': {'type': 'string', 'required': True},
+    'CRIS_YN': {'type': 'string', 'required': False},
+    'HASH_VITALS_OMITTED': {'type': 'string', 'required': False},
+    'CONSENT_17000': {'type': 'string', 'required': False},
 
-    'TOTAL_READS': {'type': 'integer', 'required': True},
-    'TUMOR_PURITY_PERCENT': {'type': 'float', 'required': True},
+    'TOTAL_READS': {'type': 'integer', 'required': False},
+    'TUMOR_PURITY_PERCENT': {'type': 'float', 'required': False, 'nullable': True},
 
-    'TUMOR_MUTATIONAL_BURDEN_PER_MEGABASE': {'type': 'float', 'nullable': True},
-    'CANCER_TYPE_PERCENTILE': {'type': 'float', 'nullable': True},
-    'ALL_PROFILE_PERCENTILE': {'type': 'float', 'nullable': True},
+    'TUMOR_MUTATIONAL_BURDEN_PER_MEGABASE': {'type': 'float', 'nullable': True, 'required': False},
+    'CANCER_TYPE_PERCENTILE': {'type': 'float', 'nullable': True, 'required': False},
+    'ALL_PROFILE_PERCENTILE': {'type': 'float', 'nullable': True, 'required': False},
     'MMR_STATUS': {
         'type': 'string',
         'nullable': True,
+        'required': False,
         'allowed': [
             'Cannot assess',
             'Indeterminate (see note)',
@@ -253,8 +332,8 @@ clinical_schema = {
             None
         ]
     },
-    'METAMAIN_COUNT': {'type': 'integer', 'nullable': True},
-    'CASE_COUNT': {'type': 'integer', 'nullable': True},
+    'METAMAIN_COUNT': {'type': 'integer', 'nullable': True, 'required': False},
+    'CASE_COUNT': {'type': 'integer', 'nullable': True, 'required': False},
     'PDF_LAYOUT_VERSION': {
         'type': 'integer',
         'allowed': [1, 2, 3]
@@ -288,6 +367,187 @@ clinical_schema = {
     }
 }
 
+val_stderr = {
+    "value": {
+        'type': 'float',
+        'required': True,
+        'nullable': True
+    },
+    "stderr": {
+        'type': 'float',
+        'required': True,
+        'nullable': True
+    },
+    "percentile_tumor": {
+        'type': 'integer',
+        'required': True,
+        'nullable': True
+    },
+    "percentile_total": {
+        'type': 'integer',
+        'required': True,
+        'nullable': True
+    }
+}
+
+ip_biomarker_schema = {
+    'type': 'dict',
+    'schema': {
+        'it': {
+            'type': 'dict',
+            'schema': val_stderr
+        },
+        'tsi': {
+            'type': 'dict',
+            'schema': val_stderr
+        },
+        'it_tsi': {
+            'type': 'dict',
+            'schema': val_stderr
+        }
+    }
+}
+
+immunoprofile_schema = {
+    "sample_id": {
+        'type': 'string',
+        'unique': True,
+        'required': True
+    },
+    "biomarkers": {
+        'type': 'dict',
+        'schema': {
+            "cd8": ip_biomarker_schema,
+            "pd1": ip_biomarker_schema,
+            "cd8_pd1": ip_biomarker_schema,
+            "foxp3": ip_biomarker_schema
+        }
+    },
+    "pdl1": {
+        'type': 'dict',
+        'schema': {
+            "summary": {
+                'type': 'dict',
+                'required': True,
+                'nullable': True,
+                'schema': {
+                    'pdl1_mal': {
+                        'type': 'string',
+                        'required': False,
+                        'nullable': True
+                    },
+                    'pdl1_inf': {
+                        'type': 'string',
+                        'required': False,
+                        'nullable': True,
+                    },
+                    'pdl1_mal_inf': {
+                        'type': 'string',
+                        'required': False,
+                        'nullable': True,
+                    },
+                    'pdl1_undef': {
+                        'type': 'string',
+                        'required': False,
+                        'nullable': True,
+                    },
+                    'interpretation_comment': {
+                        'type': 'string',
+                        'required': True,
+                        'nullable': False
+                    }
+                }
+            },
+            'scores': {
+                'type': 'dict',
+                'required': True,
+                'schema': {
+                    'tps': {
+                        'type': 'dict',
+                        'schema': val_stderr
+                    },
+                    'cps': {
+                        'type': 'dict',
+                        'schema': val_stderr
+                    },
+                    'ic': {
+                        'type': 'dict',
+                        'schema': val_stderr
+                    },
+                    'ica': {
+                        'type': 'dict',
+                        'schema': {
+                            "value": {
+                                'type': 'float',
+                                'required': True,
+                                'nullable': True
+                            },
+                            "percentile_tumor": {
+                                'type': 'integer',
+                                'required': True,
+                                'nullable': True
+                            },
+                            "percentile_total": {
+                                'type': 'integer',
+                                'required': True,
+                                'nullable': True
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    'email': {
+        'type': 'boolean',
+        'required': True,
+        'nullable': False
+    },
+    'report_version': {
+        'type': 'integer',
+        'required': True,
+        'nullable': False
+    },
+    'panel_biomarkers': {
+        'type': 'list',
+        'required': True,
+        'nullable': True
+    },
+    'clinical_id': {
+        'type': 'objectid',
+        'required': False,
+        'data_relation': {
+            'resource': 'clinical',
+            'field': '_id',
+            'embeddable': True
+        },
+    },
+    'failed_sign_out': {
+        'type': 'boolean',
+        'required': True,
+        'nullable': False
+    },
+    'percentile': {
+        'type': 'dict',
+        'required': True,
+        'nullable': True,
+        'schema': {
+            'tumor': {
+                'type': 'integer',
+            },
+            'total': {
+                'type': 'integer',
+            },
+            'tsi_tumor': {
+                'type': 'integer',
+            },
+            'tsi_total': {
+                'type': 'integer',
+            },
+        }
+    }
+}
+
 genomic_schema = {
     # identifiers
     'CLINICAL_ID': {
@@ -315,6 +575,22 @@ genomic_schema = {
 
     # mutation variables.
     'BEST': {'type': 'boolean'},
+    'VARIANT_TYPE': {'type': 'string', 'required': False},
+    'PATHOGENICITY_RESERACH': {'type': 'string', 'required': False},
+    'PATHOGENICITY_RESEARCH': {'type': 'string', 'required': False},
+    'ANNOTATION_TOOL_NAME': {'type': 'string', 'required': False},
+    'GNOMAD_FREQUENCY': {'type': 'string', 'required': False},
+    'MAX_GNOMAD_FREQUENCY_VEP': {'type': 'string', 'required': False},
+    'PATHOGENICITY_PATHOLOGIST': {'type': 'string', 'required': False},
+    'VARIANT_ID': {'type': 'integer', 'required': False},
+    'PIPELINE_VERSION': {'type': 'float', 'required': False},
+    'ALLELE_RATIO': {'type': 'string', 'required': False},
+    'READ': {'type': 'float', 'required': False},
+    'READ_COUNT_VARIANT': {'type': 'float', 'required': False},
+    'SEQ': {'type': 'string', 'required': False},
+    'GENE': {'type': 'string', 'required': False},
+    'ARM': {'type': 'string', 'required': False},
+    'BAND': {'type': 'string', 'required': False},
     'ALLELE_FRACTION': {'type': 'float'},
     'ALTERNATE_ALLELE': {'type': 'string'},
     'TRUE_CDNA_CHANGE': {'type': 'string'},
@@ -354,6 +630,7 @@ genomic_schema = {
     # CNV variables.
     'CNV_CALL': {'type': 'string'},
     'CNV_BAND': {'type': 'string'},
+    'CNV_ARM': {'type': 'string'},
     'CNV_HUGO_SYMBOL': {'type': 'string'},
 
     # structural variables.
@@ -408,6 +685,14 @@ genomic_schema = {
     "RIGHT_PARTNER_BAND": {'type': 'string', 'nullable': True},
     "RIGHT_PARTNER_EXON_INTRON": {'type': 'string', 'nullable': True},
     "RIGHT_PARTNER_EXON_INTRON_NUM": {'type': 'integer', 'nullable': True},
+    'TEST_NAME': {'type': 'string', 'required': False},
+
+    'BESTEFFECT_REFSEQ_TRANSCRIPT_ID': {'type': 'string', 'required': False},
+    'BESTEFFECT_ENSEMBL_TRANSCRIPT_ID': {'type': 'string', 'required': False},
+    "CANONICAL_REFSEQ_TRANSCRIPT_ID": {'type': 'string', 'required': False},
+    "CANONICAL_ENSEMBL_TRANSCRIPT_ID": {'type': 'string', 'required': False},
+    "TRUE_REFSEQ_TRANSCRIPT_ID": {'type': 'string', 'required': False},
+    "TRUE_ENSEMBL_TRANSCRIPT_ID": {'type': 'string', 'required': False},
 }
 
 for key in genomic_schema:
@@ -464,7 +749,12 @@ match_schema = {
         'type': 'string'
     },
     'TIER': {
-        'type': 'integer'
+        'required': False,
+        'nullable': True
+    },
+    'ALLELE_FRACTION': {
+        'type': 'float',
+        'nullable': True
     },
     'VARIANT_CATEGORY': {
         'type': 'string'
@@ -478,6 +768,10 @@ match_schema = {
     'ENROLLED': {
         'type': 'boolean',
     },
+    'EMAIL': {
+        'type': 'boolean',
+        'required': False,
+    },
     'EMAIL_BODY': {
         'type': 'string',
         'nullable': True
@@ -486,11 +780,57 @@ match_schema = {
         'type': 'string',
         'nullable': True
     },
+    'LABEL': {
+        'type': 'string',
+        'nullable': True
+    },
     'EMAIL_ADDRESS': {
         'type': 'string',
         'nullable': True
     },
-    'data_push_id': {'type': 'string', 'required': False, 'nullable': True}
+    'QUERY_HASH': {
+        'type': 'string',
+        'required': False,
+        'nullable': True
+    },
+    'PROTOCOL_ID': {
+        'type': 'string',
+        'required': False,
+        'nullable': True
+    },
+    '_me_id': {
+        'type': 'string',
+        'required': False,
+        'nullable': True
+    },
+    'clinical_id': {
+        'type': 'objectid',
+        'required': True,
+        'nullable': True
+    },
+    'hash': {
+        'type': 'string',
+        'required': True,
+        'nullable': True
+    },
+    'is_disabled': {
+        'type': 'boolean',
+        'required': True,
+    },
+    'data_push_id': {
+        'type': 'string',
+        'required': False,
+        'nullable': True
+    },
+    'sample_id': {
+        'type': 'string',
+        'required': False
+    },
+    'sort_order': {
+        'type': 'list',
+        'nullable': True,
+        'required': False
+    },
 }
 
 hipaa_transaction = {
@@ -1297,7 +1637,7 @@ trial_match_schema = {
     'internal_id': {'type': 'string'},
     'ord_physician_name': {'type': 'string', 'nullable': True},
     'ord_physician_email': {'type': 'string', 'nullable': True},
-    'vital_status': {'type': 'string', 'allowed': ['alive', 'deceased']},
+    'vital_status': {'type': 'string', 'allowed': ['alive', 'deceased'], 'nullable': True},
     'oncotree_primary_diagnosis_name': {'type': 'string', 'nullable': True},
     'true_hugo_symbol': {'type': 'string', 'nullable': True},
     'true_protein_change': {'type': 'string', 'nullable': True},
@@ -1335,7 +1675,8 @@ negative_genomic_schema = {
     'roi_type': {'type': 'string', 'required': True, 'allowed': ['C', 'R', 'M', 'G', 'E', None], 'nullable': True},
     'entire_gene': {'type': 'boolean', 'readonly': True},
     'show_exon': {'type': 'boolean', 'readonly': True},
-    'show_codon': {'type': 'boolean', 'readonly': True}
+    'show_codon': {'type': 'boolean', 'readonly': True},
+    'TEST_NAME': {'type': 'string', 'required': False}
 }
 
 patient_view_schema = {

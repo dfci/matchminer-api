@@ -19,16 +19,4 @@ DATA_CLINICAL_CSV = os.path.join(DATA_DIR, "clinical.pkl")
 DATA_GENOMIC_CSV = os.path.join(DATA_DIR, "genomic.pkl")
 DATA_ONCOTREE_FILE = os.getenv("ONCOTREE_CUSTOM_DIR", "/var/www/apache-flask/api/matchminer/data/oncotree_file.txt")
 
-# backup directory.
-BACKUP_HOURLY_DIR = os.path.join(BACKUP_DIR, "hourly")
-BACKUP_HOURLY_FREQ = 3600
-BACKUP_HOURLY_MAX = 24
-BACKUP_DAILY_DIR = os.path.join(BACKUP_DIR, "daily")
-BACKUP_DAILY_FREQ = 86400
-BACKUP_DAILY_MAX = 7
-BACKUP_WEEKLY_DIR = os.path.join(BACKUP_DIR, "weekly")
-BACKUP_WEEKLY_FREQ = 604800
-BACKUP_WEEKLY_MAX = 8
-BACKUP_STATUS_DIR = os.path.join(BACKUP_DIR, "status")
-
 MONGO_QUERY_BLACKLIST = ['$where']

@@ -2,6 +2,8 @@ import os
 import uuid
 import datetime
 import base64
+import threading
+
 from flask import Blueprint, current_app as app
 from flask import Response, request, render_template, redirect, session, make_response
 from flask_cors import CORS
@@ -12,18 +14,13 @@ from onelogin.saml2.auth import OneLogin_Saml2_Auth
 import simplejson as json
 import oncotreenx
 
-from matchminer import database
-from matchminer import settings
+from matchminer import settings, database
 from matchminer import data_model
 import matchminer.miner
-from matchminer.settings import MONGO_DBNAME, SERVER, FRONT_END_ADDRESS, API_TOKEN, EPIC_DECRYPT_TOKEN, \
-    EMAIL_AUTHOR_PROTECTED
-from matchminer.utilities import parse_resource_field, nocache
-from matchminer.security import TokenAuth, authorize_custom_request
-from matchminer.services.filter import Filter
-from matchminer.services.match import Match
-from matchminer.templates.emails.emails import EAP_INQUIRY_BODY
-from matchminer.validation import check_valid_email_address
+from matchminer.miner import _count_matches_by_filter
+from matchminer.settings import *
+from matchminer.utilities import parse_resource_field, nocache, reannotate_trials
+from matchminer.security import auth_required
 import logging
 
 # logging
@@ -36,92 +33,6 @@ blueprint = Blueprint('', __name__, template_folder="templates/templates")
 CORS(blueprint)
 
 
-def _count_matches(matches, match_db):
-
-    # extract counts
-    counts = {
-        "new": 0,
-        "new_matches": 0,
-        "pending": 0,
-        "flagged": 0,
-        'not_eligible': 0,
-        'enrolled': 0,
-        'contacted': 0,
-        'eligible': 0,
-        'deferred': 0
-    }
-
-    for match in matches:
-        if match['FILTER_STATUS'] == 1:
-            if match['MATCH_STATUS'] == 0:
-                counts['new'] += 1
-
-                if '_new_match' not in match or match['_new_match'] is False:
-                    counts['new_matches'] += 1
-                    match_db.update_one({'_id': match['_id']}, {'$set': {'_new_match': True}})
-
-            elif match['MATCH_STATUS'] == 1:
-                counts['pending'] += 1
-            elif match['MATCH_STATUS'] == 2:
-                counts['flagged'] += 1
-            elif match['MATCH_STATUS'] == 3:
-                counts['not_eligible'] += 1
-            elif match['MATCH_STATUS'] == 4:
-                counts['enrolled'] += 1
-            elif match['MATCH_STATUS'] == 5:
-                counts['contacted'] += 1
-            elif match['MATCH_STATUS'] == 6:
-                counts['eligible'] += 1
-            elif match['MATCH_STATUS'] == 7:
-                counts['deferred'] += 1
-    return counts
-
-
-def _count_matches_by_filter(matches, filters):
-
-    # extract counts
-    counts = {
-        "new": 0,
-        "pending": 0,
-        "flagged": 0,
-        'not_eligible': 0,
-        'enrolled': 0,
-        'contacted': 0,
-        'eligible': 0,
-        'deferred': 0
-    }
-
-    # separate matches by filter id
-    filter_dict = {}
-    for filt in filters:
-        filter_dict[str(filt['_id'])] = counts.copy()
-
-    for match in matches:
-
-        if str(match['FILTER_ID']) not in filter_dict:
-            continue
-
-        if match['FILTER_STATUS'] == 1:
-            if match['MATCH_STATUS'] == 0:
-                filter_dict[str(match['FILTER_ID'])]['new'] += 1
-            elif match['MATCH_STATUS'] == 1:
-                filter_dict[str(match['FILTER_ID'])]['pending'] += 1
-            elif match['MATCH_STATUS'] == 2:
-                filter_dict[str(match['FILTER_ID'])]['flagged'] += 1
-            elif match['MATCH_STATUS'] == 3:
-                filter_dict[str(match['FILTER_ID'])]['not_eligible'] += 1
-            elif match['MATCH_STATUS'] == 4:
-                filter_dict[str(match['FILTER_ID'])]['enrolled'] += 1
-            elif match['MATCH_STATUS'] == 5:
-                filter_dict[str(match['FILTER_ID'])]['contacted'] += 1
-            elif match['MATCH_STATUS'] == 6:
-                filter_dict[str(match['FILTER_ID'])]['eligible'] += 1
-            elif match['MATCH_STATUS'] == 7:
-                filter_dict[str(match['FILTER_ID'])]['deferred'] += 1
-
-    return filter_dict
-
-
 @blueprint.route('/api/info', methods=['GET'])
 def api_info():
     info = {
@@ -129,11 +40,6 @@ def api_info():
         "mongo_db": MONGO_DBNAME
     }
     return json.dumps(info), 200
-
-
-@blueprint.route('/api/utility/matchengine', methods=['GET'])
-def run_matchengine_route():
-    return json.dumps({"This route has been deprecated. Please run the matchengine through the stand-alone service": True})
 
 
 @blueprint.route('/api/vip_clinical', methods=['GET'])
@@ -175,34 +81,77 @@ def get_vip_clinical():
 
 @blueprint.route('/api/utility/send_emails', methods=['POST'])
 @nocache
-def send_emails():
-    # authorize request.
-    not_authed = authorize_custom_request(request)
-    if not_authed:
-        resp = Response(response="not authorized route",
-                        status=401,
-                        mimetype="application/json")
-        return resp
+@auth_required
+def send_emails(run_id=None):
+    if request.data:
+        data = request.get_json()
+        run_id = data['run_id'] if 'run_id' in data else None
 
-    # trigger email.
-    matchminer.miner.email_matches()
+    if isinstance(run_id, str):
+        run_id = [run_id]
+
+    matchminer.miner.email_matches(run_id)
     return json.dumps({"success": True}), 201
+
+
+@blueprint.route('/api/rerun_filters', methods=['POST'])
+@auth_required
+def rerun_filters_endpoint(silent=False):
+    """
+    Trigger filter run.
+    Run in a separate thread to return response & not run multiple full filter runs simultaneously.
+    :param silent: Suppress email notification. Will generate emails by default
+    :return:
+    """
+
+    # Allow default values to be overridden in POST data params
+    db = database.get_db()
+    if request.data:
+        data = request.get_json()
+        silent = True if data['silent'] else False
+
+    is_currently_running = list(db.active_processes.find())
+    if len(is_currently_running) > 0:
+        msg = "Filters already running"
+        response = {msg: True}
+    else:
+        msg = "Full filters run started"
+        response = {msg: True}
+        thread = threading.Thread(target=matchminer.miner.start_filter_run, daemon=True, args=('silent', silent))
+        thread.start()
+
+    logging.info(msg)
+    resp = Response(response=json.dumps(response),
+                    status=200,
+                    mimetype="application/json")
+
+    return resp
+
+
+@blueprint.route('/api/reannotate_trials', methods=['POST'])
+@nocache
+@auth_required
+def reannotate_trials_api():
+    """
+    Deletes and re-adds all trials.
+    Regenerates all _summary, _elasticsearch and _suggest fields.
+    :return:
+    """
+    reannotate_trials()
+    resp = Response(response=json.dumps({"success": True}),
+                    status=200,
+                    mimetype="application/json")
+    return resp
 
 
 @blueprint.route('/api/gi_patient_view', methods=['POST'])
 @nocache
+@auth_required
 def gi_patient_view():
+
     """
     Inserts a GI patient_view document directly to the database.
     """
-
-    # authorize request.
-    not_authed = authorize_custom_request(request)
-    if not_authed:
-        resp = Response(response="not authorized route",
-                        status=401,
-                        mimetype="application/json")
-        return resp
 
     # create document
     data = request.get_json()
@@ -232,43 +181,6 @@ def gi_patient_view():
     if len(documents) > 0:
         patient_view_conn = app.data.driver.db['patient_view']
         patient_view_conn.insert(documents)
-
-    return json.dumps({"success": True}), 201
-
-
-@blueprint.route('/api/eap_email', methods=['POST'])
-@nocache
-def eap_email():
-    """
-    Validates an email address, and, if passes, inserts an email object
-    into the database.
-    """
-
-    # skip authorization
-    data = request.get_json()
-    email_address = data['email_address']
-
-    # email address validation
-    if not check_valid_email_address(email_address):
-        return json.dumps({"success": False}), 403
-
-    # create object
-    subject = '[EAP] - New Inquiry from %s' % email_address
-    body = '''<html><head></head><body>%s</body></html>''' % EAP_INQUIRY_BODY.format(email_address)
-    email = {
-        'email_from': settings.EMAIL_AUTHOR_PROTECTED,
-        'email_to': settings.EMAIL_AUTHOR_PROTECTED,
-        'subject': subject,
-        'body': body,
-        'cc': [],
-        'sent': False,
-        'num_failures': 0,
-        'errors': []
-    }
-
-    # insert into mongodb
-    email_conn = app.data.driver.db['email']
-    email_conn.insert(email)
 
     return json.dumps({"success": True}), 201
 
@@ -466,90 +378,40 @@ def dispatch_epic_clinical_trial():
 
 @blueprint.route('/api/utility/count_match', methods=['GET'])
 @nocache
+@auth_required
 def count_query():
 
     # no auth version.
     accounts = app.data.driver.db['user']
-    if settings.NO_AUTH:
-        logging.info("NO AUTH enabled. count_query.")
-
-        # get the user_id
-        user_id = str(request.args.get("user_id"))
-
-        # deal with bad parameters.
-        bad = False
-        if user_id is not None:
-
-            # find it.
-            if user_id is not None:
-                try:
-                    user = accounts.find_one({"_id": ObjectId(user_id)})
-                except:
-                    user = accounts.find_one({"last_name": "Doe"})
-
-            # deal with bad values.
-            else:
-                user = accounts.find_one({"last_name": "Doe"})
-
-        else:
-            bad = True
-
-        # emit error.
-        if bad:
-            resp = Response(response="bad parameter for no-auth mode",
-            status=401,
-            mimetype="application/json")
-            return resp
-
-    else:
-        # authorize request.
-        ta = TokenAuth()
-        not_authed = False
-        if request.authorization is not None:
-            token = request.authorization.username
-
-            # find the user.
-            user = accounts.find_one({'token': token})
-
-            # die on this request.
-            if user is None:
-                not_authed = True
-        else:
-            not_authed = True
-
-        # deal with bad request.
-        if not_authed:
-            resp = Response(response="not authorized route",
-            status=401,
-            mimetype="application/json")
-            return resp
-
-    # look for a team
     team_id = request.args.get("team_id")
+    token = request.authorization.username
+
+    # find the user.
+    user = accounts.find_one({'token': token})
 
     # extract counts
     db = database.get_db()
-    m = Match(db)
-    f = Filter(db)
     if team_id is None:
         matches = list()
         filters = list()
         for team_id in user['teams']:
 
-            match_query = {'TEAM_ID': ObjectId(team_id)}
+            match_query = {'TEAM_ID': ObjectId(team_id), "is_disabled": False}
             match_proj = {'FILTER_ID': 1, 'MATCH_STATUS': 1, 'FILTER_STATUS': 1}
-            matches += m.get_matches(query=match_query, proj=match_proj)
+            matches += list(db.match.find(match_query, match_proj))
 
             filter_proj = {'_id': 1}
-            filters += f.get_filter(proj=filter_proj, TEAM_ID=ObjectId(team_id))
+            filter_query = {'status': 1, 'temporary': False, 'TEAM_ID': team_id}
+            filters += list(db.filter.find(filter_query, filter_proj))
     else:
 
-        match_query = {'TEAM_ID': ObjectId(team_id)}
+        match_query = {'TEAM_ID': ObjectId(team_id), "is_disabled": False}
         match_proj = {'FILTER_ID': 1, 'MATCH_STATUS': 1, 'FILTER_STATUS': 1}
-        matches = m.get_matches(query=match_query, proj=match_proj)
+        matches = list(db.match.find(match_query, match_proj))
 
         filter_proj = {'_id': 1}
-        filters = f.get_trial_watch_filter(proj=filter_proj, TEAM_ID=ObjectId(team_id))
+        filter_query = {'status': 1, 'temporary': False, 'TEAM_ID': team_id}
+        filters = list(db.filter.find(filter_query, filter_proj))
 
     counts = _count_matches_by_filter(matches, filters)
 
@@ -581,11 +443,6 @@ def unique_query():
         # make oncotree.
         onco_tree = oncotreenx.build_oncotree(settings.DATA_ONCOTREE_FILE)
 
-        # loop over every-node and do text match.
-        #results = set([onco_tree.node[n]['text'] for n in onco_tree.nodes()])
-        #results.remove("root")
-        #results = list(results)
-
         # turn into
         results = list()
         for n in onco_tree.nodes():
@@ -610,8 +467,25 @@ def unique_query():
     # encode response.
     data = json.dumps({'resource': resource, 'field': field, 'values': results})
     resp = Response(response=data,
-        status=200,
-        mimetype="application/json")
+                    status=200,
+                    mimetype="application/json")
+
+    return resp
+
+
+@blueprint.route('/api/delete_genomic_by_sample', methods=['GET'])
+@nocache
+@auth_required
+def delete_genomic_by_sample():
+    sample_id = request.args.get("SAMPLE_ID")
+
+    if sample_id is not None:
+        database.get_collection('genomic').delete_many({"SAMPLE_ID": sample_id})
+
+    # encode response.
+    resp = Response(response={"success": True},
+                    status=200,
+                    mimetype="application/json")
 
     return resp
 
@@ -651,7 +525,6 @@ def autocomplete_query():
         hit_set = set()
         for n in onco_tree.nodes():
 
-            #TODO: Verify this doesn't need a decode
             a = onco_tree.node[n]['text'].lower()
             b = value.lower()
             if a.count(b) > 0:
@@ -694,11 +567,9 @@ def autocomplete_query():
                 query = db[resource].find({"$and": [
                     {field: {'$regex': term, '$options': '-i'}},
                     {"$or": [
-                        {'TRUE_HUGO_SYMBOL': gene},
-                        {'CNV_HUGO_SYMBOL': gene},
+                        {'TRUE_HUGO_SYMBOL': gene}
                     ]}
-                ]})
-
+                ]}, {field: 1})
 
         else:
 
@@ -715,8 +586,7 @@ def autocomplete_query():
                 query = db[resource].find({"$and": [
                     {'$where': term},
                     {"$or": [
-                        {'TRUE_HUGO_SYMBOL': gene},
-                        {'CNV_HUGO_SYMBOL': gene},
+                        {'TRUE_HUGO_SYMBOL': gene}
                     ]}
                 ]})
 
@@ -736,15 +606,6 @@ def autocomplete_query():
                     mimetype="application/json")
 
     return resp
-
-
-@blueprint.route('/api/docs/<string:page>', methods=['GET'])
-@nocache
-def hello(page=None):
-    if page == "match":
-        return render_template('match.html')
-    else:
-        return render_template('index.html')
 
 
 def init_saml_auth(req):
@@ -780,6 +641,9 @@ def prepare_flask_request(request):
 @blueprint.route('/', methods=['GET', 'POST'])
 @nocache
 def saml(page=None):
+
+    if settings.NO_AUTH:
+        return json.dumps({"API up": True})
 
     req = prepare_flask_request(request)
     auth, settings_data = init_saml_auth(req)
@@ -835,7 +699,6 @@ def saml(page=None):
         else:
 
             # configure for production.
-            #user_name = auth.get_nameid()
             user_name = name_id
             user = db['user'].find_one({'user_name': user_name})
 
@@ -897,9 +760,6 @@ def saml(page=None):
                 logging.info("user not found: %s" % key)
                 redirect_to_index = redirect("/?not_auth=1")
                 response = app.make_response(redirect_to_index)
-                # response = Response(response="not authorized",
-                #    status=308,
-                #    mimetype="application/json")
                 response.set_cookie('user_id', value='', expires=0)
                 response.set_cookie('team_id', value='', expires=0)
                 response.set_cookie('token', value='', expires=0)

@@ -1,7 +1,7 @@
 from bson.objectid import ObjectId
 
 from tests.test_matchminer import TestMinimal
-from matchminer.events import email_user
+from matchminer.event_hooks.user import email_user
 from matchminer import settings
 
 
