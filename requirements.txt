@@ -1,5 +1,4 @@
 -e git+https://github.com/ethansiegl/oncotreenx.git#egg=Oncotree
-# -e git+https://gitlab-bcb.dfci.harvard.edu/knowledge-systems/matchengine-V2.git@prior_treatments#egg=matchengineV2
 -e git+https://github.com/dfci/matchengine-V2.git@master#egg=matchengineV2
 -e git+https://github.com/crappycrypto/wincrypto.git@master#egg=wincrypto
 Cerberus==1.2
