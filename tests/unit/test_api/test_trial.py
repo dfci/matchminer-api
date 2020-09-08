@@ -4,13 +4,11 @@ import os
 import yaml
 import datetime as dt
 
-from matchminer.events import trial_insert
-from matchminer.events import insert_data_genomic, insert_data_clinical
-from matchminer.hooks import UtilHooks
+from matchminer.event_hooks.event_utils import entry_insert
+from matchminer.event_hooks.trial import insert_data_clinical, trial_insert, insert_data_genomic
 from matchminer.database import get_db
-from matchminer.managment import reannotate_trials
-from matchengine.engine import MatchEngine
-from matchminer.utilities import set_updated, set_curated
+from matchminer.matchengine_v1.engine import MatchEngine
+from matchminer.utilities import set_curated, reannotate_trials, set_updated
 from matchminer.trial_search import Summary, ParseMatchTree, Autocomplete
 
 from tests.data import yaml_schema
@@ -139,7 +137,7 @@ class TestTrialValidation(TrialValidation):
                 data_json = yaml.load(fin.read())
 
                 # normalize.
-                UtilHooks.NormalizeHook.entry_insert('trial', [data_json])
+                entry_insert('trial', [data_json])
 
                 # insert it.
                 trial_insert([data_json])
@@ -254,7 +252,7 @@ class TestTrialFields(unittest.TestCase):
                                 'clinical': {'oncotree_primary_diagnosis': '_SOLID_', 'age_numerical': '>=18'}}]}]}]}
 
         # do the mapping.
-        UtilHooks.NormalizeHook.entry_insert("trial", [data])
+        entry_insert("trial", [data])
 
         # assert it is updated.
         assert data['match'][0]['or'][2]['and'][1]['and'][1]['clinical']['oncotree_primary_diagnosis'] == '!CNS/Brain'
@@ -269,7 +267,7 @@ class TestTrialFields(unittest.TestCase):
             test_json = yaml.load(fin)
 
         # do the mapping.
-        UtilHooks.NormalizeHook.entry_insert("trial", [test_json])
+        entry_insert("trial", [test_json])
 
         trial_insert([test_json])
 

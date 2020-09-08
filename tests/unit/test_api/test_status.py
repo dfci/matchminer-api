@@ -4,9 +4,7 @@ import os
 from bson.objectid import ObjectId
 
 from matchminer.database import get_db
-from matchminer.custom import _count_matches, _count_matches_by_filter
-from matchminer.events import replace_match
-from matchminer.miner import email_matches
+from matchminer.miner import _count_matches_by_filter, _count_matches
 
 TEST_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../', 'data'))
 
@@ -78,78 +76,6 @@ class TestStatus(unittest.TestCase):
         counts = _count_matches(list(self.db['match'].find({'_id': ObjectId(self.match['_id'])})), self.db['match'])
         assert counts['new_matches'] == 0
         assert self._new_match() is True
-
-    def test_match_put_hook(self):
-
-        # add a match to the pending bin
-        match = self.db['match'].find_one()
-        pending_match = match.copy()
-        pending_match['_id'] = ObjectId()
-        pending_match['MATCH_STATUS'] = 1
-        self.db['match'].insert(pending_match)
-
-        # call match PUT hook and make an update unrelated to the MATCH_STATUS
-        update = pending_match.copy()
-        update['EMAIL_ADDRESS'] = ''
-        new_match = replace_match(update, pending_match)
-        assert new_match['MATCH_STATUS'] == 1
-        assert '_new_match' not in new_match
-
-        # call match PUT hook and move the match to the new bin
-        update['MATCH_STATUS'] = 0
-        new_match = replace_match(update, pending_match)
-        assert new_match['MATCH_STATUS'] == 0
-        assert '_new_match' in new_match and new_match['_new_match']
-
-    def test_email_matches(self):
-
-        self.db['email'].drop()
-
-        # add a team with two users
-        team = {'_id': ObjectId(), 'first_name': 'Multiple_team_members_test'}
-        users = [
-            {'_id': ObjectId(), 'first_name': 'user1', 'last_name': 'user1', 'user_name': 'u1',
-             'roles': ['user'], 'teams': [team['_id']], 'email': 'test@test.com'},
-            {'_id': ObjectId(), 'first_name': 'user2', 'last_name': 'user2', 'user_name': 'u2',
-             'roles': ['user'], 'teams': [team['_id']], 'email': 'test2@test.com'}
-        ]
-        self.db['team'].insert_one(team)
-        self.db['user'].insert_many(users)
-
-        # add five old matches into the new bin
-        matches = []
-        for _ in range(5):
-            tmp_match = self.match.copy()
-            del tmp_match['_id']
-            tmp_match['TEAM_ID'] = team['_id']
-            tmp_match['USER_ID'] = users[0]['_id']
-            tmp_match['_new_match'] = True
-            matches.append(tmp_match)
-        self.db['match'].insert_many(matches)
-
-        # add five new matches into the new bin
-        matches = []
-        for _ in range(5):
-            tmp_match = self.match.copy()
-            del tmp_match['_id']
-            tmp_match['TEAM_ID'] = team['_id']
-            tmp_match['USER_ID'] = users[0]['_id']
-            matches.append(tmp_match)
-        self.db['match'].insert_many(matches)
-
-        # call the email count function
-        email_matches()
-
-        # check the database
-        matches = list(self.db['match'].find({'TEAM_ID': team['_id']}))
-        for match in matches:
-            assert '_new_match' in match and match['_new_match']
-            assert match['MATCH_STATUS'] == 0
-
-        emails = list(self.db['email'].find())
-        assert len(emails) == 2
-        for email in emails:
-            assert int(email['body'].split('identified ')[1].split(' new')[0]) == 5
 
     def test_count_matches_by_filter(self):
 

@@ -1,0 +1,18 @@
+{
+  "mainAddress": "mm-mongo:27017",
+  "oplogFile": "/data/oplog",
+  "verbosity": 2,
+  "namespaces": {
+    "matchminer.trial": true
+  },
+  "docManagers": [
+    {
+      "docManager": "elastic2_doc_manager",
+      "targetURL": "mm-elastic:9200",
+      "autoCommitInterval": 0,
+      "args": {
+        "clientOptions": { "timeout": 30 }
+      }
+    }
+  ]
+}

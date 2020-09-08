@@ -10,18 +10,14 @@ import time
 from email.utils import formatdate
 from bson import ObjectId
 import re
-import shutil
 import random
 import string
-
-from matchminer import data_model
 from matchminer.custom import blueprint
-from matchminer.utilities import bootstrap
+from matchminer.bootstrap import bootstrap
 from matchminer.validation import ConsentValidatorEve
 from matchminer.settings import *
 from matchminer.events import register_hooks
 from matchminer import security
-from tcm import engine
 
 
 class ValueStack(object):
@@ -127,15 +123,6 @@ class TestMinimal(unittest.TestCase):
         self.user_token = self.user['token']
         self.curator_token = self.curator['token']
 
-        # create the engine.
-        self.cbio = engine.CBioEngine(MONGO_URI,
-                                      MONGO_DBNAME,
-                                      data_model.match_schema,
-                                      muser=MONGO_USERNAME,
-                                      mpass=MONGO_PASSWORD,
-                                      collection_clinical=COLLECTION_CLINICAL,
-                                      collection_genomic=COLLECTION_GENOMIC)
-
         # setup the database.
         self.setupDB()
 
@@ -177,7 +164,7 @@ class TestMinimal(unittest.TestCase):
         # make a complex query.
         dt = formatdate(time.mktime(datetime.datetime(year=1995, month=1, day=1).timetuple()), localtime=False, usegmt=True)
         c = {
-            "BIRTH_DATE": {"$gte": dt},
+            "BIRTH_DATE": {"^gte": dt},
         }
         g = {
             "TRUE_HUGO_SYMBOL": "BRCA2"
@@ -189,7 +176,7 @@ class TestMinimal(unittest.TestCase):
             'genomic_filter': g,
             'label': 'test',
             'status': 1,
-            'temporary': False
+            'temporary': False,
         }
 
         # insert it.
@@ -354,8 +341,6 @@ class TestMinimal(unittest.TestCase):
             self.assertTrue(v in issues[k])
 
     def assertExpires(self, resource):
-        # TODO if we ever get access to response.date (it is None), compare
-        # it with Expires
         r = self.test_client.get(resource)
 
         expires = r.headers.get('Expires')
@@ -462,7 +447,6 @@ class TestMinimal(unittest.TestCase):
     def assertItemLink(self, links, item_id):
         self.assertTrue('self' in links)
         link = links['self']
-        # TODO we are too deep here to get a hold of the due title. Should fix.
         self.assertTrue('title' in link)
         self.assertTrue('href' in link)
         self.assertTrue('/%s' % item_id in link['href'])
@@ -503,7 +487,7 @@ class TestMinimal(unittest.TestCase):
     def initDB(self):
 
         # check if the clinical and genomic empty.
-        if self.cbio._c.count() == 0 or self.cbio._g.count() == 0:
+        if self.connection[MONGO_DBNAME]['clinical'] == 0 or self.connection[MONGO_DBNAME]['genomic'] == 0:
 
             # bootstrap.
             bootstrap(self)
@@ -538,7 +522,6 @@ class TestMinimal(unittest.TestCase):
                                                    MONGO_PASSWORD)
 
     def dropDB(self):
-        #return
         # connect to database.
         self.connection = MongoClient(MONGO_URI)
 
@@ -553,6 +536,9 @@ class TestMinimal(unittest.TestCase):
         db.drop_collection("trial")
         db.drop_collection("normalize")
         db.drop_collection("email")
+        db.drop_collection("run_log_match")
+        db.drop_collection("clinical_run_history_match")
+        db.drop_collection("active_processes")
 
         # clear extra clinical and genomic.
         db['clinical'].delete_many({"TOTAL_READS" : 123, "ORD_PHYSICIAN_NPI": 0000})
@@ -652,6 +638,7 @@ class TestMinimal(unittest.TestCase):
         "DISEASE_CENTER_DESCR": "Adrenal Gland oncology",
         "REPORT_DATE": cur_dt,
         "BIRTH_DATE": bir_dt,
+        "BIRTH_DATE_INT": 19950105,
         "ALT_MRN": "b3164f7b-c826-4e08-9ee6-8ff96d29b913",
         "REPORT_VERSION": 1,
         "GENDER": "Male",
@@ -665,7 +652,8 @@ class TestMinimal(unittest.TestCase):
         'ORD_PHYSICIAN_EMAIL': '',
         'QUESTION4_YN': '',
         'QC_RESULT': '',
-        'data_push_id': '2017-01-01 05:00:00'
+        'data_push_id': '2017-01-01 05:00:00',
+        'TEST_NAME': 'oncopanel'
     }
 
     genomic = {
@@ -708,6 +696,7 @@ class TestMinimal(unittest.TestCase):
         "CANONICAL_PROTEIN_CHANGE": "p.I160V",
         "CANONICAL_ENTREZ_ID": "80031",
         "CANONICAL_HUGO_SYMBOL": "SEMA6D",
+        'TEST_NAME': 'oncopanel'
     }
 
     status = {

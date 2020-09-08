@@ -2,7 +2,6 @@ import unittest
 from datetime import datetime as dt
 
 from matchminer.database import get_db
-from matchminer.utilities import get_data_push_id
 from matchminer.trial_search import Summary
 
 
@@ -26,20 +25,6 @@ class TestUtilities(unittest.TestCase):
     def tearDown(self):
         self.db.status.drop()
 
-    def test_get_data_push_id(self):
-        last_status = get_data_push_id(self.db)
-        assert last_status == '2017-06-01 05:00:00'
-
-        self.db.status.insert_one({
-            'updated_genomic': 0,
-            'new_genomic': 0,
-            'updated_clinical': 0,
-            'new_clinical': 0,
-            'last_update': dt.now(),
-            'data_push_id': '2018-01-01 05:00:00'
-        })
-        last_status = get_data_push_id(self.db)
-        assert last_status == '2018-01-01 05:00:00'
 
     def test_get_dfci_investigator(self):
 

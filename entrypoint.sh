@@ -24,26 +24,11 @@ case ${1} in dev)
     echo "PROD"
     enable_site;
     ;;
-  backup)
-    echo "BACKUP"
-    python pymm_run.py backup_daemon
-    ;;
-  account)
-    echo "ACCOUNT"
-    python pymm_run.py account_daemon
-    ;;
-  empi)
-    echo "EMPI"
-    python pymm_run.py empi_daemon
-    ;;
   help)
     echo "Available options:"
     echo " dev        - Starts the development server"
     echo " stage      - Starts the staging server"
     echo " prod       - Starts the production server"
-    echo " backup     - Starts the backup service"
-    echo " account    - Starts the account service"
-    echo " empi       - Starts the empi service"
     echo " help       - Displays the help"
     echo " [command]  - Execute the specified command, eg. bash."
     ;;

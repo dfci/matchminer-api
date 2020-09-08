@@ -3,7 +3,7 @@ import pandas as pd
 import networkx as nx
 
 from matchminer.settings import TUMOR_TREE
-from matchengine.engine import MatchEngine
+from matchminer.matchengine_v1.engine import MatchEngine
 from .database import get_db
 
 
@@ -64,17 +64,17 @@ class Summary:
         hrs_map = {'Positive': '+', 'Negative': '-'}
         for n in self.trial_tree.nodes():
             # look for multi-level nodes (right now its only match).
-            if 'match_tree' in self.trial_tree.node[n]:
+            if 'match_tree' in self.trial_tree.nodes[n]:
                 # compress categories.
-                mt = self.trial_tree.node[n]['match_tree']
+                mt = self.trial_tree.nodes[n]['match_tree']
                 for x in mt:
 
                     er = False
                     pr = False
                     her = False
-                    if mt.node[x]['type'] == 'clinical':
-                        node = mt.node[x]['value']
-                        if 'oncotree_primary_diagnosis' in mt.node[x]['value']:
+                    if mt.nodes[x]['type'] == 'clinical':
+                        node = mt.nodes[x]['value']
+                        if 'oncotree_primary_diagnosis' in mt.nodes[x]['value']:
 
                             if node['oncotree_primary_diagnosis'][0] != '!':
 
@@ -158,29 +158,29 @@ class Summary:
 
         # return DFCI site principal investigator
         for staff in item['staff_list']['protocol_staff']:
-            if staff['staff_role'] == 'Site Principal Investigator' and \
-                    staff['institution_name'] == 'Dana-Farber Cancer Institute':
+            if (staff['staff_role'] == 'Site Principal Investigator' or staff['staff_role'] == 'Non-Core Principal Investigator') \
+                    and staff['institution_name'] == 'Dana-Farber Cancer Institute':
                 self.dfci_investigator = parse_dfci_investigator(staff, item['principal_investigator'])
                 return
 
         # if not present, return DFCI overall principal investigator
         for staff in item['staff_list']['protocol_staff']:
-            if staff['staff_role'] == 'Overall Principal Investigator' and \
-                    staff['institution_name'] == 'Dana-Farber Cancer Institute':
+            if (staff['staff_role'] == 'Overall Principal Investigator' or staff['staff_role'] == 'Core Principal Investigator') \
+                    and staff['institution_name'] == 'Dana-Farber Cancer Institute':
                 self.dfci_investigator = parse_dfci_investigator(staff, item['principal_investigator'])
                 return
 
         # if not present, return overall principal investigator at BWH or Beth Israel
         for staff in item['staff_list']['protocol_staff']:
-            if staff['staff_role'] == 'Overall Principal Investigator' and \
-                    staff['institution_name'] in ["Brigham and Women's Hospital",
+            if (staff['staff_role'] == 'Overall Principal Investigator' or staff['staff_role'] == 'Core Principal Investigator') \
+                    and staff['institution_name'] in ["Brigham and Women's Hospital",
                                                   "Beth Israel Deaconess Medical Center"]:
                 self.dfci_investigator = parse_dfci_investigator(staff, item['principal_investigator'], dfci=False)
                 return
 
         # if not present, return overall principal investigator, regardless of affiliated institution
         for staff in item['staff_list']['protocol_staff']:
-            if staff['staff_role'] == 'Overall Principal Investigator':
+            if staff['staff_role'] == 'Overall Principal Investigator' or staff['staff_role'] == 'Core Principal Investigator':
                 self.dfci_investigator = parse_dfci_investigator(staff, item['principal_investigator'], dfci=False)
                 return
 
@@ -537,7 +537,7 @@ class ParseMatchTree:
 
         # iterate through the graph
         for node_id in list(nx.dfs_postorder_nodes(self.g, source=1)):
-            node = self.g.node[node_id]
+            node = self.g.nodes[node_id]
             if node['type'] == 'genomic':
                 if 'hugo_symbol' in node['value']:
 
@@ -576,7 +576,7 @@ class ParseMatchTree:
 
         # iterate through the graph
         for node_id in list(nx.dfs_postorder_nodes(self.g, source=1)):
-            node = self.g.node[node_id]
+            node = self.g.nodes[node_id]
             if node['type'] == 'genomic':
                 if 'hugo_symbol' in node['value']:
 
@@ -651,7 +651,7 @@ class ParseMatchTree:
 
         # iterate through the graph
         for node_id in list(nx.dfs_postorder_nodes(self.g, source=1)):
-            node = self.g.node[node_id]
+            node = self.g.nodes[node_id]
             if node['type'] == 'clinical':
                 if 'oncotree_primary_diagnosis' in node['value']:
 
@@ -669,7 +669,7 @@ class ParseMatchTree:
                         primary_parent = 'All Liquid Tumors'
                         parents_txt = ['All Liquid Tumors']
                     else:
-                        children_txt = [onco_tree.node[nn]['text'] for nn in children]
+                        children_txt = [onco_tree.nodes[nn]['text'] for nn in children]
 
                         if n is not None:
                             parents, parents_txt, primary_parent = get_parents(onco_tree, n)
@@ -716,7 +716,7 @@ class ParseMatchTree:
 
         # iterate through the graph
         for node_id in list(nx.dfs_postorder_nodes(self.g, source=1)):
-            node = self.g.node[node_id]
+            node = self.g.nodes[node_id]
             if node['type'] == 'genomic':
                 if 'mmr_status' in node['value']:
                     mmr.append(node['value']['mmr_status'])
@@ -740,7 +740,7 @@ class ParseMatchTree:
 
         hr_status = []
         for node_id in list(nx.dfs_postorder_nodes(self.g, source=1)):
-            node = self.g.node[node_id]
+            node = self.g.nodes[node_id]
             if node['type'] == 'clinical':
 
                 if 'her2_status' in node['value']:
@@ -823,15 +823,15 @@ def expand_liquid_oncotree(onco_tree):
     for n in nodes:
         liquid_children_codes.extend(list(nx.dfs_tree(onco_tree, n)))
 
-    liquid_children = [onco_tree.node[nn]['text'] for nn in liquid_children_codes
-                       if onco_tree.node[nn]['text'].strip() not in primary_tumors]
+    liquid_children = [onco_tree.nodes[nn]['text'] for nn in liquid_children_codes
+                       if onco_tree.nodes[nn]['text'].strip() not in primary_tumors]
 
     # solid nodes are all other nodes
     all_nodes = set(list(onco_tree.nodes()))
     tmp_nodes = all_nodes - set(nodes)
     solid_children_codes = list(tmp_nodes)
-    solid_children = [onco_tree.node[nn]['text'] for nn in solid_children_codes
-                      if onco_tree.node[nn]['text'].strip() not in primary_tumors]
+    solid_children = [onco_tree.nodes[nn]['text'] for nn in solid_children_codes
+                      if onco_tree.nodes[nn]['text'].strip() not in primary_tumors]
 
     return liquid_children, solid_children
 
@@ -848,16 +848,16 @@ def get_parents(onco_tree, node):
     if not node:
         return [], []
 
-    predecessors = onco_tree.predecessors(node)
-    parents_txt = [onco_tree.node[n]['text'] for n in predecessors]
-    check = onco_tree.predecessors(predecessors[0])
+    predecessors = list(onco_tree.predecessors(node))
+    parents_txt = [onco_tree.nodes._nodes[n]['text'] for n in predecessors]
+    check = onco_tree.nodes._nodes[predecessors[0]]['text']
 
     if check and 'root' not in check:
         pr, pa, primary_parent = get_parents(onco_tree, predecessors[0])
         predecessors.extend(pr)
         parents_txt.extend(pa)
     else:
-        primary_parent = parents_txt[0]
+        primary_parent = node.title()
 
     return predecessors, parents_txt, primary_parent
 

@@ -1,16 +1,11 @@
 _author__ = 'priti'
 import unittest
-import json
 import os
 import datetime
 import time
 from email.utils import formatdate
 from bson.objectid import ObjectId
-import json
-
-from matchminer.settings import SETTINGS_DIR
-from matchminer.security import TokenAuth
-from matchminer.events import update_response,  get_alterations
+from matchminer.event_hooks.genomic import get_alterations
 from matchminer.database import get_db
 
 TEST_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../', 'data'))
@@ -107,42 +102,6 @@ class TestResponseValidation(unittest.TestCase):
 
         if self.email_ids:
             self.db['email'].remove({'_id': {'$in': self.email_ids}})
-
-    def test_update_response_eligible(self):
-
-        item = self.resp_nostatus
-        item['_id'] = ObjectId()
-        item['match_status'] = 'Eligible'
-
-        update_response(item)
-        match = self.__get_match()
-        assert match['MATCH_STATUS'] == 6
-
-    def test_update_response_deferred(self):
-
-        item = self.resp_nostatus
-        item['_id'] = ObjectId()
-        item['match_status'] = 'Deferred'
-
-        update_response(item)
-        match = self.__get_match()
-        assert match['MATCH_STATUS'] == 7
-
-    def test_update_response_not_eligible(self):
-
-        item = self.resp_nostatus
-        item['_id'] = ObjectId()
-        item['match_status'] = 'Not Eligible'
-
-        update_response(item)
-        match = self.__get_match()
-        assert match['MATCH_STATUS'] == 3
-
-    def test_update_response_deceased(self):
-        return
-
-    def test_email_filter_owner(self):
-        return
 
     def test_get_alteration(self):
 

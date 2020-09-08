@@ -281,8 +281,8 @@ class TestSecurity(TestMinimal):
 
         # add a filter from user 1.
         g = {
-            'TRUE_HUGO_SYMBOL': 'PRPF8',
-            'VARIANT_CATEGORY': 'MUTATION',
+            'TRUE_HUGO_SYMBOL': ['PRPF8'],
+            'VARIANT_CATEGORY': ['MUTATION'],
             'WILDTYPE': False
         }
         rule = {
@@ -300,8 +300,8 @@ class TestSecurity(TestMinimal):
 
         # add a filter from user 2.
         g = {
-            'TRUE_HUGO_SYMBOL': 'PRPF8',
-            'VARIANT_CATEGORY': 'MUTATION',
+            'TRUE_HUGO_SYMBOL': ['PRPF8'],
+            'VARIANT_CATEGORY': ['MUTATION'],
             'WILDTYPE': False
         }
         rule = {
@@ -350,17 +350,6 @@ class TestSecurity(TestMinimal):
 
         # swap to second user.
         self.user_token = user2_token
-
-        # # assert we cannot access filter from other user.
-        # r, status_code = self.get("filter/%s" % filter1_id)
-        # self.assert404(status_code)
-
-        # # assert the resource query is invalid
-        # r, status_code = self.get("filter", query="?where=%s" % json.dumps(({
-        #     "label": "test",
-        #     "TEAM_ID": str(team1_id)
-        # })))
-        # self.assert404(status_code)
 
         # assert we only get correct matches.
         r, status_code = self.get("match", query="?where=%s" % json.dumps(({

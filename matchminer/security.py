@@ -6,14 +6,19 @@
 
     Securing an Eve-powered API with Token based Authentication.
 """
+import json
 import logging
 import time
 import uuid
 import datetime
+from functools import wraps
+
+from bson import ObjectId
 from eve.auth import TokenAuth
-from flask import current_app as app
+from flask import current_app as app, Response, request, abort
 from bson.objectid import ObjectId
 
+from matchminer import database
 from matchminer.settings import ONCORE_CURATION_AUTH_TOKEN
 
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
@@ -138,3 +143,72 @@ def authorize_oncore_curation(request):
         return True
 
     return False
+
+
+def auth_required(view):
+    @wraps(view)
+    def auth(*args, **kwargs):
+        # check authorization
+        not_authed = authorize_custom_request(request)
+        if not_authed:
+            return Response("not authorized route", 401, {'WWW-Authenticate': 'Basic realm="Login!"'})
+        return view(*args, **kwargs)
+    return auth
+
+
+def pre_get_restricted(request, lookup):
+
+    # get the requesting user set of teams.
+    if app.auth == None:
+        # TODO REMOVE THIS HACK
+        teams = list(database.get_collection('team').find())
+    else:
+        teams = set(app.auth.get_request_auth_value()['teams'])
+
+    # parse the query string.
+    where_clause = request.args.get("where")
+    if where_clause:
+
+        # parse the value.
+        clause = json.loads(where_clause)
+
+        # check if a team_id is set.
+        query_teams = False
+        if 'TEAM_ID' in clause:
+
+            # check if it is legit.
+            if isinstance(clause['TEAM_ID'], dict):
+                team_list = next(iter(clause['TEAM_ID'].values()))
+            else:
+                team_list = [clause['TEAM_ID']]
+
+            for team in team_list:
+                if ObjectId(team) not in teams:
+
+                    # emit a 404 because someone is cheating.
+                    abort(404)
+
+            # mark it as present.
+            query_teams = True
+
+        # TEAM_ID isn't present, complain.
+        if not query_teams:
+
+            resp = Response(None, 406)
+            abort(406, description='Resource requires TEAM_ID to be specified in where clause', response=resp)
+
+
+def team_restricted_item(item):
+
+    # get the requesting user and item team.
+    user = app.auth.get_request_auth_value()
+    team_id = item['TEAM_ID']
+
+    # check if team_id in user team_set
+    valid = False
+    if team_id in set(user['teams']):
+        valid = True
+
+    # abort this request.
+    if not valid:
+        abort(404)

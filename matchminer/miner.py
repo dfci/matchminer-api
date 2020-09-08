@@ -1,836 +1,641 @@
-import os
-import binascii
-import time
 import logging
-import json
-import hashlib
-import pandas as pd
 import datetime
-from jinja2 import Environment, PackageLoader
-import oncotreenx
-import networkx as nx
-import dateutil.parser
-import re
-from bson import ObjectId
+import copy
 
+import pandas as pd
+from dateutil.relativedelta import relativedelta
 
-from tcm.engine import CBioEngine
-from matchminer.constants import synonyms
-from matchminer import settings, data_model, database, custom
-from matchminer.utilities import REREPLACEMENTS, get_recursively
 from matchminer.templates.emails import emails
+from matchminer import settings, database
+from src.matchenginev2.matchengine.internals.engine import MatchEngine
 
-# logging
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
 
 
-def _email_text(user, num_matches, match_str, num_filters, cur_date, cur_stamp):
-    html = '''<html><head></head><body>%s</body></html>''' % emails.FILTER_MATCH_BODY.format(
+def rerun_filters(filters=None, do_update=True, datapush_id=None):
+    """
+    Update all filters, or individual filters accepted as an array of ids
+    :param filters: Array of filter IDs or None to run all filters
+    :param do_update: When finding matches for temporary filters do not update db
+    :param datapush_id: When all filters are rerun as part of the oncopanel datapush,
+    flag new matches as 'new' and not 'pending', add datapush ID to matches
+    """
+
+    with MatchEngine(
+            plugin_dir='./filters_config/plugins',
+            protocol_nos=filters,
+            match_on_closed=False,
+            config='./filters_config/filters_config.json',
+            db_name=settings.MONGO_DBNAME,
+            match_document_creator_class="DFCIFilterMatchDocumentCreator",
+            report_all_clinical_reasons=True,
+            trial_match_collection="match",
+            chunk_size=5000
+    ) as me:
+        me.get_matches_for_all_trials()
+        if do_update:
+            me.update_all_matches()
+
+        run_id = me.run_id.hex
+        update = {"data_push_id": datapush_id}
+
+        # set match status to "new" only when running filters as part of
+        # new data ingestion
+        if datapush_id:
+            update["MATCH_STATUS"] = 0
+
+        database.get_collection("match").update_many({"_me_id": run_id}, {"$set": update})
+    return me.matches, run_id
+
+
+def _email_text(user, cur_stamp, new_filter_match_counts):
+    """
+    Generate email text for notifiying new users about new matches.
+
+    Include per filter match counts.
+    :param user:
+    :param cur_stamp:
+    :param new_filter_match_counts:
+    :return:
+    """
+    matches_per_filter_html = ""
+    num_matches_total = 0
+    for filter_id in new_filter_match_counts:
+        filter = new_filter_match_counts[filter_id]
+        num_matches_total += int(filter['num_matches'])
+        matches_per_filter_html += f"<tr><td>{filter['num_matches']}</td><td>{filter['label']}</td><td>{filter['protocol_id']}</td></tr>"
+
+    html = emails.FILTER_MATCH_BODY.format(
         user['first_name'],
         user['last_name'],
-        num_matches,
-        match_str,
-        num_filters,
-        cur_date,
+        num_matches_total,
+        len(new_filter_match_counts),
+        matches_per_filter_html,
         cur_stamp
     )
-    return html
+
+    return html.replace('\n', '')
 
 
-def _email_counts(teamid, match_db, filter_db):
+def email_matches(run_id=None):
+    """
+    Email users about new filter matches
+    :param run_id: Array. The ID of the latest matchengine run. If no ID is passed, lookup
+    latest from db
+    :return:
+    """
+    logging.info("Searching for users to notify about new filter matches...")
+    db = database.get_db()
 
-    num_matches = 0
-    num_filters = 0
+    # Get latest filter run_id if none is passed
+    if run_id is None:
+        run_id = list(db.run_log_match.find({}, {'run_id': 1}).sort('_id', -1).limit(1))[0]['run_id']
 
-    # look for matches.
-    matches = list(match_db.find({'TEAM_ID': ObjectId(teamid)}))
+    if isinstance(run_id, str):
+        run_id = [run_id]
 
-    # calculate number of matches.
-    counts = custom._count_matches(matches, match_db)
-    num_matches += counts['new_matches']
+    logging.info(f"Filter engine run_id: {' ,'.join(run_id)}")
+    team_query = {
+        "_me_id": {"$in": run_id},
+        "is_disabled": False,
+        "FILTER_STATUS": 1,
+    }
+    teams = list(db.match.find(team_query, {"TEAM_ID": 1}).distinct("TEAM_ID"))
+    for team_id in teams:
+        filters_new_matches_query = {"TEAM_ID": team_id, "is_disabled": False, "FILTER_STATUS": 1}
+        filters_with_new_matches = list(db.match.find(filters_new_matches_query, {"FILTER_ID": 1}).distinct("FILTER_ID"))
+        new_filters_match_counts = _get_new_filters_match_counts(team_id, filters_with_new_matches, run_id[0])
 
-    # get the number of filters.
-    num_filters += filter_db.find({'TEAM_ID': teamid, 'status': 1}).count()
-
-    # return the counts
-    return num_filters, num_matches
-
-
-def email_matches():
-
-    # get the database links.
-    match_db = database.get_collection("match")
-    user_db = database.get_collection('user')
-    filter_db = database.get_collection('filter')
-
-    logging.info("emailing filter matches - starting email search")
-
-    # get distinct list of team ids
-    teams = match_db.find().distinct("TEAM_ID")
-
-    # loop over each team.
-    message_list = []
-    for teamid in teams:
-
-        # get the counts.
-        num_filters, num_matches = _email_counts(teamid, match_db, filter_db)
-
-        # skip if no updates.
-        if num_matches < 1:
-            continue
-
-        # get users in this team
-        team_members = list(user_db.find({'teams': {'$elemMatch': {'$in': [teamid]}}}))
+        team_members = list(db.user.find({'teams': {'$elemMatch': {'$in': [team_id]}}}))
         for user in team_members:
-
-            # skip if silenced.
             if 'silent' in user and user['silent']:
                 continue
 
-            # simplify.
-            recipient_email = user['email']
-            match_str = "matches"
-            if num_matches == 1:
-                match_str = "match"
-
-            # create the message.
             cur_date = datetime.date.today().strftime("%B %d, %Y")
             cur_stamp = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
+            html = _email_text(user, cur_stamp, new_filters_match_counts)
+            logging.info(f"Generated email for {user['email']}")
 
-            # generate text
-            html = _email_text(user, num_matches, match_str, num_filters, cur_date, cur_stamp)
-
-            db = database.get_db()
             email_item = {
                 'email_from': settings.EMAIL_AUTHOR_PROTECTED,
-                'email_to': recipient_email,
-                'subject': 'New MatchMiner Hits - %s' % cur_date,
+                'email_to': user['email'],
+                'subject': 'New Patient Matches - %s' % cur_date,
                 'body': html,
                 'cc': [],
                 'sent': False,
                 'num_failures': 0,
-                'errors': []
+                'errors': [],
+                '_created': datetime.datetime.now(),
+                '_me_id': run_id
             }
-            db['email'].insert(email_item)
-
-            message_list.append(html)
-
-    # return the message lists
-    return message_list
+            db.email.insert(email_item)
+    logging.info("DONE")
 
 
-def rerun_filters(dpi=None):
-    """ re-runs all filters against new data. preserves options set on
-    old matches.
+def _get_new_filters_match_counts(team_id, filters_with_new_matches, run_id):
+    """
+    Aggregate new filter match counts by team
 
-    :return: count of new matches
+    :param team_id: Team with associated filters
+    :param filters_with_new_matches: List of filter IDs associated with single team
+    :return:
+    """
+    db = database.get_db()
+    new_filter_match_counts = {}
+    for filter_id in filters_with_new_matches:
+        matches_query = {
+            "TEAM_ID": team_id,
+            "FILTER_ID": filter_id,
+            "is_disabled": False,
+            "_me_id": run_id
+        }
+        num_matches = len(list(db.match.find(matches_query, {"_id": 1})))
+
+        if num_matches < 1:
+            continue
+        else:
+            filter_ = list(db.filter.find({'_id': filter_id}))[0]
+            new_filter_match_counts[filter_id] = {
+                "num_matches": num_matches,
+                "description": filter_['description'],
+                "label": filter_['label'],
+                "protocol_id": filter_['protocol_id']
+            }
+    return new_filter_match_counts
+
+
+def transform_filter_to_CTML(items, save=False):
+    """
+    Transform filters clinical & genomic key objects into CTML.
+
+    This is a placeholder function which is present in order to ensure backwards compatibility
+    with UI filter generation.
+
+    Eventually, this function should be removed as CTML ideally would be generated
+    correctly in the frontend and saved/sent directly to the filter engine for matching,
+
+    :param save: When calling function explicitly (not part of eve built-in hook), e
+    explicitly update filter in db. Usually eve does this automatically
+    :param items: List of filters
+    :return:
     """
 
-    # get the database links.
-    match_db = database.get_collection('match')
-    filter_db = database.get_collection('filter')
+    for item in items:
+        # MMR_STATUS should always be on the genomic filter
+        if 'clinical_filter' in item and 'MMR_STATUS' in item['clinical_filter']:
+            item['genomic_filter']['MMR_STATUS'] = item['clinical_filter']['MMR_STATUS']
+            del item['clinical_filter']['MMR_STATUS']
 
-    # create the object.
-    cbio = CBioEngine(settings.MONGO_URI,
-                      settings.MONGO_DBNAME,
-                      data_model.match_schema,
-                      muser=settings.MONGO_USERNAME,
-                      mpass=settings.MONGO_PASSWORD,
-                      collection_clinical=settings.COLLECTION_CLINICAL,
-                      collection_genomic=settings.COLLECTION_GENOMIC)
+        item['match'] = []
+        or_clauses = []
+        genomic_and = {}
+        if 'genomic_filter' in item:
+            genomic_filter = item['genomic_filter']
 
-    query = {'status': 1, 'temporary': False, 'trial_watch': {'$exists': False}}
-    filters = list(filter_db.find(query))
-    for filter_ in filters:
+            multis = []
+            for k, v in genomic_filter.items():
+                # Skip wildtypes, null values & empty lists
+                if k in ['WILDTYPE'] or v is None or (isinstance(v, list) and len(v) == 0):
+                    continue
 
-        # lots of logging.
-        logging.info("rerun_filters: filter: %s" % filter_['_id'])
+                # Old filters used a custom encoding where keys were nested inside an '^in' key.
+                # New filters do not do this anymore, but in case any are leftover,
+                # catch and remove.
+                elif isinstance(v, dict):
+                    if '^in' in v:
+                        genomic_and[k] = v['^in']
+                        genomic_filter[k] = v['^in']
 
-        # prepare the filters.
-        c, g, txt = prepare_criteria(filter_)
+                    operator = ""
+                    op_sign = ""
+                    if '^lt' in v and v['^lt'] is not None:
+                        operator = '^lt'
+                        op_sign = '<'
 
-        # execute the match.
-        cbio.match(c=c, g=g)
+                    if '^gt' in v and v['^gt'] is not None:
+                        operator = '^gt'
+                        op_sign = '>'
 
-        if cbio.match_df is not None and cbio.genomic_df is not None and cbio.clinical_df is not None:
-            logging.info("rerun_filters: new matches: match=%d, genomic=%d, clinical=%d" % (
-                len(cbio.match_df), len(cbio.genomic_df), len(cbio.clinical_df)))
+                    if operator != "" and k == 'ALLELE_FRACTION':
+                        if isinstance(v[operator], str) and '.' not in v[operator]:
+                            v[operator] = float(v[operator]) / 100
+                        genomic_and[k] = op_sign + str(v[operator])
 
-        # get existing matches for this filter.
-        matches = list(match_db.find({'FILTER_ID': ObjectId(filter_['_id'])}))
+                elif isinstance(v, list) and len(v) == 1:
+                    if v[0] is not None and v[0] != "":
+                        genomic_and[k] = v[0]
 
-        rec_cnt = 0
-        for m in matches:
-            rec_cnt += len(m['VARIANTS'])
-
-        logging.info("rerun_filters: exisiting: %d %d" % (len(matches), rec_cnt))
-
-        # parse the old matches.
-        clinical_old_id = set()
-        old_lu = {}
-        match_lu = {}
-        for match in matches:
-
-            # get the clincal id.
-            clinical_id = match['CLINICAL_ID']
-
-            # now build tuples of variants.
-            for genomic_id in match['VARIANTS']:
-
-                # make pair
-                pair = (clinical_id, genomic_id)
-                clinical_old_id.add(pair)
-
-                # build id lookup.
-                old_lu[pair] = match['_id']
-
-                # cache matches.
-                match_lu[pair] = match
-
-        # parse the new matches.
-        clinical_new_id = set()
-        new_lu = {}
-        i = 0
-        for match in cbio.match_iter():
-
-            # simplify.
-            clinical_id = match['CLINICAL_ID']
-            genomic_id = match['GENOMIC_ID']
-
-            # build set.
-            pair = (clinical_id, genomic_id)
-            clinical_new_id.add(pair)
-
-            # cache matches.
-            match_lu[pair] = match
-
-            # build lookup.
-            new_lu[pair] = i
-            i += 1
-
-        # find the ones which need to be deleted and delete them.
-        to_delete = clinical_old_id - clinical_new_id
-        logging.info("rerun_filters: removing: %d" % len(to_delete))
-        updated = list()
-        for pair in to_delete:
-
-            # extract ids
-            match_id = old_lu[pair]
-            match = match_lu[pair]
-
-            # find the variant.
-            good = list()
-            hit = False
-            for v in match['VARIANTS']:
-                if v != pair[1]:
-                    good.append(v)
+                # multi criteria should be used to create OR criteria later
+                elif isinstance(v, list) and len(v) > 1:
+                    multis.append(k)
+                    pass
                 else:
-                    hit = True
+                    genomic_and[k] = v
 
-            # update it if necessary.
-            if hit:
+            # If a user has selected multiple criteria, generate all possible
+            # OR CTML nodes. Filter out error clauses later.
+            # A user may select multiple genes, variant categories, or multiples
+            # of both categories.
+            if len(multis) == 1:
+                for val in genomic_filter[multis[0]]:
+                    or_clause = copy.deepcopy(genomic_and)
+                    or_clause[multis[0]] = val
+                    or_clauses.append({"genomic": or_clause})
+            elif len(multis) == 2:
+                for val in genomic_filter[multis[0]]:
+                    for i_val in genomic_filter[multis[1]]:
+                        or_clause = copy.deepcopy(genomic_and)
+                        or_clause[multis[0]] = val
+                        or_clause[multis[1]] = i_val
+                        or_clauses.append({"genomic": or_clause})
+            elif len(multis) == 3:
+                for val in genomic_filter[multis[0]]:
+                    for i_val in genomic_filter[multis[1]]:
+                        for i_i_val in genomic_filter[multis[2]]:
+                            or_clause = copy.deepcopy(genomic_and)
+                            or_clause[multis[0]] = val
+                            or_clause[multis[1]] = i_val
+                            or_clause[multis[2]] = i_i_val
+                            or_clauses.append({"genomic": or_clause})
 
-                # check if will empty this.
-                if len(good) == 0:
+        # remove CNV_CALL's when VARIANT_CATEGORY is MUTATION or SV
+        for or_clause in or_clauses:
+            or_node = or_clause['genomic']
+            if 'VARIANT_CATEGORY' in or_node and 'CNV_CALL' in or_node and \
+                    (or_node['VARIANT_CATEGORY'] == 'MUTATION' or or_node['VARIANT_CATEGORY'] == 'SV'):
+                del or_node['CNV_CALL']
 
-                    # delete it.
-                    match_db.delete_one({'_id': match_id})
-                else:
+        # remove duplicate nodes
+        cleaned_or_clauses = []
+        for i in range(len(or_clauses)):
+            if or_clauses[i] not in or_clauses[i + 1:]:
+                cleaned_or_clauses.append(or_clauses[i])
 
-                    # just update it.
-                    match_db.update({"_id": match_id}, {"$set": {"VARIANTS": good}})
+        clinical_and = {}
+        if 'clinical_filter' in item:
+            clinical_and = {}
+            for (k, v) in item['clinical_filter'].items():
+                if v is not None:
+                    if k == 'BIRTH_DATE':
+                        # TODO remove once filter backfill is complete
+                        if 'AGE_NUMERICAL' in item['clinical_filter']:
+                            continue
+                        operator, integer = transform_date_to_range(v)
+                        clinical_and['AGE_NUMERICAL'] = f"{operator}{str(integer)}"
+                    elif k == 'AGE_NUMERICAL':
+                        operator, difference = transform_age_to_CTML(v)
+                        clinical_and[k] = f"{operator}{difference}"
+                    else:
+                        clinical_and[k] = v
 
-                    # update the local one to make sure we delete all variants
-                    match['VARIANTS'] = good
+        and_clause = {"and": []}
+        and_clause['and'].append({"clinical": clinical_and})
 
-        # find the intersection and remove them from data frame.
-        remove_frame = clinical_new_id.intersection(clinical_old_id)
-        bad_list = []
-        for pair in remove_frame:
+        if genomic_and:
+            and_clause['and'].append({"genomic": genomic_and})
 
-            # lookup index.
-            idx = new_lu[pair]
-            bad_list.append(idx)
+        if cleaned_or_clauses:
+            and_clause["and"].append({"or": cleaned_or_clauses})
 
-        logging.info("rerun_filters: skipping: %d" % len(bad_list))
+            # If new OR clauses have been generated, remove
+            # extra AND clause as it is already included on all OR clauses
+            del and_clause['and'][1]
 
-        # remove them.
-        if cbio.match_df is not None and len(cbio.match_df) > 0:
-            cbio.match_df.drop(cbio.match_df.index[bad_list], inplace=True)
+        item['match'] = [and_clause]
+        item['description'] = get_filter_description(item)
 
-        # insert the counts.
-        count_matches(cbio, filter_)
-
-        # insert the matches if not temporary.
-        insert_matches(cbio, filter_, from_filter=False, dpi=dpi)
+        if save:
+            database.get_collection("filter").replace_one({"_id": item['_id']}, item)
 
 
-def detect_update(cbio, item):
-    """ determines if genomic_filter or clinical_filter were changed
-        using hash strategy. updates hash if change.
-
-    :param item: the POSTed filter
+def transform_age_to_CTML(filter_date_obj):
     """
-
-    # compute hash.
-    txt = ""
-    if 'genomic_filter' in item:
-        txt += json.dumps(item['genomic_filter'])
-    if 'clinical_filter' in item:
-        txt += json.dumps(item['clinical_filter'])
-    hash_new = hashlib.md5(txt.encode('utf-8')).hexdigest()
-
-    # compute status.
-    updated = False
-
-    # lookup the full document.
-    filter_db = cbio.connection[cbio.mongo_dbname]['filter']
-    filter_obj = filter_db.find_one({'_id': item['_id']})
-
-    # look if filter_hash is set.
-    if 'filter_hash' not in filter_obj:
-        updated = True
-
-    # hash was set, detect change.
-    elif hash_new != filter_obj['filter_hash']:
-        updated = True
-
-    # update the hash value in db.
-    if updated:
-        filter_db = cbio.connection[cbio.mongo_dbname]['filter']
-        logging.info("updating filter wish hash: %s + %s" % (hash_new, txt))
-        filter_db.update_one({'_id': item['_id']}, {'$set': {'filter_hash': hash_new}})
-
-    # return truth.
-    return updated
-
-
-def remove_matches(cbio, item):
-    """ removes existing matches based on filter_id
-
-    :param cbio: CBioEngine
-    :param item: post-validation dictionary
+    Transform date object as delivered by UI into valid CTML
+    :param filter_date_obj:
+    :return:
     """
+    operator_map = {
+        "^lt": "<",
+        "^lte": "<",
+        "^gt": ">",
+        "^gte": ">="
+    }
+    operator_raw = list(filter_date_obj.keys())[0]
+    operator = operator_map[operator_raw]
+    return operator, int(filter_date_obj[operator_raw])
 
-    logging.info("removing existing matches")
 
-    # delete matches with current filter id.
-    match_db = cbio.connection[cbio.mongo_dbname]['match']
-    match_db.delete_many({'FILTER_ID': item['_id']})
-
-
-def count_matches(cbio, item):
-    """ calculate the number of matches.
-        save it to the object [careful this is post-validation!]
-    :param cbio: CBioEngine
-    :param item: post-validation dictionary
+def transform_date_to_range(filter_date_obj):
     """
+    Transform a static date into an age operation e.g. 2002-04-18 => >18
+    #TODO remove function after filter backfill is completed and all filters upgraded to use AGE_NUMERICAL
+    :param filter_date_obj:
+    :return:
+    """
+    current_date = datetime.date.today()
+    operator = list(filter_date_obj.keys())[0]
+    filter_date = datetime.datetime.strptime(filter_date_obj[operator], '%Y-%m-%dT%H:%M:%S.%fZ')
+    year_difference = relativedelta(current_date, filter_date).years
+    month_difference = relativedelta(current_date, filter_date).months / 12
+    day_difference = relativedelta(current_date, filter_date).days / 30.44 / 12
+    difference = int(round(float(year_difference + month_difference + day_difference), 2))
 
-    # build total date array.
+    # ^gt and ^lt should not exist
+    operator_map = {
+        "^lt": ">",
+        "^lte": ">=",
+        "^gt": "<",
+        "^gte": "<"
+    }
+    operator = operator_map[operator]
+    return operator, difference
+
+
+def get_filter_description(item):
+    """
+    Populate description column on filters list page in UI
+    :param item:
+    :return:
+    """
+    clinical_filter = item['clinical_filter'] if 'clinical_filter' in item else {}
+    genomic_filter = item['genomic_filter'] if 'genomic_filter' in item else {}
+
+    # genomic criteria
+    mutational_burden = genomic_filter.get("MMR_STATUS", "")
+    exon = f"exon {genomic_filter.get('TRUE_TRANSCRIPT_EXON', '')}" if genomic_filter.get("TRUE_TRANSCRIPT_EXON",
+                                                                                          "") else ""
+    protein_changes = genomic_filter.get("TRUE_PROTEIN_CHANGE", "")
+    if isinstance(protein_changes, list):
+        protein_changes = ", ".join(protein_changes)
+    mutation_type = genomic_filter.get("VARIANT_CATEGORY", "")
+    allele_fraction = genomic_filter.get("ALLELE_FRACTION", None)
+    if isinstance(mutation_type, list) and len(mutation_type) > 0:
+        mutation_type = ", ".join(mutation_type)
+        if 'MUTATION' in mutation_type.upper():
+            mutation_type = mutation_type.replace('MUTATION', "Mutation")
+        if 'SV' in mutation_type.upper():
+            mutation_type = mutation_type.replace('SV', "Structural rearrangement")
+        if 'CNV' in mutation_type.upper():
+            cnv_calls = ", ".join(genomic_filter.get("CNV_CALL", ""))
+            mutation_type = mutation_type.replace('CNV', cnv_calls)
+        if 'SIGNATURE' in mutation_type.upper():
+            sigs = ['POLE_STATUS', 'TEMOZOLOMIDE_STATUS', 'APOBEC_STATUS', 'TABACCO_STATUS', 'UVA_STATUS']
+            for sig in sigs:
+                if sig in genomic_filter:
+                    if sig == 'TEMOZOLOMIDE_STATUS':
+                        mutation_type = sig.replace('_STATUS', '').title()
+                    elif sig == 'TABACCO_STATUS':
+                        mutation_type = 'Tobacco'
+                    elif sig == 'POLE_STATUS':
+                        mutation_type = 'PolE'
+                    else:
+                        mutation_type = sig
+                    mutation_type = mutation_type.replace('_STATUS', '') + ' Signature'
+
+    gene = genomic_filter.get("TRUE_HUGO_SYMBOL", "")
+    if isinstance(gene, list):
+        if len(gene) == 1:
+            gene = gene[0]
+        elif len(gene) > 1:
+            gene = ', '.join(genomic_filter.get("TRUE_HUGO_SYMBOL", [])) + ':'
+
+    # clinical criteria
+    cancer = clinical_filter.get("ONCOTREE_PRIMARY_DIAGNOSIS_NAME", "")
+    gender = clinical_filter.get("GENDER", "")
+    if cancer == "_SOLID_":
+        cancer = "Solid cancers"
+    elif cancer == "_LIQUID_":
+        cancer = "Liquid cancers"
+    birth_date = clinical_filter.get("BIRTH_DATE", None) #TODO remove once filter backfill is compelted
+    age = clinical_filter.get("AGE_NUMERICAL", None)
+    if birth_date and age is None:
+        operator, integer = transform_date_to_range(birth_date) #TODO remove once filter backfill is compelted
+    if age:
+        operator, integer = transform_age_to_CTML(age)
+
+    description = ""
+    if gene or 'Signature' in mutation_type:
+        description = gene
+        if protein_changes:
+            description = f"{gene} {protein_changes}"
+        if exon:
+            description = f"{gene} {protein_changes} {exon}"
+        if mutation_type:
+            description = f"{description} {mutation_type}"
+
+    if mutational_burden:
+        description = mutational_burden
+    if cancer:
+        description = f"{description} in {cancer}"
+    if gender:
+        if description:
+            description = f"{description}, Gender: {gender}"
+        else:
+            description = f"Gender: {gender}"
+
+    if (age or birth_date) and operator and integer: #TODO remove once filter backfill is compelted
+        description = f"{description}, Age {operator} {int(float(integer))}"
+
+    if allele_fraction is not None:
+        operator_desc = ""
+        operator = list(allele_fraction.keys())[0]
+        if operator == '^gt':
+            operator_desc = ">"
+        elif operator == '^lt':
+            operator_desc = '<'
+        allele_val = allele_fraction[operator]
+        if allele_val is not None:
+            description = f"{description}, Allele Fraction: {operator_desc} {int(allele_val * 100)}%"
+
+    return description.replace('  ', ' ').strip()
+
+
+def find_filter_matches(items):
+    db = database.get_db()
+    for item in items:
+        do_update = False if item['temporary'] else True
+        num_matches, run_id = rerun_filters(filters=[item['_id']], do_update=do_update, datapush_id=None)
+        enrollments = get_enrollment(num_matches[item['_id']])
+        item['num_samples'] = len(num_matches[item['_id']])
+        item['enrollment'] = enrollments
+
+        # don't persist temporary filters
+        if item['status'] == 2 and item['temporary'] == True:
+            db.filter.remove({"_id": item['_id']})
+
+
+def get_enrollment(matches):
+    """
+    Get enrollment counts by month.
+    :param matches:
+    :return:
+    """
+    # Generate date list from first of the month
     today = datetime.date.today() + datetime.timedelta(1 * 365 / 12)
     all_dates = pd.date_range(datetime.datetime(2013, 7, 1), today, freq='BM')
     all_dates = all_dates.map(lambda x: datetime.datetime(x.year, x.month, 1))
     all_dates = pd.Series(all_dates)
 
-    # determine if empty.
-    if cbio.match_df is None or cbio.match_df.shape[0] == 0:
+    # Get report dates with days reset to first of the month
+    report_dates = []
+    for sample_id in matches:
+        for match in matches[sample_id]:
+            if 'REPORT_DATE' in match and match['REPORT_DATE'] is not None:
+                tmp_date = pd.Series(datetime.datetime(match['REPORT_DATE'].year, match['REPORT_DATE'].month, 1))
+                all_dates = all_dates.append(tmp_date)
 
-        # handle empty matches.
-        item['num_matches'] = 0
-        item['num_pairs'] = 0
-        item['num_samples'] = 0
-        if cbio.clinical_df.shape[0] == 0:
-            item['num_clinical'] = 0
-        else:
-            item['num_clinical'] = cbio.clinical_df[cbio.clinical_df['VITAL_STATUS'] == 'alive'].shape[0]
-        item['num_genomic'] = cbio.living_genomic
-
-        # compute empty counts.
-        counts = all_dates.value_counts()
-        counts = counts - 1
-        counts = counts.sort_index()
-
-    else:
-
-        # compute number of filter / patient pairs.
-        pair_cnt = cbio.match_df.groupby(['CLINICAL_ID', '_id_y']).size().shape[0]
-
-        # matches are present.
-        item['num_matches'] = cbio.match_df.shape[0]
-        item['num_pairs'] = pair_cnt
-        item['num_samples'] = cbio.match_df['SAMPLE_ID'].unique().shape[0]
-        item['num_clinical'] = cbio.clinical_df[cbio.clinical_df['VITAL_STATUS'] == 'alive'].shape[0]
-        item['num_genomic'] = cbio.living_genomic
-
-        # extract the actual dates.
-        hits = cbio.match_all_df.REPORT_DATE.map(
-            lambda x: datetime.datetime(x.year, x.month, 1) if pd.notnull(x) else x)
-
-        # combine them and remove base counts.
-        total_dates = all_dates.append(hits)
-        counts = total_dates.value_counts()
-        counts = counts - 1
-        counts = counts.sort_index()
-
-    # special case for genomic_shape.
-    if cbio.genomic_df.shape[0] == 0:
-        item['num_genomic_samples'] = 0
-    else:
-        item['num_genomic_samples'] = cbio.genomic_df['SAMPLE_ID'].unique().shape[0]
+    # combine them and remove base counts.
+    total_dates = all_dates.append(report_dates)
+    counts = total_dates.value_counts()
+    counts = counts - 1
+    counts = counts.sort_index()
 
     # convert to lists.
     x_axis = list(counts.index)
     y_axis = list(counts)
 
-    # convert x_axis to plot.ly format.
     x_axis = [d.strftime("%y-%m-%d") for d in x_axis]
 
-    # save to object.
-    item['enrollment'] = {
-        'x_axis': x_axis,
-        'y_axis': y_axis
+    return {
+        "x_axis": x_axis,
+        "y_axis": y_axis
     }
 
 
-def insert_matches(cbio, item, from_filter=True, dpi=None):
+def start_filter_run(silent=False, datapush_id=None):
+    """
+    Wrapper function which calls rerun filters.
+    Creates a record in active_process collection to make sure multiple filter
+    matching runs are not created simultaneously.
 
-    start_iter = time.time()
-    filter_db = database.get_collection('filter')
+    :param silent: Whether to send emails or not
+    :param datapush_id: ID to append to output matches if relevant
+    :return:
+    """
+    db = database.get_db()
+    db.active_processes.insert({"filters_running": True})
+    filters = list(db.filter.find({"temporary": False, "status": {"$in": [0, 1]}}))
+    transform_filter_to_CTML(filters, save=True)
+    _, run_id = rerun_filters(datapush_id=datapush_id)
+    db.active_processes.drop()
 
-    pf_pairz = dict()
-    filters = dict()
-    for silly in cbio.match_iter():
+    if not silent:
+        email_matches(run_id)
 
-        filter_id = item['_id']
-        clinical_id = silly['CLINICAL_ID']
-        key = (filter_id, clinical_id)
-
-        if key not in pf_pairz:
-            pf_pairz[key] = list()
-
-        if filter_id not in filters:
-            filter_obj = filter_db.find_one({'_id': filter_id})
-            filters[filter_id] = filter_obj
-
-        pf_pairz[key].append(silly['GENOMIC_ID'])
-
-    user_id = item['USER_ID']
-    team_id = item['TEAM_ID']
-    filter_status = item['status']
-    filter_name = item['label']
-    clinical_lu = {}
-    genomic_lu = {}
-
-    matches = list()
-    for key, val in pf_pairz.items():
-
-        clinical_id = key[1]
-        genomic_id = val[0]
-
-        if clinical_id not in clinical_lu:
-            clinical_lu[clinical_id] = cbio._c.find_one(clinical_id)
-
-        if genomic_id not in genomic_lu:
-            genomic_lu[genomic_id] = cbio._g.find_one(genomic_id)
-
-        # extract clinical information
-        clinical_info = [
-            'ONCOTREE_PRIMARY_DIAGNOSIS_NAME',
-            'ONCOTREE_BIOPSY_SITE_TYPE',
-            'REPORT_DATE',
-            'VARIANT_CATEGORY',
-            'MRN',
-            'ORD_PHYSICIAN_EMAIL'
-        ]
-        clinical_info_vals = [''] * len(clinical_info)
-        for idx, c in enumerate(clinical_info):
-            if c in clinical_lu[clinical_id]:
-                clinical_info_vals[idx] = clinical_lu[clinical_id][c]
-            else:
-                clinical_info_vals[idx] = ""
-
-        # extract gene symbol
-        true_hugo_symbol = None
-        if 'TRUE_HUGO_SYMBOL' in genomic_lu[genomic_id]:
-            true_hugo_symbol = genomic_lu[genomic_id]['TRUE_HUGO_SYMBOL']
-
-        if true_hugo_symbol is None:
-
-            filter_ = filters[key[0]]
-            if 'genomic_filter' in filter_ and 'TRUE_HUGO_SYMBOL' in filter_['genomic_filter']:
-
-                true_hugo_symbol = filter_['genomic_filter']['TRUE_HUGO_SYMBOL']
-                if isinstance(true_hugo_symbol, dict):
-                    true_hugo_symbol = ', '.join([str(i) for i in next(iter(true_hugo_symbol.values()))])
-
-        if true_hugo_symbol is None:
-            logging.error("error in filter logic")
-
-        # extract tier information
-        tier = None
-        if 'TIER' in genomic_lu[genomic_id]:
-            tier = genomic_lu[genomic_id]['TIER']
-
-        match_status = 0
-        if from_filter:
-            match_status = 1
-
-        if 'protocol_id' in item:
-            protocol_id = item['protocol_id']
-        else:
-            protocol_id = ""
-
-        email_subject = "(%s) ONCO PANEL RESULTS" % protocol_id
-        email_body = email_content(protocol_id, genomic_lu[genomic_id], clinical_lu[clinical_id])
-
-        matches.append({
-            'USER_ID': user_id,
-            'TEAM_ID': team_id,
-            'FILTER_STATUS': filter_status,
-            'MATCH_STATUS': match_status,
-            'FILTER_ID': key[0],
-            'CLINICAL_ID': key[1],
-            'VARIANTS': val,
-            'PATIENT_MRN': clinical_info_vals[clinical_info.index('MRN')],
-            'MMID': binascii.b2a_hex(os.urandom(3)).upper(),
-            'ONCOTREE_PRIMARY_DIAGNOSIS_NAME': clinical_info_vals[
-                clinical_info.index('ONCOTREE_PRIMARY_DIAGNOSIS_NAME')],
-            'ONCOTREE_BIOPSY_SITE_TYPE': clinical_info_vals[clinical_info.index('ONCOTREE_BIOPSY_SITE_TYPE')],
-            'TRUE_HUGO_SYMBOL': true_hugo_symbol,
-            'VARIANT_CATEGORY': clinical_info_vals[clinical_info.index('VARIANT_CATEGORY')],
-            'FILTER_NAME': filter_name,
-            'REPORT_DATE': clinical_info_vals[clinical_info.index('REPORT_DATE')],
-            "EMAIL_ADDRESS": clinical_info_vals[clinical_info.index('ORD_PHYSICIAN_EMAIL')],
-            "EMAIL_BODY": email_body,
-            "EMAIL_SUBJECT": email_subject,
-            'data_push_id': dpi,
-            'TIER': tier
-        })
-
-    ttr_iter = time.time() - start_iter
-    start_ins = time.time()
-
-    if len(matches) > 0:
-        match_db = database.get_collection("match")
-        match_db.insert_many(matches)
-
-    ttr_ins = time.time() - start_ins
-    logging.info("match: added %d and it took %.2f to fetch, %.2f to insert" % (len(matches), ttr_iter, ttr_ins))
+    return run_id
 
 
-def email_content(protocol_id, genomic, clinical):
+def update_filter_pre(item, original):
+    """
+    When filter is updated via PUT request, update filter "match" clause
+    :param item:
+    :param original:
+    :return:
+    """
+    transform_filter_to_CTML([item])
 
-    # check for template.
-    if not os.path.isfile(
-            "%s/templates/templates/%s.html" % (os.path.dirname(os.path.realpath(__file__)), protocol_id)):
-        return ""
 
-    # setup variables.
-    mrn = clinical['MRN']
-
-    if genomic['VARIANT_CATEGORY'] == 'MUTATION':
-        if 'TRUE_PROTEIN_CHANGE' in genomic and genomic['TRUE_PROTEIN_CHANGE'] is not None:
-            event = "%s %s mutation" % (genomic['TRUE_HUGO_SYMBOL'], genomic['TRUE_PROTEIN_CHANGE'].replace("p.", ""))
-        else:
-            event = "%s mutation" % (genomic['TRUE_HUGO_SYMBOL'])
-
-    elif genomic['VARIANT_CATEGORY'] == 'CNV':
-        event = "%s %s" % (genomic['TRUE_HUGO_SYMBOL'], genomic['CNV_CALL'].lower())
-
+def update_filter_post(item, original):
+    """
+    After filter is updated with new "match" clause, re-find filter matches
+    :param item:
+    :param original:
+    :return:
+    """
+    # status 3 means filter is deleted
+    if item['status'] != 3:
+        find_filter_matches([item])
     else:
-        event = "structural re-arrangement"
-
-    # render the template.
-    env = Environment(loader=PackageLoader('matchminer', 'templates/templates'))
-    template = env.get_template('%s.html' % protocol_id)
-
-    # generate the email.
-    return template.render(mrn=mrn, event=event)
-
-
-def update_match_status(cbio, item):
-
-    # loop over all existing matches
-    match_db = database.get_collection('match')
-
-    # check if filter is deleted.
-    if item['status'] == 2:
-
-        # delete associated matches.
-        logging.info("filter is deleted, deleting associated matches")
-        match_db.delete_many({'FILTER_ID': item['_id']})
-
-    elif item['status'] == 0:
-
-        # archive associated matches.
-        logging.info("filter is inactivated, deleting associated matches")
-        match_db.delete_many({'FILTER_ID': item['_id']})
-
-    else:
-
-        # update matches only.
-        match_db.update_many({'FILTER_ID': item['_id']},
-                             {
-                                 "$set": {
-                                     "FILTER_STATUS": item['status'],
-                                     "FILTER_NAME": item['label']
-                                 },
-                             })
-
-
-def prepare_criteria(item):
-
-    onco_tree = oncotreenx.build_oncotree(settings.DATA_ONCOTREE_FILE)
-
-    c = {}
-    clin_txt_1 = ""
-    clin_txt_2_gender = ""
-    clin_txt_2_age = ""
-    if 'clinical_filter' in item:
-
-        clin_tmp = json.dumps(item['clinical_filter'])
-        for key, val in REREPLACEMENTS.items():
-            clin_tmp = clin_tmp.replace(key, val)
-
-        c = json.loads(clin_tmp)
-
-        if 'GENDER' in item['clinical_filter']:
-            clin_txt_2_gender = item['clinical_filter']['GENDER']
-
-        if 'BIRTH_DATE' in item['clinical_filter']:
-            op = next(iter(item['clinical_filter']['BIRTH_DATE'].keys()))
-            val = next(iter(item['clinical_filter']['BIRTH_DATE'].values()))
-
-            try:
-                val = datetime.datetime.strptime(val.replace(" GMT", ""), '%a, %d %b %Y %H:%M:%S')
-            except ValueError:
-                val = dateutil.parser.parse(val)
-
-            # compute the age.
-            today = datetime.date.today()
-            tmp = today.year - val.year - ((today.month, today.day) < (val.month, val.day - 1))
-            val = tmp
-
-            if op.count("gte") > 0:
-                clin_txt_2_age = "< %s" % val
-            else:
-                clin_txt_2_age = "> %s" % val
-
-        # parse date-times.
-        for key in ['BIRTH_DATE', 'REPORT_DATE']:
-
-            if key not in c:
-                continue
-
-            # extract the expression value.
-            lkey, lval = next(iter(c[key].keys())), next(iter(c[key].values()))
-
-            try:
-                c[key][lkey] = datetime.datetime.strptime(lval.replace(" GMT", ""), '%a, %d %b %Y %H:%M:%S')
-            except ValueError:
-                c[key][lkey] = dateutil.parser.parse(lval)
-
-        # expand oncotree
-        if 'ONCOTREE_PRIMARY_DIAGNOSIS_NAME' in item['clinical_filter']:
-
-            txt = item['clinical_filter']['ONCOTREE_PRIMARY_DIAGNOSIS_NAME']
-
-            if txt == "_LIQUID_" or txt == "_SOLID_":
-
-                node1 = oncotreenx.lookup_text(onco_tree, "Lymph")
-                node2 = oncotreenx.lookup_text(onco_tree, "Blood")
-
-                nodes1 = list(nx.dfs_tree(onco_tree, node1))
-                nodes2 = list(nx.dfs_tree(onco_tree, node2))
-                nodes = list(set(nodes1).union(set(nodes2)))
-
-                if txt == "_SOLID_":
-
-                    all_nodes = set(list(onco_tree.nodes()))
-                    tmp_nodes = all_nodes - set(nodes)
-                    nodes = list(tmp_nodes)
-
-                clin_txt_1 = "%s cancers" % txt.replace("_", "").title()
-
-            else:
-
-                clin_txt_1 = "%s" % txt
-                node = oncotreenx.lookup_text(onco_tree, txt)
-                if onco_tree.has_node(node):
-                    nodes = list(nx.dfs_tree(onco_tree, node))
-
-            nodes_txt = [onco_tree.node[n]['text'] for n in nodes]
-            c['ONCOTREE_PRIMARY_DIAGNOSIS_NAME'] = {'$in': nodes_txt}
-
-    g = {}
-    gen_txt = []
-    if 'genomic_filter' in item:
-
-        gen_tmp = json.dumps(item['genomic_filter'])
-        for key, val in REREPLACEMENTS.items():
-            gen_tmp = gen_tmp.replace(key, val)
-
-        g = json.loads(gen_tmp)
-
-        # add TRUE_HUGO_SYMBOL value mutational signature filter queries
-        if 'TRUE_HUGO_SYMBOL' in g and g['TRUE_HUGO_SYMBOL'] == {'$in': ['']}:
-            g['TRUE_HUGO_SYMBOL'] = None
-
-        sv_test = False
-        mut_test = False
-        cnv_test = False
-        if 'VARIANT_CATEGORY' in item['genomic_filter']:
-            variant_category = item['genomic_filter']['VARIANT_CATEGORY']
-            if isinstance(variant_category, dict):
-                for x in variant_category.values():
-                    if "SV" in set(x):
-                        sv_test = True
-                    if "CNV" in set(x):
-                        cnv_test = True
-                    if "MUTATION" in set(x):
-                        mut_test = True
-
-            elif item['genomic_filter']['VARIANT_CATEGORY'] == 'SV':
-                sv_test = True
-
-            elif item['genomic_filter']['VARIANT_CATEGORY'] == 'CNV':
-                cnv_test = True
-
-            elif item['genomic_filter']['VARIANT_CATEGORY'] == 'MUTATION':
-                mut_test = True
-
-        # build text.
-        exon_txt = ""
-        protein_txt = ""
-        if mut_test:
-            gen_txt.append("Mutation")
-
-            if 'TRUE_EXON_CHANGE' in item['genomic_filter']:
-                exon_txt = item['genomic_filter']['TRUE_EXON_CHANGE']
-
-            if 'TRUE_PROTEIN_CHANGE' in item['genomic_filter']:
-                protein_txt = item['genomic_filter']['TRUE_PROTEIN_CHANGE']
-
-        if cnv_test:
-            if 'CNV_CALL' in g:
-                if isinstance(g['CNV_CALL'], dict):
-                    gen_txt += next(iter(g['CNV_CALL'].values()))
-                else:
-                    gen_txt.append(g['CNV_CALL'])
-        if sv_test:
-            gen_txt.append("Structural rearrangement")
-
-        if 'MMR_STATUS' in item['genomic_filter']:
-            gen_txt.append(item['genomic_filter']['MMR_STATUS'])
-
-        if 'TABACCO_STATUS' in item['genomic_filter']:
-            gen_txt.append('Tobacco Mutational Signature')
-
-        if 'TEMOZOLOMIDE_STATUS' in item['genomic_filter']:
-            gen_txt.append('Temozolomide Mutational Signature')
-
-        if 'POLE_STATUS' in item['genomic_filter']:
-            gen_txt.append('PolE Mutational Signature')
-
-        if 'APOBEC_STATUS' in item['genomic_filter']:
-            gen_txt.append('APOBEC Mutational Signature')
-
-        if 'UVA_STATUS' in item['genomic_filter']:
-            gen_txt.append('UVA Mutational Signature')
-
-        clauses = []
-        if mut_test:
-
-            clause = {
-                'VARIANT_CATEGORY': 'MUTATION',
-                'TRUE_HUGO_SYMBOL': g['TRUE_HUGO_SYMBOL']
+        update_query = {
+            '$set': {
+                'is_disabled': True,
+                'FILTER_STATUS': 3,
+                '_updated': datetime.datetime.now()
             }
+        }
+        database.get_collection('match').update_many({'FILTER_ID': item['_id']}, update_query)
 
-            if 'WILDTYPE' in g:
-                clause['WILDTYPE'] = g['WILDTYPE']
 
-            if 'TRUE_PROTEIN_CHANGE' in g:
-                clause['TRUE_PROTEIN_CHANGE'] = g['TRUE_PROTEIN_CHANGE']
+def _count_matches_by_filter(matches, filters):
+    # extract counts
+    counts = {
+        "new": 0,
+        "pending": 0,
+        "flagged": 0,
+        'not_eligible': 0,
+        'enrolled': 0,
+        'contacted': 0,
+        'eligible': 0,
+        'deferred': 0
+    }
 
-            clauses.append(clause)
+    # separate matches by filter id
+    filter_dict = {}
+    for filt in filters:
+        filter_dict[str(filt['_id'])] = counts.copy()
 
-        if cnv_test:
+    for match in matches:
 
-            clause = {
-                'VARIANT_CATEGORY': 'CNV',
-                'TRUE_HUGO_SYMBOL': g['TRUE_HUGO_SYMBOL'],
-            }
+        if str(match['FILTER_ID']) not in filter_dict:
+            continue
 
-            if 'CNV_CALL' in g:
-                clause['CNV_CALL'] = g['CNV_CALL']
+        if match['FILTER_STATUS'] == 1:
+            if match['MATCH_STATUS'] == 0:
+                filter_dict[str(match['FILTER_ID'])]['new'] += 1
+            elif match['MATCH_STATUS'] == 1:
+                filter_dict[str(match['FILTER_ID'])]['pending'] += 1
+            elif match['MATCH_STATUS'] == 2:
+                filter_dict[str(match['FILTER_ID'])]['flagged'] += 1
+            elif match['MATCH_STATUS'] == 3:
+                filter_dict[str(match['FILTER_ID'])]['not_eligible'] += 1
+            elif match['MATCH_STATUS'] == 4:
+                filter_dict[str(match['FILTER_ID'])]['enrolled'] += 1
+            elif match['MATCH_STATUS'] == 5:
+                filter_dict[str(match['FILTER_ID'])]['contacted'] += 1
+            elif match['MATCH_STATUS'] == 6:
+                filter_dict[str(match['FILTER_ID'])]['eligible'] += 1
+            elif match['MATCH_STATUS'] == 7:
+                filter_dict[str(match['FILTER_ID'])]['deferred'] += 1
 
-            if 'WILDTYPE' in g:
-                clause['WILDTYPE'] = g['WILDTYPE']
+    return filter_dict
 
-            clauses.append(clause)
 
-        if sv_test:
+def _count_matches(matches, match_db):
 
-            true_hugo = item['genomic_filter']['TRUE_HUGO_SYMBOL']
+    # extract counts
+    counts = {
+        "new": 0,
+        "new_matches": 0,
+        "pending": 0,
+        "flagged": 0,
+        'not_eligible': 0,
+        'enrolled': 0,
+        'contacted': 0,
+        'eligible': 0,
+        'deferred': 0
+    }
 
-            if isinstance(true_hugo, dict):
-                genes = next(iter(true_hugo.values()))
-            else:
-                genes = [true_hugo]
+    for match in matches:
+        if match['FILTER_STATUS'] == 1:
+            if match['MATCH_STATUS'] == 0:
+                counts['new'] += 1
 
-            to_add = list()
-            for gene in genes:
-                if gene in synonyms:
-                    to_add += synonyms[gene]
+                if '_new_match' not in match or match['_new_match'] is False:
+                    counts['new_matches'] += 1
+                    match_db.update_one({'_id': match['_id']}, {'$set': {'_new_match': True}})
 
-            genes = genes + to_add
-
-            abc = '|'.join([rf"(.*\W{gene}\W.*)|(^{gene}\W.*)|(.*\W{gene}$)"
-                            for gene in genes])
-
-            clauses.append({'STRUCTURAL_VARIANT_COMMENT': {"$regex": abc}})
-            clauses.append({'LEFT_PARTNER_GENE': {'$in': genes}})
-            clauses.append({'RIGHT_PARTNER_GENE': {'$in': genes}})
-
-        if len(clauses) > 0:
-            g = {
-                "$or": clauses
-            }
-
-        for key in item['genomic_filter']:
-
-            special_clauses = {
-                'STRUCTURAL_VARIANT_COMMENT',
-                'VARIANT_CATEGORY',
-                'TRUE_HUGO_SYMBOL',
-                'CNV_CALL',
-                'WILDTYPE',
-                'TRUE_PROTEIN_CHANGE'
-            }
-            if key in special_clauses:
-                continue
-
-            g[key] = item['genomic_filter'][key]
-
-        get_recursively(g, "GMT")
-        if 'TRUE_HUGO_SYMBOL' in item['genomic_filter']:
-            if isinstance(item['genomic_filter']['TRUE_HUGO_SYMBOL'], dict):
-                genes = next(iter(item['genomic_filter']['TRUE_HUGO_SYMBOL'].values()))
-            else:
-                genes = [item['genomic_filter']['TRUE_HUGO_SYMBOL']]
-
-            genes = [str(i) for i in genes]
-            genes = ', '.join(genes)
-
-            if len(gen_txt) > 1:
-                gen_txt = "%s: %s" % (genes, ', '.join(gen_txt))
-            else:
-
-                if exon_txt == "" and protein_txt == "":
-                    gen_txt = "%s %s" % (genes, ', '.join(gen_txt))
-                elif exon_txt != "":
-                    gen_txt = "%s exon %s" % (genes, exon_txt)
-                else:
-                    gen_txt = "%s %s" % (genes, protein_txt)
-
-    return c, g, (gen_txt, [clin_txt_1, clin_txt_2_age, clin_txt_2_gender])
+            elif match['MATCH_STATUS'] == 1:
+                counts['pending'] += 1
+            elif match['MATCH_STATUS'] == 2:
+                counts['flagged'] += 1
+            elif match['MATCH_STATUS'] == 3:
+                counts['not_eligible'] += 1
+            elif match['MATCH_STATUS'] == 4:
+                counts['enrolled'] += 1
+            elif match['MATCH_STATUS'] == 5:
+                counts['contacted'] += 1
+            elif match['MATCH_STATUS'] == 6:
+                counts['eligible'] += 1
+            elif match['MATCH_STATUS'] == 7:
+                counts['deferred'] += 1
+    return counts

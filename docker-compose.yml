@@ -1,0 +1,68 @@
+version: "3"
+services:
+  mm-api:
+    container_name: mm-api
+    restart: "no"
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
+    # When developing locally, disable auth. By default, API is configured
+    # to work with Okta's SSO saml system.
+    command: python pymm_run.py serve --no-auth
+    volumes:
+      - .:/matchminerAPI
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mm-mongo
+      - mm-elastic
+      - mm-connector
+    environment:
+      - SECRETS_JSON=./secrets_json_dev.json
+      - ONCOTREE_CUSTOM_DIR=./tests/data/oncotree_file.txt
+    networks:
+      - mm-dev-network
+
+  mm-mongo:
+    container_name: mm-mongo
+    restart: "no"
+    image: mongo
+    command: --replSet rs0
+    ports:
+      - "27017:27017"
+    networks:
+      - mm-dev-network
+
+  mm-elastic:
+    container_name: mm-elastic
+    restart: "no"
+    image: elasticsearch:2.4.0
+    ports:
+      - "9200:9200"
+    volumes:
+      - ./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./elasticsearch/synonyms.txt:/usr/share/elasticsearch/config/synonyms.txt
+      - ./elasticsearch/mm-elastic-backup:/backup
+    networks:
+      - mm-dev-network
+
+  mm-connector:
+    container_name: mm-connector
+    restart: "no"
+    build:
+      context: ./mongo-connector
+    depends_on:
+      - mm-elastic
+      - mm-mongo
+    environment:
+      - MONGO="mm-mongo"
+      - MONGOPORT=27017
+    volumes:
+      - ./mongo-connector/config.json:/config.json
+    networks:
+      - mm-dev-network
+
+networks:
+  mm-dev-network:
+    # tell docker-compose to create the network
+    external: false

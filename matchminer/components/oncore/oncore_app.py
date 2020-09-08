@@ -1,4 +1,3 @@
-import os
 import yaml
 import json
 import base64
@@ -11,7 +10,7 @@ from functools import wraps, update_wrapper
 from flask import Blueprint, Response, make_response, render_template, request, redirect
 
 from matchminer.database import get_db
-from matchminer.utilities import set_updated, set_curated, post_mattermost
+from matchminer.utilities import set_curated, set_updated
 from matchminer.components.oncore.oncore_utilities import OncoreSync
 from matchminer.settings import API_TOKEN, API_ADDRESS, ONCORE_ADDRESS
 from matchminer.security import authorize_oncore_curation
@@ -67,7 +66,7 @@ def _render_trials():
     # set headers.
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic ' + base64.b64encode(f'{API_TOKEN}:'.encode('utf-8')).decode('utf-8'),
+        'Authorization': 'Basic ' + base64.b64encode(f'{API_TOKEN}'.encode('utf-8')).decode('utf-8'),
     }
 
     # get the trial list from db.
@@ -101,7 +100,7 @@ def index():
     # set headers.
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic ' + base64.b64encode(f'{API_TOKEN}:'.encode('utf-8')).decode('utf-8'),
+        'Authorization': 'Basic ' + base64.b64encode(f'{API_TOKEN}'.encode('utf-8')).decode('utf-8'),
     }
 
     # render the form.
@@ -154,7 +153,7 @@ def index():
             if len(output['_items']) == 0:
 
                 # post the trial.
-                url = '%s/trial' % (API_ADDRESS)
+                url = '%s/trial' % API_ADDRESS
                 r = requests.post(url, json=trial_new, headers=headers)
                 r_code = r.status_code
                 r_text = r.text
@@ -204,7 +203,7 @@ def trial_request(trial_id):
     # set headers.
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic ' + base64.b64encode(f'{API_TOKEN}:'.encode('utf-8')).decode('utf-8'),
+        'Authorization': 'Basic ' + base64.b64encode(f'{API_TOKEN}'.encode('utf-8')).decode('utf-8'),
     }
 
     # create the request.
@@ -314,9 +313,6 @@ def update_from_oncore(protocol_no):
     mm_trial, updated, changes = cmp.compare_trials(on_trial, mm_trial)
     for log_entry in cmp.log_entries:
         db.oncore_trial_log.insert(log_entry)
-        post_mattermost(msg='Trial Update',
-                        hashtag='#OnCore',
-                        data=log_entry)
     cmp.send_email()
 
     # if it is updated then do the update.
@@ -330,7 +326,7 @@ def update_from_oncore(protocol_no):
 
         # set headers.
         headers = {'Content-Type': 'application/json',
-                   'Authorization': 'Basic ' + base64.b64encode(f'{API_TOKEN}:'.encode('utf-8')).decode('utf-8'),
+                   'Authorization': 'Basic ' + base64.b64encode(f'{API_TOKEN}'.encode('utf-8')).decode('utf-8'),
                    'If-Match': etag}
 
         # set last updated field
