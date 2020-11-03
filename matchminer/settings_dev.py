@@ -19,7 +19,7 @@ DATA_DIR = os.path.join(os.path.abspath(os.path.join(__file__ , "../..")), "data
 DATA_DIR_PROD = ""
 DATA_CLINICAL_CSV = os.path.join(DATA_DIR, "tcga.clinical.pkl")
 DATA_GENOMIC_CSV = os.path.join(DATA_DIR, "tcga.genomic.pkl")
-DATA_ONCOTREE_FILE = os.getenv("ONCOTREE_CUSTOM_DIR", "/var/www/apache-flask/api/matchminer/data/oncotree_file.txt")
+DATA_ONCOTREE_FILE = os.getenv("ONCOTREE_CUSTOM_DIR", "/api/matchminer/data/oncotree_file.txt")
 
 TREATMENT_LIST_AUTO_UPDATE_KEYS = ["arm_suspended", "level_suspended"]
 TRIAL_SORT_DICT = {
@@ -103,6 +103,7 @@ clinical = {
     'schema': matchminer.data_model.clinical_schema,
     "allowed_read_roles": ["admin", "service", "user"],
     "allowed_write_roles": ["admin", "service"],
+    'mongo_indexes': {'FIRST_LAST': [('FIRST_LAST', 1)]},
     'item_methods': ['GET', 'PATCH', 'PUT', 'DELETE']
 }
 

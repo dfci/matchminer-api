@@ -10,7 +10,7 @@ from matchminer.settings import TRIAL_SORT_DICT, EMAIL_AUTHOR_PROTECTED, EMAIL_T
     TREATMENT_LIST_AUTO_UPDATE_KEYS
 
 # logging
-logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
+logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s', )
 
 
 class MyEncoder(json.JSONEncoder):

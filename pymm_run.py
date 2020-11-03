@@ -3,6 +3,8 @@ import argparse
 from eve import Eve
 from flask import redirect
 from eve_swagger import swagger
+
+from matchminer.elasticsearch import reset_elasticsearch
 from matchminer.utilities import *
 from matchminer.custom import blueprint
 from matchminer import settings, security
@@ -10,7 +12,7 @@ from matchminer.events import register_hooks
 from matchminer.validation import ConsentValidatorEve
 from matchminer.components.oncore.oncore_app import oncore_blueprint
 
-logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
+logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s', )
 
 cur_dir = os.path.dirname(os.path.realpath(__file__))
 static_dir = os.path.join(cur_dir, 'static')
@@ -74,6 +76,12 @@ if __name__ == '__main__':
     subp_p.add_argument("--no-auth", dest='no_auth', action='store_const', const=True,
                         default=False)
     subp_p.set_defaults(func=run_server)
+
+    subp_p = subp.add_parser('reset-elasticsearch', help='resets elasticsearch')
+    subp_p.set_defaults(func=lambda x: reset_elasticsearch())
+
+    subp_p = subp.add_parser('reannotate-trials', help='regenerates elasticsearch fields on all trials')
+    subp_p.set_defaults(func=lambda x: reannotate_trials())
 
     args = main_p.parse_args()
     args.func(args)

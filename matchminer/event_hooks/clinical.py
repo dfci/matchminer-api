@@ -41,12 +41,17 @@ def assess_vital_status(update, original):
 def clinical_delete(item):
 
     # get database lookup.
+    logging.info(f"Deleting sample {item['SAMPLE_ID']}")
     genomic_db = app.data.driver.db['genomic']
     match_db = app.data.driver.db['match']
     trial_match_db = app.data.driver.db['trial_match']
+    immunoprofile_db = app.data.driver.db['immunoprofile']
 
     # delete associated genomic entries.
     genomic_db.delete_many({"CLINICAL_ID": ObjectId(item['_id'])})
+
+    # delete associated immunoprofile entries.
+    immunoprofile_db.delete_many({"clinical_id": ObjectId(item['_id'])})
 
     # delete associated matches.
     match_db.delete_many({"CLINICAL_ID": ObjectId(item['_id'])})
@@ -56,41 +61,53 @@ def clinical_delete(item):
 
 
 def clinical_insert(items):
-
-    # get database lookup.
-    clinical_db = app.data.driver.db['clinical']
+    """
+    When inserting clinical docs, add FIRST_LAST, LAST_FIRST and BIRTH_DATE_INT
+    field
+    :param items:
+    :return:
+    """
 
     # modify each item.
-    keepers = list()
     for item in items:
 
         # make updated names
         item['FIRST_LAST'] = item['FIRST_NAME'] + " " + item['LAST_NAME']
         item['LAST_FIRST'] = item['LAST_NAME'] + " " + item['FIRST_NAME']
 
+        # check for BIRTH_DATE_INT
+        if 'BIRTH_DATE_INT' not in item:
+            birth_date = item['BIRTH_DATE']
+            month = birth_date.month
+            day = birth_date.day
+            month = str(month) if month > 10 else "0" + str(month)
+            day = str(day) if day > 10 else "0" + str(day)
+            birth_date_int = f"{str(birth_date.year)}{month}{day}"
+            item['BIRTH_DATE_INT'] = int(birth_date_int)
+
         # extract sample id
         sample_id = item['SAMPLE_ID']
         logging.info("Adding clinical data for sample id " + str(sample_id))
 
-        # check for existing sample_id.
-        clinical = clinical_db.find_one({'SAMPLE_ID': sample_id})
 
-        # if none then its a new person.
-        if clinical is None:
-            keepers.append(item)
-            continue
+def align_other_clinical(doc):
+    """
+    If patient has been sampled multiple times, attach other clinical ids referencing
+    those samples under key "RELATED".
 
-
-def align_other_clinical(a):
+    Remove patient's name from all documents.
+    :param item:
+    :return:
+    """
 
     # extract the clinical id.
-    clinical_id = a['_id']
+    clinical_id = doc['_id']
 
     # lookup any matches.
     clinical_db = database.get_collection('clinical')
 
     # look for record with sample MRN.
-    related = list(clinical_db.find({"MRN": a['MRN']}))
+    related = list(clinical_db.find({"MRN": doc['MRN']}))
 
     # remove self.
     tmp = []
@@ -99,16 +116,12 @@ def align_other_clinical(a):
         for nm in ["FIRST_NAME", "LAST_NAME", "FIRST_LAST", "LAST_FIRST"]:
             del clinical[nm]
 
-        if clinical['_id'] == a['_id']:
+        if clinical['_id'] == doc['_id']:
             continue
         tmp.append(clinical)
 
     # add them to record.
-    a['RELATED'] = tmp
-
-    # remove patient name
-    for nm in ["FIRST_NAME", "LAST_NAME", "FIRST_LAST", "LAST_FIRST"]:
-        del a[nm]
+    doc['RELATED'] = tmp
 
 
 def align_matches_clinical(a):

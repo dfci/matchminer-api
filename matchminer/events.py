@@ -10,7 +10,7 @@ from matchminer.event_hooks.immunoprofile import immunoprofile_insert
 from matchminer.event_hooks.public_stats import get_public_stats
 from matchminer.event_hooks.trial_match import sort_trial_matches
 from matchminer import settings
-from matchminer.event_hooks.match import align_enrolled, add_filter_run_id
+from matchminer.event_hooks.match import add_filter_run_id
 from matchminer.miner import transform_filter_to_CTML, find_filter_matches, update_filter_post, \
     update_filter_pre
 from matchminer.event_hooks.patient_view import patient_view_post
@@ -70,7 +70,6 @@ def register_hooks(app):
         app.on_pre_GET_match += pre_get_restricted
 
     # match
-    app.on_fetched_resource_match += align_enrolled
     app.on_replace_match += add_filter_run_id
 
     # public_status

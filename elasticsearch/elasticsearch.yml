@@ -5,4 +5,5 @@ http.max_content_length: 500mb
 http.cors.allow-headers: "X-Requested-With, Content-Type, Content-Length, Authorization"
 network.host: 0.0.0.0
 path.repo: /backup
-index.query.bool.max_clause_count: 5120
+indices.query.bool.max_clause_count: 5120
+xpack.security.enabled: false # set to true for production

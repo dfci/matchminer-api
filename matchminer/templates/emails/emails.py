@@ -5,7 +5,7 @@ import logging
 
 from matchminer.settings import EMAIL_CONFIG
 
-logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
+logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s', )
 
 FILTER_MATCH_BODY = ""
 EMAIL_BLAST_RESPONSE_BODY = ""

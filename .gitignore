@@ -69,5 +69,12 @@ target/
 # osx
 .DS_Store
 
+elasticsearch/es_data/*
+dump/*
+
+src/*
 python-xmlsec/*
+
+# mypy
+.mypy_cache
 dev_data/*

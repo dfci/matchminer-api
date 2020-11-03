@@ -20,3 +20,8 @@ requests==2.20.1
 setuptools==38.4.0
 simplejson==3.8.1
 mattermostdriver==6.2.0
+elasticsearch>=6.0.0,<7.0.0
+dnspython==1.16.0
+# motor is not used in the API, but version is pinned to avoid lib dependency issues
+motor==2.0.0
+gunicorn==20.0.4

@@ -262,7 +262,7 @@ clinical_schema = {
     'LAST_FIRST': {'type': 'string', 'readonly': True},
     'BIRTH_DATE': {'type': 'datetime', 'required': True},
     'COLLECTION_DATE': {'type': 'datetime', 'required': False, 'nullable': True},
-    'BIRTH_DATE_INT': {'type': 'integer', 'required': True},
+    'BIRTH_DATE_INT': {'type': 'integer', 'required': False},
     'VITAL_STATUS': {'type': 'string', 'required': True, 'allowed': ['alive', 'deceased', None], 'nullable': True},
     'LAST_VISIT_DATE': {'type': 'datetime'},
 
@@ -272,6 +272,7 @@ clinical_schema = {
     'DISEASE_CENTER_DESCR': {'type': 'string', 'nullable': True, 'required': False},
     'ONCOTREE_BIOPSY_SITE_TYPE': {'type': 'string', 'nullable': True},
     'ORI_PATH_DIAGNOSIS': {'type': 'string', 'required': False, 'nullable': True},
+    'IP_DIAGNOSIS': {'type': 'string', 'required': False, 'nullable': True},
     'PANEL_TEST_IND': {'type': 'string', 'required': False},
     'PLATE_NAME': {'type': 'string', 'required': False},
 
@@ -455,6 +456,11 @@ immunoprofile_schema = {
                         'type': 'string',
                         'required': True,
                         'nullable': False
+                    },
+                    'interpretation_reference': {
+                        'type': 'string',
+                        'required': True,
+                        'nullable': True
                     }
                 }
             },
@@ -501,7 +507,7 @@ immunoprofile_schema = {
     'email': {
         'type': 'boolean',
         'required': True,
-        'nullable': False
+        'nullable': True
     },
     'report_version': {
         'type': 'integer',
@@ -526,6 +532,10 @@ immunoprofile_schema = {
         'type': 'boolean',
         'required': True,
         'nullable': False
+    },
+    "version": {
+        'type': 'integer',
+        'required': True
     },
     'percentile': {
         'type': 'dict',
@@ -1462,7 +1472,7 @@ yaml_clinical_schema = {
     'gender': {
         'type': 'string',
         'required': False,
-        'allowed': ['Male', 'Female']
+        'allowed': ['Male', 'Female', 'X']
     },
     'tmb_numerical': {
         'type': 'string',

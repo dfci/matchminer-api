@@ -5,10 +5,11 @@ import yaml
 import datetime as dt
 
 from matchminer.event_hooks.event_utils import entry_insert
-from matchminer.event_hooks.trial import insert_data_clinical, trial_insert, insert_data_genomic
+from matchminer.event_hooks.trial import insert_data_clinical, insert_data_genomic, \
+    build_trial_elasticsearch_fields
 from matchminer.database import get_db
 from matchminer.matchengine_v1.engine import MatchEngine
-from matchminer.utilities import set_curated, reannotate_trials, set_updated
+from matchminer.utilities import set_curated, set_updated
 from matchminer.trial_search import Summary, ParseMatchTree, Autocomplete
 
 from tests.data import yaml_schema
@@ -124,7 +125,6 @@ class TestTrialValidation(TrialValidation):
                 assert len(self.v.errors) == 0, self.v.errors
 
     def test_trial_insert(self):
-
         # loop over each trial.
         executed_new_yaml = False
         for trial_name in os.listdir(YAML_DIR):
@@ -140,7 +140,7 @@ class TestTrialValidation(TrialValidation):
                 entry_insert('trial', [data_json])
 
                 # insert it.
-                trial_insert([data_json])
+                build_trial_elasticsearch_fields([data_json])
 
                 # check these fields are present.
                 assert '_summary' in data_json
@@ -269,7 +269,7 @@ class TestTrialFields(unittest.TestCase):
         # do the mapping.
         entry_insert("trial", [test_json])
 
-        trial_insert([test_json])
+        build_trial_elasticsearch_fields([test_json])
 
         db['normalize'].drop()
 
@@ -307,12 +307,11 @@ class TestTrialUtilities(unittest.TestCase):
                 assert x not in trial
 
         # re-annotate it.
-        reannotate_trials()
+        build_trial_elasticsearch_fields([trial])
 
         # assert we have the fields in the output.
-        for trial in self.db['trial'].find():
-            for x in fields:
-                assert x in trial
+        for x in fields:
+            assert x in trial
 
     def test_trial_summary(self):
 
@@ -408,8 +407,7 @@ class TestTrialUtilities(unittest.TestCase):
 
         # check dates are preserved after trial_insert is called
         trial['protocol_no'] = '01-001'
-        trial = trial_insert([trial])
-        trial = trial[0]
+        build_trial_elasticsearch_fields([trial])
         assert trial['curated_on'] == old, self._debug(trial, 'curated_on')
         assert trial['last_updated'] == today, self._debug(trial, 'last_updated')
 
@@ -423,8 +421,7 @@ class TestTrialUtilities(unittest.TestCase):
         assert trial['curated_on'] == today, self._debug(trial, 'curated_on')
         assert trial['last_updated'] == today, self._debug(trial, 'last_updated')
 
-        trial = trial_insert([trial])
-        trial = trial[0]
+        build_trial_elasticsearch_fields([trial])
         assert trial['curated_on'] == today, self._debug(trial, 'curated_on')
         assert trial['last_updated'] == today, self._debug(trial, 'last_updated')
 

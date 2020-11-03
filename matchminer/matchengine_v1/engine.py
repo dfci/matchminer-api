@@ -11,7 +11,7 @@ from matchminer.matchengine_v1.utilities import *
 from matchminer.matchengine_v1.sort import add_sort_order
 
 # logging
-logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(asctime)s: %(message)s', )
+logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(asctime)s: %(message)s', )
 
 # modify schema for advanced recursive support (not yet supported in python-eve so it has to happen after the fact)
 parent_schema_adv = schema.parent_schema.copy()

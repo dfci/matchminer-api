@@ -348,8 +348,16 @@ class TestStatus(TestMinimal):
             'silent': False,
             'data_push_id': self.now
         }
-        r, status_code = self.post('status', status)
-        self.assert201(status_code)
+        r, status_code = self.post('rerun_filters', self.status)
+        is_running = True
+        time.sleep(3)
+        while is_running:
+            active_process = list(self.db.active_processes.find())
+            if len(active_process) > 0:
+                time.sleep(1)
+            else:
+                is_running = False
+        self.assert200(status_code)
 
         # count again
         new_count = self.db['match'].count()
@@ -437,8 +445,16 @@ class TestStatus(TestMinimal):
             'silent': False,
             'data_push_id': self.now
         }
-        r, status_code = self.post('status', status)
-        self.assert201(status_code)
+        r, status_code = self.post('rerun_filters', self.status)
+        is_running = True
+        time.sleep(3)
+        while is_running:
+            active_process = list(self.db.active_processes.find())
+            if len(active_process) > 0:
+                time.sleep(1)
+            else:
+                is_running = False
+        self.assert200(status_code)
 
         # reset the patient.
         self.db.clinical.update_one({"_id": patient_id}, {"$set": {"VITAL_STATUS": "alive"}})
@@ -516,8 +532,16 @@ class TestStatus(TestMinimal):
         time.sleep(1)
         self.db['filter'].update({'_id': filter_id}, {'$set': {'_updated': datetime.datetime.now()}})
 
-        r, status_code = self.post('status', self.status)
-        self.assert201(status_code)
+        r, status_code = self.post('rerun_filters', self.status)
+        is_running = True
+        time.sleep(3)
+        while is_running:
+            active_process = list(self.db.active_processes.find())
+            if len(active_process) > 0:
+                time.sleep(1)
+            else:
+                is_running = False
+        self.assert200(status_code)
 
         assert len(list(self.db.run_log_match.find())) == 2
 

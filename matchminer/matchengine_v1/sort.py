@@ -3,7 +3,7 @@
 import pandas as pd
 import logging
 
-logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
+logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s', )
 
 
 def add_sort_order(trial_match_df):

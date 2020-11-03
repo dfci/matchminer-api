@@ -1,7 +1,8 @@
-## import
 import os
 import yaml
 import copy
+
+from matchminer.event_hooks.trial import build_trial_elasticsearch_fields
 from tests.test_matchminer import TestMinimal
 
 YAML_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../', 'data/yaml'))
@@ -77,12 +78,10 @@ class TestTrial(TestMinimal):
         self.db['normalize'].insert(mapping)
 
         # post and it should pass
-        r, status_code = self.post("trial", test_json)
-        assert r['treatment_list']['step'][1]['arm'][1]['match'][0]['and'][1]['clinical']['oncotree_primary_diagnosis'] == '!Diffuse Large B-Cell Lymphoma'
-        assert r['status'] == 'Open to Accrual'
-        assert status_code == 201
+        build_trial_elasticsearch_fields([test_json])
+        assert test_json['treatment_list']['step'][1]['arm'][1]['match'][0]['and'][1]['clinical']['oncotree_primary_diagnosis'] == '!Diffuse Large B-Cell Lymphoma'
+        assert test_json['status'] == 'OPEN TO ACCRUAL'
 
-        db_trial = self.db['trial'].find_one({'protocol_no': '00-003'})
 
         suggestor_options = [
             'cancer_type_suggest',
@@ -99,46 +98,12 @@ class TestTrial(TestMinimal):
             'mmr_status_suggest',
             'nct_number_suggest'
         ]
-        assert sorted(db_trial['_suggest'].keys()) == sorted(suggestor_options)
+        assert sorted(test_json['_suggest'].keys()) == sorted(suggestor_options)
 
-        genes = db_trial['_suggest']['hugo_symbol_suggest']['input']
+        genes = test_json['_suggest']['hugo_symbol_suggest']['input']
         assert isinstance(genes, list)
         assert 'MYC' in genes
         assert len(genes) == 1
 
-        assert db_trial['_suggest']['cancer_type_suggest'] == []
+        assert test_json['_suggest']['cancer_type_suggest'] == []
 
-    def test_trial_put(self):
-
-        # define test json
-        with open(os.path.join(YAML_DIR, "00-001.yml")) as fin:
-            test_json = yaml.load(fin)
-
-        # add values to database.
-        self.db['normalize'].drop()
-        mapping = copy.deepcopy(self.mapping)
-        mapping['values']['oncotree_primary_diagnosis']["Diffuse Large B-Cell Lymphoma"] = "Diffuse Large B-Cell Lymphoma"
-        self.db['normalize'].insert(mapping)
-
-        # post and it should fail.
-        r, status_code = self.post("trial", test_json)
-        assert status_code == 201
-
-        # update it.
-        etag = r['_etag']
-        trial_id = r['_id']
-        for key in list(r.keys()):
-            if key[0] == '_':
-                del r[key]
-
-        # manually tweak
-        r['treatment_list']['step'][0]['arm'][0]['match'][0]['and'][1]['clinical']['oncotree_primary_diagnosis'] = "Bladder Urothelial Carcinoma"
-
-        # PUT the udpate
-        r, status_code = self.patch("trial/%s" % trial_id, r, headers=[('If-Match', etag)])
-        assert status_code == 200
-
-        # assert the _ vars are updated.
-        assert len(r['_summary']['tumor_types']) == 2
-        assert sorted(r['_summary']['tumor_types'])[0] == "Bladder Urothelial Carcinoma"
-        assert sorted(r['_summary']['tumor_types'])[1] == "_SOLID_"

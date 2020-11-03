@@ -13,10 +13,13 @@ from bson import ObjectId
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 import simplejson as json
 import oncotreenx
+from requests import post, get
+from requests.auth import HTTPBasicAuth
 
 from matchminer import settings, database
 from matchminer import data_model
 import matchminer.miner
+from matchminer.elasticsearch import reset_elasticsearch
 from matchminer.miner import _count_matches_by_filter
 from matchminer.settings import *
 from matchminer.utilities import parse_resource_field, nocache, reannotate_trials
@@ -24,13 +27,61 @@ from matchminer.security import auth_required
 import logging
 
 # logging
-from src.wincrypto.wincrypto import CryptCreateHash, CryptDeriveKey, CryptHashData, CryptDecrypt, CryptEncrypt
-from src.wincrypto.wincrypto.constants import CALG_SHA1, CALG_AES_128
+from wincrypto import CryptCreateHash, CryptDeriveKey, CryptHashData, CryptDecrypt, CryptEncrypt
+from wincrypto.constants import CALG_SHA1, CALG_AES_128
 
-logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
+logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s', )
 
 blueprint = Blueprint('', __name__, template_folder="templates/templates")
 CORS(blueprint)
+
+
+@blueprint.route('/api/es/<path:path>', methods=['POST', 'GET'])
+def proxy(path):
+    """
+    Proxy all Elasticsearch requests
+    """
+    try:
+        r = None
+        url = f"{ES_URL}/{path}"
+        headers = dict(request.headers)
+        headers.pop('Host')
+        if request.method == 'POST':
+            data = json.dumps(request.get_json())
+
+            if settings.NO_AUTH:
+                r = post(url=url,
+                         data=data,
+                         headers=headers)
+            else:
+                r = post(url=url,
+                         auth=HTTPBasicAuth(ES_USER, ES_PASSWORD),
+                         data=data,
+                         headers=headers)
+
+        elif request.method == 'GET':
+            if settings.NO_AUTH:
+                r = get(url=url,
+                        headers=headers)
+            else:
+                r = get(url=url,
+                        auth=HTTPBasicAuth(ES_USER, ES_PASSWORD),
+                        headers=headers)
+
+        if r is not None and 200 <= r.status_code < 300:
+            logging.info(url)
+            return Response(response=json.dumps(json.loads(r.content)),
+                            status=200,
+                            mimetype="application/json")
+        else:
+            logging.error(url)
+            logging.error({"status": str(r.status_code), "content": str(r.content)})
+            raise Exception
+
+    except Exception as e:
+        msg = 'Error while fetching data from elasticsearch'
+        logging.error(msg)
+        return Response(status=400, mimetype="application/json")
 
 
 @blueprint.route('/api/info', methods=['GET'])
@@ -104,20 +155,25 @@ def rerun_filters_endpoint(silent=False):
     :return:
     """
 
-    # Allow default values to be overridden in POST data params
     db = database.get_db()
+    logging.info("rerun filters started")
+
+    # Allow default values to be overridden in POST data params
+    datapush_id = None
+    silent = False
     if request.data:
         data = request.get_json()
-        silent = True if data['silent'] else False
+        datapush_id = data.get('data_push_id', None)
+        silent = data.get('silent', None)
 
     is_currently_running = list(db.active_processes.find())
     if len(is_currently_running) > 0:
         msg = "Filters already running"
         response = {msg: True}
     else:
-        msg = "Full filters run started"
+        msg = f"Full filters run started. Datapush id: {str(datapush_id)}. Silent: {str(silent)}"
         response = {msg: True}
-        thread = threading.Thread(target=matchminer.miner.start_filter_run, daemon=True, args=('silent', silent))
+        thread = threading.Thread(target=matchminer.miner.start_filter_run, daemon=True, args=[silent, datapush_id])
         thread.start()
 
     logging.info(msg)
@@ -125,6 +181,20 @@ def rerun_filters_endpoint(silent=False):
                     status=200,
                     mimetype="application/json")
 
+    return resp
+
+
+@blueprint.route('/api/is_matchengine_running', methods=['GET'])
+def is_engine_running():
+    db = database.get_db()
+
+    running_processes = list(db.active_processes.find())
+    is_running = True if len(running_processes) > 0 else False
+
+    logging.info(f"/api/is_matchengine_running {str(is_running)}")
+    resp = Response(response=json.dumps({"is_running": is_running}),
+                    status=200,
+                    mimetype="application/json")
     return resp
 
 
@@ -144,11 +214,25 @@ def reannotate_trials_api():
     return resp
 
 
+@blueprint.route('/api/reset_elasticsearch', methods=['POST'])
+@nocache
+@auth_required
+def reset_elasticsearch_endpoint():
+    """
+    Deletes and recreates elasticsearch index. Reloads settings and mappings
+    :return:
+    """
+    reset_elasticsearch()
+    resp = Response(response=json.dumps({"success": True}),
+                    status=200,
+                    mimetype="application/json")
+    return resp
+
+
 @blueprint.route('/api/gi_patient_view', methods=['POST'])
 @nocache
 @auth_required
 def gi_patient_view():
-
     """
     Inserts a GI patient_view document directly to the database.
     """
@@ -293,7 +377,7 @@ def dispatch_epic():
     # Get user
     user = db['user'].find_one({'user_name': str(epic_data['UserNID']).lower()})
 
-    log = {k.replace('.', '_'):v for k,v in epic_data.items()}
+    log = {k.replace('.', '_'): v for k, v in epic_data.items()}
     log['accessed_at'] = datetime.datetime.now()
     log['exists_in_mm'] = True
     log['is_BWH_MRN'] = False
@@ -380,7 +464,6 @@ def dispatch_epic_clinical_trial():
 @nocache
 @auth_required
 def count_query():
-
     # no auth version.
     accounts = app.data.driver.db['user']
     team_id = request.args.get("team_id")
@@ -395,7 +478,6 @@ def count_query():
         matches = list()
         filters = list()
         for team_id in user['teams']:
-
             match_query = {'TEAM_ID': ObjectId(team_id), "is_disabled": False}
             match_proj = {'FILTER_ID': 1, 'MATCH_STATUS': 1, 'FILTER_STATUS': 1}
             matches += list(db.match.find(match_query, match_proj))
@@ -423,10 +505,10 @@ def count_query():
 
     return resp
 
+
 @blueprint.route('/api/utility/unique', methods=['GET'])
 @nocache
 def unique_query():
-
     # parse parameters
     status, val = parse_resource_field()
 
@@ -493,111 +575,28 @@ def delete_genomic_by_sample():
 @blueprint.route('/api/utility/autocomplete', methods=['GET'])
 @nocache
 def autocomplete_query():
+    db = app.data.driver.db
 
     # parse parameters
     status, val = parse_resource_field()
 
     # parse the value.
-    value = request.args.get("value")
     gene = request.args.get("gene")
 
     # bad args.
     if status == 1:
         return val
 
-    # good args.
     resource, field = val
+    results = list(db.genomic.aggregate([
+        {"$match": {"TRUE_HUGO_SYMBOL": gene, field: {"$ne": None}}},
+        {"$group": {"_id": "$TRUE_HUGO_SYMBOL", field: {"$addToSet": f"${field}"}}},
+    ]))
 
-    # get the type.
-    if resource == "genomic":
-        schema = data_model.genomic_schema[field]['type']
-
+    if len(results) > 0 and field in results[0]:
+        results = results[0][field]
     else:
-        schema = data_model.clinical_schema[field]['type']
-
-    # special cases.
-    if resource == 'clinical' and field == 'ONCOTREE_PRIMARY_DIAGNOSIS_NAME':
-
-        # make oncotree.
-        onco_tree = oncotreenx.build_oncotree(settings.DATA_ONCOTREE_FILE)
-
-        # loop over every-node and do text match.
-        hit_set = set()
-        for n in onco_tree.nodes():
-
-            a = onco_tree.node[n]['text'].lower()
-            b = value.lower()
-            if a.count(b) > 0:
-
-                # get predecessors and ancestors
-                hit_set.add(n)
-                hit_set = hit_set.union(set(onco_tree.predecessors(n)))
-                hit_set = hit_set.union(set(onco_tree.successors(n)))
-
-        # remove root.
-        if 'root' in hit_set:
-            hit_set.remove('root')
-
-        # convert to full text.
-        results = [onco_tree.node[n]['text'] for n in hit_set]
-
-    else:
-
-        # only support string and integer.
-        if schema not in set(['string', 'integer']):
-            data = json.dumps({'error': 'unsupported field type: %s' % schema})
-            resp = Response(response=data,
-                status=400,
-                mimetype="application/json")
-            return resp
-
-        # handle string.
-        db = app.data.driver.db
-        if schema == "string":
-
-            # finalize search term.
-            term = '.*%s.*' % value
-
-            # first make query.
-            if gene is None:
-                query = db[resource].find({
-                    field: {'$regex': term, '$options': '-i'}
-                })
-            else:
-                query = db[resource].find({"$and": [
-                    {field: {'$regex': term, '$options': '-i'}},
-                    {"$or": [
-                        {'TRUE_HUGO_SYMBOL': gene}
-                    ]}
-                ]}, {field: 1})
-
-        else:
-
-            # finalize the search term.
-            term = "/^%s.*/.test(this.%s)" % (value, field)
-
-            # first make the query
-            if gene is None:
-                query = db[resource].find({"$and": [
-                    {'$where': term},
-                ]})
-
-            else:
-                query = db[resource].find({"$and": [
-                    {'$where': term},
-                    {"$or": [
-                        {'TRUE_HUGO_SYMBOL': gene}
-                    ]}
-                ]})
-
-        # extract distinct from query
-        results = query.distinct(field)
-
-    # remove non.
-    tmp = set(results)
-    if None in tmp:
-        tmp.remove(None)
-        results = list(tmp)
+        results = []
 
     # encode response.
     data = json.dumps({'resource': resource, 'field': field, 'values': results})
@@ -608,8 +607,26 @@ def autocomplete_query():
     return resp
 
 
-def init_saml_auth(req):
+@blueprint.route('/api/utility/get_panel', methods=['GET'])
+@nocache
+def get_panel():
+    db = app.data.driver.db
+    panel_arg = request.args.get("panel")
+    panel = list(db.panel.find({"name": panel_arg}))
 
+    if len(panel) > 0:
+        panel = panel[0]
+    else:
+        panel = {}
+
+    data = json.dumps({"panel": panel['panel']})
+    resp = Response(response=data,
+                    status=200,
+                    mimetype="application/json")
+
+    return resp
+
+def init_saml_auth(req):
     # load based on production information.
     saml_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'saml'))
     saml_file = os.path.join(saml_dir, settings.SAML_SETTINGS)
@@ -641,7 +658,6 @@ def prepare_flask_request(request):
 @blueprint.route('/', methods=['GET', 'POST'])
 @nocache
 def saml(page=None):
-
     if settings.NO_AUTH:
         return json.dumps({"API up": True})
 
@@ -661,7 +677,8 @@ def saml(page=None):
         redirect_to_index = redirect(url)
         response = app.make_response(redirect_to_index)
         response.headers.add('Last-Modified', datetime.datetime.now())
-        response.headers.add('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0')
+        response.headers.add('Cache-Control',
+                             'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0')
         response.headers.add('Pragma', 'no-cache')
         response.headers.add('Expires', '-1')
 

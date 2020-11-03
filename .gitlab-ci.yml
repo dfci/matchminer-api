@@ -35,6 +35,7 @@ run_test:
     - nosetests -v tests/unit
     - nosetests -v --with-xunit --with-coverage tests
 
+
   artifacts:
     reports:
       junit: nosetests.xml
