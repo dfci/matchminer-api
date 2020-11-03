@@ -3,6 +3,8 @@ import os
 import yaml
 import datetime
 import binascii
+
+from matchminer.event_hooks.trial import build_trial_elasticsearch_fields
 from matchminer.utilities import set_curated, set_updated
 from matchminer.custom import generate_encryption_key_epic, encrypt_epic, decrypt_epic
 
@@ -51,11 +53,6 @@ class TestCustom(TestMinimal):
 
     def test_autocomplete(self):
 
-        # gene completetion.
-        r, status_code = self.get('utility/autocomplete?resource=genomic&field=TRUE_HUGO_SYMBOL&value=brca')
-        self.assert200(status_code)
-        assert set(r['values']) == set(['BRCA2', 'BRCA1'])
-
         # gene + integer.
         r, status_code = self.get(
             'utility/autocomplete?resource=genomic&field=TRUE_TRANSCRIPT_EXON&value=8&gene=PIK3R1')
@@ -82,27 +79,19 @@ class TestCustom(TestMinimal):
         x.remove(None)
         assert set(r['values']) == x
 
-    def test_autocomplete_oncotree(self):
-
-        # oncotree field.
-        r, status_code = self.get(
-            'utility/autocomplete?resource=clinical&field=ONCOTREE_PRIMARY_DIAGNOSIS_NAME&value=Adrenal')
-        self.assert200(status_code)
-        assert set(r['values']) == set(
-            ['Adrenal Gland', 'Pheochromocytoma', 'Adrenocortical Adenoma', 'Adrenocortical Carcinoma'])
-
     def test_set_update(self):
         trial = set_updated(self.trial)
+        trial = self._prep_trial(trial)
         assert 'last_updated' in trial, trial
-        trial = self._check_trial_post(trial)
+        build_trial_elasticsearch_fields([trial])
 
         # send again
         trial = set_updated(trial)
+        build_trial_elasticsearch_fields([trial])
         assert 'last_updated' in trial, trial
         assert 'curated_on' in trial and trial['curated_on'] == '', trial
         for field in self.trial_status_fields:
             assert field in trial['_summary'], '%s\n\n %s' % (trial['_summary'], field)
-        self._check_trial_post(trial)
 
         # curate
         trial = set_curated(trial)
@@ -110,12 +99,11 @@ class TestCustom(TestMinimal):
         assert 'curated_on' in trial and trial['curated_on'], trial
         for field in self.trial_status_fields:
             assert field in trial['_summary'], '%s\n\n%s' % (trial['_summary'], field)
-        self._check_trial_post(trial)
 
     def test_set_curate(self):
         trial = set_curated(self.trial)
         assert 'curated_on' in trial, trial
-        trial = self._check_trial_post(trial)
+        build_trial_elasticsearch_fields([trial])
 
         # send again
         trial = set_curated(trial)
@@ -123,7 +111,7 @@ class TestCustom(TestMinimal):
         assert 'last_updated' in trial and trial['last_updated'] == self.today, trial
         for field in self.trial_status_fields:
             assert field in trial['_summary'], '%s\n\n%s' % (trial['_summary'], field)
-        self._check_trial_post(trial)
+        build_trial_elasticsearch_fields([trial])
 
         # update
         trial = set_updated(trial)
@@ -131,17 +119,6 @@ class TestCustom(TestMinimal):
         assert 'last_updated' in trial and trial['last_updated'], trial
         for field in self.trial_status_fields:
             assert field in trial['_summary'], '%s\n\n%s' % (trial['_summary'], field)
-        self._check_trial_post(trial)
-
-    def _check_trial_post(self, trial):
-        self.user_token = self.curator_token
-        trial = self._prep_trial(trial)
-        r, status_code = self.post("trial", trial)
-        assert status_code == 201
-        dbtrial = self.db.trial.find_one({'protocol_no': '00-003'})
-        assert dbtrial
-        trial = dbtrial
-        return trial
 
     def _prep_trial(self, trial):
         if 'curated_on' not in trial:

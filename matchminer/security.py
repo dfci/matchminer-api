@@ -21,7 +21,7 @@ from bson.objectid import ObjectId
 from matchminer import database
 from matchminer.settings import ONCORE_CURATION_AUTH_TOKEN
 
-logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
+logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s', )
 
 
 class TokenAuth(TokenAuth):

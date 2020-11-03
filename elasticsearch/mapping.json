@@ -1,889 +1,1001 @@
 {
-  "properties": {
-    "_created": {
-      "type": "date",
-      "format": "strict_date_optional_time||epoch_millis"
-    },
-    "_elasticsearch": {
-      "properties": {
-        "age": {
-          "type": "string"
-        },
-        "cnv_genes": {
-          "type": "string",
-          "index": "not_analyzed"
-        },
-        "disease_center": {
-          "type": "string",
-          "index": "not_analyzed"
-        },
-        "disease_status": {
-          "type": "string",
-          "index": "not_analyzed"
-        },
-        "drugs": {
-          "type": "string",
-          "analyzer": "protocol_no_analyzer"
-        },
-        "exclusion_genes": {
-          "type": "string",
-          "index": "not_analyzed"
-        },
-        "genes": {
-          "type": "string",
-          "index": "not_analyzed"
-        },
-        "investigator": {
-          "type": "string",
-          "index": "not_analyzed"
-        },
-        "mmr_status": {
-          "type": "string",
-          "analyzer": "protocol_no_analyzer"
-        },
-        "ms_status": {
-          "type": "string",
-          "analyzer": "protocol_no_analyzer"
-        },
-        "mutational_signatures": {
-          "type": "string",
-          "analyzer": "protocol_no_analyzer"
-        },
-        "nct_number": {
-          "type": "string",
-          "index": "not_analyzed"
-        },
-        "phase": {
-          "type": "string",
-          "index": "not_analyzed"
-        },
-        "protocol_no": {
-          "type": "string",
-          "analyzer": "protocol_no_analyzer"
-        },
-        "short_title": {
-          "type": "string",
-          "index": "not_analyzed"
-        },
-        "sv_genes": {
-          "type": "string",
-          "index": "not_analyzed"
-        },
-        "tumor_types": {
-          "type": "string",
-          "analyzer": "my_lowercase_analyzer"
-        },
-        "variants": {
-          "type": "string",
-          "index": "not_analyzed"
-        },
-        "wildtype_genes": {
-          "type": "string",
-          "index": "not_analyzed"
-        }
-      }
-    },
-    "_etag": {
-      "type": "string"
-    },
-    "_op_type": {
-      "type": "string"
-    },
-    "_suggest": {
-      "properties": {
-        "cancer_type_suggest": {
-          "type": "completion",
-          "analyzer": "synonyms_expand",
-          "payloads": false,
-          "preserve_separators": true,
-          "preserve_position_increments": true,
-          "max_input_length": 50
-        },
-        "cnv_suggest": {
-          "type": "completion",
-          "analyzer": "variant_analyzer",
-          "payloads": false,
-          "preserve_separators": true,
-          "preserve_position_increments": true,
-          "max_input_length": 50
-        },
-        "disease_center_suggest": {
-          "type": "completion",
-          "analyzer": "synonyms_expand",
-          "payloads": false,
-          "preserve_separators": true,
-          "preserve_position_increments": true,
-          "max_input_length": 50
-        },
-        "disease_status_suggest": {
-          "type": "completion",
-          "analyzer": "synonyms_expand",
-          "payloads": false,
-          "preserve_separators": true,
-          "preserve_position_increments": true,
-          "max_input_length": 50
-        },
-        "drug_suggest": {
-          "type": "completion",
-          "analyzer": "synonyms_expand",
-          "payloads": false,
-          "preserve_separators": true,
-          "preserve_position_increments": true,
-          "max_input_length": 50
-        },
-        "hugo_symbol_suggest": {
-          "type": "completion",
-          "analyzer": "synonyms_expand",
-          "payloads": false,
-          "preserve_separators": true,
-          "preserve_position_increments": true,
-          "max_input_length": 50
-        },
-        "investigator_suggest": {
-          "type": "completion",
-          "analyzer": "synonyms_expand",
-          "payloads": false,
-          "preserve_separators": true,
-          "preserve_position_increments": true,
-          "max_input_length": 50
-        },
-        "mmr_status_suggest": {
-          "type": "completion",
-          "analyzer": "synonyms_expand",
-          "payloads": false,
-          "preserve_separators": true,
-          "preserve_position_increments": true,
-          "max_input_length": 50
-        },
-        "nct_number_suggest": {
-          "type": "completion",
-          "analyzer": "synonyms_expand",
-          "payloads": false,
-          "preserve_separators": true,
-          "preserve_position_increments": true,
-          "max_input_length": 50
-        },
-        "protocol_no_suggest": {
-          "type": "completion",
-          "analyzer": "synonyms_expand",
-          "payloads": false,
-          "preserve_separators": true,
-          "preserve_position_increments": true,
-          "max_input_length": 50
-        },
-        "sv_suggest": {
-          "type": "completion",
-          "analyzer": "variant_analyzer",
-          "payloads": false,
-          "preserve_separators": true,
-          "preserve_position_increments": true,
-          "max_input_length": 50
-        },
-        "variant_suggest": {
-          "type": "completion",
-          "analyzer": "variant_analyzer",
-          "payloads": false,
-          "preserve_separators": true,
-          "preserve_position_increments": true,
-          "max_input_length": 50
-        },
-        "wildtype_suggest": {
-          "type": "completion",
-          "analyzer": "variant_analyzer",
-          "payloads": false,
-          "preserve_separators": true,
-          "preserve_position_increments": true,
-          "max_input_length": 50
-        }
-      }
-    },
-    "_summary": {
-      "properties": {
-        "accrual_goal": {
-          "type": "long"
-        },
-        "age_summary": {
-          "type": "string"
-        },
-        "coordinating_center": {
-          "type": "string"
-        },
-        "dfci_investigator": {
-          "properties": {
-            "email_address": {
-              "type": "string"
-            },
-            "first_last": {
-              "type": "string"
-            },
-            "first_name": {
-              "type": "string"
-            },
-            "institution_name": {
-              "type": "string"
-            },
-            "is_overall_pi": {
-              "type": "boolean"
-            },
-            "last_first": {
-              "type": "string"
-            },
-            "last_name": {
-              "type": "string"
-            },
-            "staff_role": {
-              "type": "string"
-            }
-          }
-        },
-        "disease_center": {
-          "type": "string",
-          "index": "not_analyzed"
-        },
-        "disease_status": {
-          "type": "string",
-          "index": "not_analyzed"
-        },
-        "drugs": {
-          "type": "string",
-          "analyzer": "drug_analyzer"
-        },
-        "genes": {
-          "type": "string",
-          "index": "not_analyzed"
-        },
-        "hormone_receptor_status": {
-          "type": "string",
-          "index": "not_analyzed"
-        },
-        "investigator": {
-          "type": "string"
-        },
-        "mmr_status": {
-          "type": "string",
-          "index": "not_analyzed"
-        },
-        "ms_status": {
-          "type": "string",
-          "index": "not_analyzed"
-        },
-        "mutational_signatures": {
-          "type": "string",
-          "index": "not_analyzed"
-        },
-        "nct_number": {
-          "type": "string"
-        },
-        "nonsynonymous_genes": {
-          "type": "string"
-        },
-        "nonsynonymous_wt_genes": {
-          "type": "string"
-        },
-        "phase_summary": {
-          "type": "string"
-        },
-        "primary_tumor_types": {
-          "type": "string",
-          "index": "not_analyzed"
-        },
-        "protocol_number": {
-          "type": "string"
-        },
-        "short_title": {
-          "type": "string"
-        },
-        "site": {
-          "type": "string",
-          "index": "not_analyzed"
-        },
-        "sponsor": {
-          "type": "string"
-        },
-        "status": {
-          "properties": {
-            "id": {
-              "type": "long"
-            },
-            "value": {
-              "type": "string",
-              "index": "not_analyzed"
-            }
-          }
-        },
-        "tumor_types": {
-          "type": "string",
-          "index": "not_analyzed"
-        },
-        "variants": {
-          "type": "string",
-          "index": "not_analyzed"
-        }
-      }
-    },
-    "_updated": {
-      "type": "date",
-      "format": "strict_date_optional_time||epoch_millis"
-    },
-    "age": {
-      "type": "string"
-    },
-    "cancer_center_accrual_goal_upper": {
-      "type": "long"
-    },
-    "cancer_center_current_accrual": {
-      "type": "long"
-    },
-    "curated_on": {
-      "type": "string"
-    },
-    "data_table4": {
-      "type": "string"
-    },
-    "disease_site_list": {
-      "properties": {
-        "disease_site": {
-          "properties": {
-            "disease_site_code": {
-              "type": "string"
-            },
-            "disease_site_name": {
-              "type": "string"
-            }
+  "trial": {
+    "properties": {
+      "_created": {
+        "type": "date",
+        "format": "strict_date_optional_time||epoch_millis"
+      },
+      "_elasticsearch": {
+        "properties": {
+          "age": {
+            "type": "keyword",
+            "index": true
+          },
+          "cnv_genes": {
+            "type": "keyword",
+            "index": true
+          },
+          "disease_center": {
+            "type": "keyword",
+            "index": true
+          },
+          "disease_status": {
+            "type": "keyword",
+            "index": true
+          },
+          "drugs": {
+            "type": "text",
+            "analyzer": "protocol_no_analyzer"
+          },
+          "exclusion_genes": {
+            "type": "keyword",
+            "index": true
+          },
+          "genes": {
+            "type": "keyword",
+            "index": true
+          },
+          "investigator": {
+            "type": "keyword",
+            "index": true
+          },
+          "mmr_status": {
+            "type": "text",
+            "analyzer": "protocol_no_analyzer"
+          },
+          "ms_status": {
+            "type": "text",
+            "analyzer": "protocol_no_analyzer"
+          },
+          "mutational_signatures": {
+            "type": "text",
+            "analyzer": "protocol_no_analyzer"
+          },
+          "nct_number": {
+            "type": "keyword",
+            "index": true
+          },
+          "phase": {
+            "type": "keyword",
+            "index": true
+          },
+          "protocol_no": {
+            "type": "text",
+            "analyzer": "protocol_no_analyzer"
+          },
+          "short_title": {
+            "type": "keyword",
+            "index": true
+          },
+          "sv_genes": {
+            "type": "keyword",
+            "index": true
+          },
+          "tumor_types": {
+            "type": "text",
+            "analyzer": "my_lowercase_analyzer"
+          },
+          "variants": {
+            "type": "keyword",
+            "index": true
+          },
+          "wildtype_genes": {
+            "type": "keyword",
+            "index": true
           }
         }
-      }
-    },
-    "drug_list": {
-      "properties": {
-        "drug": {
-          "properties": {
-            "drug_name": {
-              "type": "string"
-            }
+      },
+      "_etag": {
+        "type": "keyword",
+        "index": true
+      },
+      "_suggest": {
+        "properties": {
+          "cancer_type_suggest": {
+            "type": "completion",
+            "analyzer": "synonyms_expand",
+            "preserve_separators": true,
+            "preserve_position_increments": true,
+            "max_input_length": 50
+          },
+          "cnv_suggest": {
+            "type": "completion",
+            "analyzer": "variant_analyzer",
+            "preserve_separators": true,
+            "preserve_position_increments": true,
+            "max_input_length": 50
+          },
+          "disease_center_suggest": {
+            "type": "completion",
+            "analyzer": "synonyms_expand",
+            "preserve_separators": true,
+            "preserve_position_increments": true,
+            "max_input_length": 50
+          },
+          "disease_status_suggest": {
+            "type": "completion",
+            "analyzer": "synonyms_expand",
+            "preserve_separators": true,
+            "preserve_position_increments": true,
+            "max_input_length": 50
+          },
+          "drug_suggest": {
+            "type": "completion",
+            "analyzer": "synonyms_expand",
+            "preserve_separators": true,
+            "preserve_position_increments": true,
+            "max_input_length": 50
+          },
+          "hugo_symbol_suggest": {
+            "type": "completion",
+            "analyzer": "synonyms_expand",
+            "preserve_separators": true,
+            "preserve_position_increments": true,
+            "max_input_length": 50
+          },
+          "investigator_suggest": {
+            "type": "completion",
+            "analyzer": "synonyms_expand",
+            "preserve_separators": true,
+            "preserve_position_increments": true,
+            "max_input_length": 50
+          },
+          "mmr_status_suggest": {
+            "type": "completion",
+            "analyzer": "synonyms_expand",
+            "preserve_separators": true,
+            "preserve_position_increments": true,
+            "max_input_length": 50
+          },
+          "nct_number_suggest": {
+            "type": "completion",
+            "analyzer": "synonyms_expand",
+            "preserve_separators": true,
+            "preserve_position_increments": true,
+            "max_input_length": 50
+          },
+          "protocol_no_suggest": {
+            "type": "completion",
+            "analyzer": "synonyms_expand",
+            "preserve_separators": true,
+            "preserve_position_increments": true,
+            "max_input_length": 50
+          },
+          "sv_suggest": {
+            "type": "completion",
+            "analyzer": "variant_analyzer",
+            "preserve_separators": true,
+            "preserve_position_increments": true,
+            "max_input_length": 50
+          },
+          "variant_suggest": {
+            "type": "completion",
+            "analyzer": "variant_analyzer",
+            "preserve_separators": true,
+            "preserve_position_increments": true,
+            "max_input_length": 50
+          },
+          "wildtype_suggest": {
+            "type": "completion",
+            "analyzer": "variant_analyzer",
+            "preserve_separators": true,
+            "preserve_position_increments": true,
+            "max_input_length": 50
           }
         }
-      }
-    },
-    "last_updated": {
-      "type": "string"
-    },
-    "long_title": {
-      "type": "string"
-    },
-    "management_group_list": {
-      "properties": {
-        "management_group": {
-          "properties": {
-            "is_primary": {
-              "type": "string"
-            },
-            "management_group_name": {
-              "type": "string"
+      },
+      "_summary": {
+        "properties": {
+          "accrual_goal": {
+            "type": "long"
+          },
+          "age_summary": {
+            "type": "keyword",
+            "index": true
+          },
+          "coordinating_center": {
+            "type": "keyword",
+            "index": true
+          },
+          "dfci_investigator": {
+            "properties": {
+              "email_address": {
+                "type": "keyword",
+                "index": true
+              },
+              "first_last": {
+                "type": "keyword",
+                "index": true
+              },
+              "first_name": {
+                "type": "keyword",
+                "index": true
+              },
+              "institution_name": {
+                "type": "keyword",
+                "index": true
+              },
+              "is_overall_pi": {
+                "type": "boolean"
+              },
+              "last_first": {
+                "type": "keyword",
+                "index": true
+              },
+              "last_name": {
+                "type": "keyword",
+                "index": true
+              },
+              "staff_role": {
+                "type": "keyword",
+                "index": true
+              }
+            }
+          },
+          "disease_center": {
+             "type": "keyword",
+             "index": true
+          },
+          "disease_status": {
+            "type": "keyword",
+            "index": true
+          },
+          "drugs": {
+            "type": "text",
+            "analyzer": "drug_analyzer",
+            "fielddata": true
+          },
+          "genes": {
+            "type": "keyword",
+            "index": true
+          },
+          "hormone_receptor_status": {
+            "type": "keyword",
+            "index": true
+          },
+          "investigator": {
+            "type": "keyword",
+            "index": true
+          },
+          "mmr_status": {
+            "type": "keyword",
+            "index": true
+          },
+          "ms_status": {
+            "type": "keyword",
+            "index": true
+          },
+          "mutational_signatures": {
+            "type": "keyword",
+            "index": true
+          },
+          "nct_number": {
+            "type": "keyword",
+            "index": true
+          },
+          "nonsynonymous_genes": {
+            "type": "keyword",
+            "index": true
+          },
+          "nonsynonymous_wt_genes": {
+            "type": "keyword",
+            "index": true
+          },
+          "phase_summary": {
+            "type": "keyword",
+            "index": true
+          },
+          "primary_tumor_types": {
+            "type": "keyword",
+            "index": true
+          },
+          "protocol_number": {
+            "type": "keyword",
+            "index": true
+          },
+          "short_title": {
+            "type": "keyword",
+            "index": true
+          },
+          "site": {
+            "type": "keyword",
+            "index": true
+          },
+          "sponsor": {
+            "type": "keyword",
+            "index": true
+          },
+          "status": {
+            "properties": {
+              "id": {
+                "type": "long"
+              },
+              "value": {
+                "type": "keyword",
+                "index": true
+              }
+            }
+          },
+          "tumor_types": {
+            "type": "keyword",
+            "index": true
+          },
+          "variants": {
+            "type": "keyword",
+            "index": true
+          }
+        }
+      },
+      "_updated": {
+        "type": "date",
+        "format": "strict_date_optional_time||epoch_millis"
+      },
+      "age": {
+        "type": "keyword",
+        "index": true
+      },
+      "cancer_center_accrual_goal_upper": {
+        "type": "long"
+      },
+      "cancer_center_current_accrual": {
+        "type": "long"
+      },
+      "curated_on": {
+        "type": "keyword",
+        "index": true
+      },
+      "data_table4": {
+        "type": "keyword",
+        "index": true
+      },
+      "disease_site_list": {
+        "properties": {
+          "disease_site": {
+            "properties": {
+              "disease_site_code": {
+                "type": "keyword",
+                "index": true
+              },
+              "disease_site_name": {
+                "type": "keyword",
+                "index": true
+              }
             }
           }
         }
-      }
-    },
-    "match": {
-      "properties": {
-        "clinical": {
-          "properties": {
-            "disease_status": {
-              "type": "string"
+      },
+      "drug_list": {
+        "properties": {
+          "drug": {
+            "properties": {
+              "drug_name": {
+                "type": "keyword",
+                "index": true
+              }
             }
           }
         }
-      }
-    },
-    "nct_id": {
-      "type": "string"
-    },
-    "nct_link": {
-      "type": "string"
-    },
-    "nct_purpose": {
-      "type": "string"
-    },
-    "oncology_group_list": {
-      "properties": {
-        "oncology_group": {
-          "properties": {
-            "group_name": {
-              "type": "string"
-            },
-            "is_primary": {
-              "type": "string"
+      },
+      "last_updated": {
+        "type": "keyword",
+        "index": true
+      },
+      "long_title": {
+        "type": "keyword",
+        "index": true
+      },
+      "management_group_list": {
+        "properties": {
+          "management_group": {
+            "properties": {
+              "is_primary": {
+                "type": "keyword",
+                "index": true
+              },
+              "management_group_name": {
+                "type": "keyword",
+                "index": true
+              }
             }
           }
         }
-      }
-    },
-    "oncpro_link": {
-      "type": "string"
-    },
-    "phase": {
-      "type": "string"
-    },
-    "primary_study_contact": {
-      "type": "string"
-    },
-    "primary_study_contact_email": {
-      "type": "string"
-    },
-    "principal_investigator": {
-      "type": "string"
-    },
-    "prior_treatment_requirements": {
-      "type": "string"
-    },
-    "program_area_list": {
-      "properties": {
-        "program_area": {
-          "properties": {
-            "is_primary": {
-              "type": "string"
-            },
-            "program_area_name": {
-              "type": "string"
+      },
+      "match": {
+        "properties": {
+          "clinical": {
+            "properties": {
+              "disease_status": {
+                "type": "keyword",
+                "index": true
+              }
             }
           }
         }
-      }
-    },
-    "protocol_id": {
-      "type": "long"
-    },
-    "protocol_no": {
-      "type": "string",
-      "analyzer": "protocol_no_analyzer"
-    },
-    "protocol_target_accrual": {
-      "type": "long"
-    },
-    "protocol_type": {
-      "type": "string"
-    },
-    "short_title": {
-      "type": "string"
-    },
-    "site_list": {
-      "properties": {
-        "site": {
-          "properties": {
-            "coordinating_center": {
-              "type": "string"
-            },
-            "site_name": {
-              "type": "string"
-            },
-            "site_status": {
-              "type": "string"
-            },
-            "uses_cancer_center_irb": {
-              "type": "string"
+      },
+      "nct_id": {
+        "type": "keyword",
+        "index": true
+      },
+      "nct_link": {
+        "type": "keyword",
+        "index": true
+      },
+      "nct_purpose": {
+        "type": "keyword",
+        "index": true
+      },
+      "oncology_group_list": {
+        "properties": {
+          "oncology_group": {
+            "properties": {
+              "group_name": {
+                "type": "keyword",
+                "index": true
+              },
+              "is_primary": {
+                "type": "keyword",
+                "index": true
+              }
             }
           }
         }
-      }
-    },
-    "sponsor_list": {
-      "properties": {
-        "sponsor": {
-          "properties": {
-            "is_principal_sponsor": {
-              "type": "string"
-            },
-            "sponsor_name": {
-              "type": "string"
-            },
-            "sponsor_protocol_no": {
-              "type": "string"
-            },
-            "sponsor_roles": {
-              "type": "string"
+      },
+      "oncpro_link": {
+        "type": "keyword",
+        "index": true
+      },
+      "phase": {
+        "type": "keyword",
+        "index": true
+      },
+      "primary_study_contact": {
+        "type": "keyword",
+        "index": true
+      },
+      "primary_study_contact_email": {
+        "type": "keyword",
+        "index": true
+      },
+      "principal_investigator": {
+        "type": "keyword",
+        "index": true
+      },
+      "prior_treatment_requirements": {
+        "type": "keyword",
+        "index": true
+      },
+      "program_area_list": {
+        "properties": {
+          "program_area": {
+            "properties": {
+              "is_primary": {
+                "type": "keyword",
+                "index": true
+              },
+              "program_area_name": {
+                "type": "keyword",
+                "index": true
+              }
             }
           }
         }
-      }
-    },
-    "staff_list": {
-      "properties": {
-        "protocol_staff": {
-          "properties": {
-            "email_address": {
-              "type": "string"
-            },
-            "first_name": {
-              "type": "string"
-            },
-            "institution_name": {
-              "type": "string"
-            },
-            "last_name": {
-              "type": "string"
-            },
-            "middle_name": {
-              "type": "string"
-            },
-            "npi": {
-              "type": "string"
-            },
-            "phone_no": {
-              "type": "string"
-            },
-            "staff_role": {
-              "type": "string"
-            },
-            "start_date": {
-              "type": "long"
-            },
-            "stop_date": {
-              "type": "long"
+      },
+      "protocol_id": {
+        "type": "long"
+      },
+      "protocol_no": {
+        "type": "text",
+        "analyzer": "protocol_no_analyzer",
+        "fielddata": true
+      },
+      "protocol_target_accrual": {
+        "type": "long"
+      },
+      "protocol_type": {
+        "type": "keyword",
+        "index": true
+      },
+      "short_title": {
+        "type": "keyword",
+        "index": true
+      },
+      "site_list": {
+        "properties": {
+          "site": {
+            "properties": {
+              "coordinating_center": {
+                "type": "keyword",
+                "index": true
+              },
+              "site_name": {
+                "type": "keyword",
+                "index": true
+              },
+              "site_status": {
+                "type": "keyword",
+                "index": true
+              },
+              "uses_cancer_center_irb": {
+                "type": "keyword",
+                "index": true
+              }
             }
           }
         }
-      }
-    },
-    "status": {
-      "type": "string"
-    },
-    "treatment_list": {
-      "properties": {
-        "step": {
-          "properties": {
-            "arm": {
-              "properties": {
-                "arm_code": {
-                  "type": "string"
-                },
-                "arm_description": {
-                  "type": "string"
-                },
-                "arm_internal_id": {
-                  "type": "long"
-                },
-                "arm_suspended": {
-                  "type": "string"
-                },
-                "dose_level": {
-                  "properties": {
-                    "level_code": {
-                      "type": "string"
-                    },
-                    "level_description": {
-                      "type": "string"
-                    },
-                    "level_internal_id": {
-                      "type": "long"
-                    },
-                    "level_suspended": {
-                      "type": "string"
-                    },
-                    "match": {
-                      "properties": {
-                        "and": {
-                          "properties": {
-                            "and": {
-                              "properties": {
-                                "clinical": {
-                                  "properties": {
-                                    "age_numerical": {
-                                      "type": "string"
-                                    },
-                                    "oncotree_primary_diagnosis": {
-                                      "type": "string"
-                                    }
-                                  }
-                                },
-                                "genomic": {
-                                  "properties": {
-                                    "cnv_call": {
-                                      "type": "string"
-                                    },
-                                    "hugo_symbol": {
-                                      "type": "string"
-                                    },
-                                    "protein_change": {
-                                      "type": "string"
-                                    },
-                                    "variant_category": {
-                                      "type": "string"
-                                    },
-                                    "wildtype": {
-                                      "type": "boolean"
-                                    }
-                                  }
-                                },
-                                "or": {
-                                  "properties": {
-                                    "clinical": {
-                                      "properties": {
-                                        "age_numerical": {
-                                          "type": "string"
-                                        },
-                                        "oncotree_primary_diagnosis": {
-                                          "type": "string"
-                                        }
+      },
+      "sponsor_list": {
+        "properties": {
+          "sponsor": {
+            "properties": {
+              "is_principal_sponsor": {
+                "type": "keyword",
+                "index": true
+              },
+              "sponsor_name": {
+                "type": "keyword",
+                "index": true
+              },
+              "sponsor_protocol_no": {
+                "type": "keyword",
+                "index": true
+              },
+              "sponsor_roles": {
+                "type": "keyword",
+                "index": true
+              }
+            }
+          }
+        }
+      },
+      "staff_list": {
+        "properties": {
+          "protocol_staff": {
+            "properties": {
+              "email_address": {
+                "type": "keyword",
+                "index": true
+              },
+              "first_name": {
+                "type": "keyword",
+                "index": true
+              },
+              "institution_name": {
+                "type": "keyword",
+                "index": true
+              },
+              "last_name": {
+                "type": "keyword",
+                "index": true
+              },
+              "middle_name": {
+                "type": "keyword",
+                "index": true
+              },
+              "npi": {
+                "type": "keyword",
+                "index": true
+              },
+              "phone_no": {
+                "type": "keyword",
+                "index": true
+              },
+              "staff_role": {
+                "type": "keyword",
+                "index": true
+              },
+              "start_date": {
+                "type": "long"
+              },
+              "stop_date": {
+                "type": "long"
+              }
+            }
+          }
+        }
+      },
+      "status": {
+        "type": "keyword",
+        "index": true
+      },
+      "treatment_list": {
+        "properties": {
+          "step": {
+            "properties": {
+              "arm": {
+                "properties": {
+                  "arm_code": {
+                    "type": "keyword",
+                    "index": true
+                  },
+                  "arm_description": {
+                    "type": "keyword",
+                    "index": true
+                  },
+                  "arm_internal_id": {
+                    "type": "long"
+                  },
+                  "arm_suspended": {
+                    "type": "keyword",
+                    "index": true
+                  },
+                  "dose_level": {
+                    "properties": {
+                      "level_code": {
+                        "type": "keyword",
+                        "index": true
+                      },
+                      "level_description": {
+                        "type": "keyword",
+                        "index": true
+                      },
+                      "level_internal_id": {
+                        "type": "long"
+                      },
+                      "level_suspended": {
+                        "type": "keyword",
+                        "index": true
+                      },
+                      "match": {
+                        "properties": {
+                          "and": {
+                            "properties": {
+                              "and": {
+                                "properties": {
+                                  "clinical": {
+                                    "properties": {
+                                      "age_numerical": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "oncotree_primary_diagnosis": {
+                                        "type": "keyword",
+                                        "index": true
                                       }
-                                    },
-                                    "genomic": {
-                                      "properties": {
-                                        "exon": {
-                                          "type": "long"
-                                        },
-                                        "hugo_symbol": {
-                                          "type": "string"
-                                        },
-                                        "protein_change": {
-                                          "type": "string"
-                                        },
-                                        "variant_category": {
-                                          "type": "string"
-                                        },
-                                        "variant_classification": {
-                                          "type": "string"
-                                        },
-                                        "wildcard_protein_change": {
-                                          "type": "string"
-                                        }
+                                    }
+                                  },
+                                  "genomic": {
+                                    "properties": {
+                                      "cnv_call": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "hugo_symbol": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "protein_change": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "variant_category": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "wildtype": {
+                                        "type": "boolean"
                                       }
                                     }
-                                  }
-                                }
-                              }
-                            },
-                            "clinical": {
-                              "properties": {
-                                "age_numerical": {
-                                  "type": "string"
-                                },
-                                "er_status": {
-                                  "type": "string"
-                                },
-                                "her2_status": {
-                                  "type": "string"
-                                },
-                                "oncotree_primary_diagnosis": {
-                                  "type": "string"
-                                },
-                                "pr_status": {
-                                  "type": "string"
-                                }
-                              }
-                            },
-                            "genomic": {
-                              "properties": {
-                                "cnv_call": {
-                                  "type": "string"
-                                },
-                                "hugo_symbol": {
-                                  "type": "string"
-                                },
-                                "mmr_status": {
-                                  "type": "string"
-                                },
-                                "ms_status": {
-                                  "type": "string"
-                                },
-                                "protein_change": {
-                                  "type": "string"
-                                },
-                                "variant_category": {
-                                  "type": "string"
-                                },
-                                "wildcard_protein_change": {
-                                  "type": "string"
-                                },
-                                "wildtype": {
-                                  "type": "boolean"
-                                }
-                              }
-                            },
-                            "or": {
-                              "properties": {
-                                "and": {
-                                  "properties": {
-                                    "genomic": {
-                                      "properties": {
-                                        "hugo_symbol": {
-                                          "type": "string"
-                                        },
-                                        "variant_category": {
-                                          "type": "string"
+                                  },
+                                  "or": {
+                                    "properties": {
+                                      "clinical": {
+                                        "properties": {
+                                          "age_numerical": {
+                                            "type": "keyword",
+                                            "index": true
+                                          },
+                                          "oncotree_primary_diagnosis": {
+                                            "type": "keyword",
+                                            "index": true
+                                          }
                                         }
-                                      }
-                                    },
-                                    "or": {
-                                      "properties": {
-                                        "genomic": {
-                                          "properties": {
-                                            "cnv_call": {
-                                              "type": "string"
-                                            },
-                                            "hugo_symbol": {
-                                              "type": "string"
-                                            },
-                                            "variant_category": {
-                                              "type": "string"
-                                            }
+                                      },
+                                      "genomic": {
+                                        "properties": {
+                                          "exon": {
+                                            "type": "long"
+                                          },
+                                          "hugo_symbol": {
+                                            "type": "keyword",
+                                            "index": true
+                                          },
+                                          "protein_change": {
+                                            "type": "keyword",
+                                            "index": true
+                                          },
+                                          "variant_category": {
+                                            "type": "keyword",
+                                            "index": true
+                                          },
+                                          "variant_classification": {
+                                            "type": "keyword",
+                                            "index": true
+                                          },
+                                          "wildcard_protein_change": {
+                                            "type": "keyword",
+                                            "index": true
                                           }
                                         }
                                       }
                                     }
                                   }
-                                },
-                                "clinical": {
-                                  "properties": {
-                                    "age_numerical": {
-                                      "type": "string"
-                                    },
-                                    "er_status": {
-                                      "type": "string"
-                                    },
-                                    "her2_status": {
-                                      "type": "string"
-                                    },
-                                    "oncotree_primary_diagnosis": {
-                                      "type": "string"
-                                    },
-                                    "pr_status": {
-                                      "type": "string"
-                                    }
+                                }
+                              },
+                              "clinical": {
+                                "properties": {
+                                  "age_numerical": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "er_status": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "her2_status": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "oncotree_primary_diagnosis": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "pr_status": {
+                                    "type": "keyword",
+                                    "index": true
                                   }
-                                },
-                                "genomic": {
-                                  "properties": {
-                                    "cnv_call": {
-                                      "type": "string"
-                                    },
-                                    "display_name": {
-                                      "type": "string"
-                                    },
-                                    "exon": {
-                                      "type": "long"
-                                    },
-                                    "fusion_partner_hugo_symbol": {
-                                      "type": "string"
-                                    },
-                                    "hugo_symbol": {
-                                      "type": "string"
-                                    },
-                                    "mmr_status": {
-                                      "type": "string"
-                                    },
-                                    "ms_status": {
-                                      "type": "string"
-                                    },
-                                    "protein_change": {
-                                      "type": "string"
-                                    },
-                                    "variant_category": {
-                                      "type": "string"
-                                    },
-                                    "variant_classification": {
-                                      "type": "string"
-                                    },
-                                    "wildcard_protein_change": {
-                                      "type": "string"
+                                }
+                              },
+                              "genomic": {
+                                "properties": {
+                                  "cnv_call": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "hugo_symbol": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "mmr_status": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "variant_category": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "wildcard_protein_change": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "wildtype": {
+                                    "type": "boolean"
+                                  }
+                                }
+                              },
+                              "or": {
+                                "properties": {
+                                  "and": {
+                                    "properties": {
+                                      "genomic": {
+                                        "properties": {
+                                          "hugo_symbol": {
+                                            "type": "keyword",
+                                            "index": true
+                                          },
+                                          "variant_category": {
+                                            "type": "keyword",
+                                            "index": true
+                                          }
+                                        }
+                                      },
+                                      "or": {
+                                        "properties": {
+                                          "genomic": {
+                                            "properties": {
+                                              "cnv_call": {
+                                                "type": "keyword",
+                                                "index": true
+                                              },
+                                              "hugo_symbol": {
+                                                "type": "keyword",
+                                                "index": true
+                                              },
+                                              "variant_category": {
+                                                "type": "keyword",
+                                                "index": true
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "clinical": {
+                                    "properties": {
+                                      "age_numerical": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "er_status": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "her2_status": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "oncotree_primary_diagnosis": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "pr_status": {
+                                        "type": "keyword",
+                                        "index": true
+                                      }
+                                    }
+                                  },
+                                  "genomic": {
+                                    "properties": {
+                                      "cnv_call": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "display_name": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "exon": {
+                                        "type": "long"
+                                      },
+                                      "fusion_partner_hugo_symbol": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "hugo_symbol": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "mmr_status": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "ms_status": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "protein_change": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "variant_category": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "variant_classification": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "wildcard_protein_change": {
+                                        "type": "keyword",
+                                        "index": true
+                                      }
                                     }
                                   }
                                 }
                               }
                             }
-                          }
-                        },
-                        "or": {
-                          "properties": {
-                            "and": {
-                              "properties": {
-                                "and": {
-                                  "properties": {
-                                    "clinical": {
-                                      "properties": {
-                                        "age_numerical": {
-                                          "type": "string"
-                                        },
-                                        "oncotree_primary_diagnosis": {
-                                          "type": "string"
+                          },
+                          "or": {
+                            "properties": {
+                              "and": {
+                                "properties": {
+                                  "and": {
+                                    "properties": {
+                                      "clinical": {
+                                        "properties": {
+                                          "age_numerical": {
+                                            "type": "keyword",
+                                            "index": true
+                                          },
+                                          "oncotree_primary_diagnosis": {
+                                            "type": "keyword",
+                                            "index": true
+                                          }
                                         }
-                                      }
-                                    },
-                                    "genomic": {
-                                      "properties": {
-                                        "hugo_symbol": {
-                                          "type": "string"
-                                        },
-                                        "variant_category": {
-                                          "type": "string"
-                                        },
-                                        "wildtype": {
-                                          "type": "boolean"
+                                      },
+                                      "genomic": {
+                                        "properties": {
+                                          "hugo_symbol": {
+                                            "type": "keyword",
+                                            "index": true
+                                          },
+                                          "variant_category": {
+                                            "type": "keyword",
+                                            "index": true
+                                          },
+                                          "wildtype": {
+                                            "type": "boolean"
+                                          }
                                         }
                                       }
                                     }
-                                  }
-                                },
-                                "clinical": {
-                                  "properties": {
-                                    "age_numerical": {
-                                      "type": "string"
-                                    },
-                                    "oncotree_primary_diagnosis": {
-                                      "type": "string"
-                                    }
-                                  }
-                                },
-                                "genomic": {
-                                  "properties": {
-                                    "cnv_call": {
-                                      "type": "string"
-                                    },
-                                    "hugo_symbol": {
-                                      "type": "string"
-                                    },
-                                    "protein_change": {
-                                      "type": "string"
-                                    },
-                                    "variant_category": {
-                                      "type": "string"
-                                    }
-                                  }
-                                },
-                                "or": {
-                                  "properties": {
-                                    "clinical": {
-                                      "properties": {
-                                        "age_numerical": {
-                                          "type": "string"
-                                        },
-                                        "er_status": {
-                                          "type": "string"
-                                        },
-                                        "her2_status": {
-                                          "type": "string"
-                                        },
-                                        "oncotree_primary_diagnosis": {
-                                          "type": "string"
-                                        },
-                                        "pr_status": {
-                                          "type": "string"
-                                        }
+                                  },
+                                  "clinical": {
+                                    "properties": {
+                                      "age_numerical": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "oncotree_primary_diagnosis": {
+                                        "type": "keyword",
+                                        "index": true
                                       }
-                                    },
-                                    "genomic": {
-                                      "properties": {
-                                        "hugo_symbol": {
-                                          "type": "string"
-                                        },
-                                        "protein_change": {
-                                          "type": "string"
-                                        },
-                                        "variant_category": {
-                                          "type": "string"
-                                        },
-                                        "wildcard_protein_change": {
-                                          "type": "string"
+                                    }
+                                  },
+                                  "genomic": {
+                                    "properties": {
+                                      "cnv_call": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "hugo_symbol": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "protein_change": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "variant_category": {
+                                        "type": "keyword",
+                                        "index": true
+                                      }
+                                    }
+                                  },
+                                  "or": {
+                                    "properties": {
+                                      "clinical": {
+                                        "properties": {
+                                          "age_numerical": {
+                                            "type": "keyword",
+                                            "index": true
+                                          },
+                                          "er_status": {
+                                            "type": "keyword",
+                                            "index": true
+                                          },
+                                          "her2_status": {
+                                            "type": "keyword",
+                                            "index": true
+                                          },
+                                          "oncotree_primary_diagnosis": {
+                                            "type": "keyword",
+                                            "index": true
+                                          },
+                                          "pr_status": {
+                                            "type": "keyword",
+                                            "index": true
+                                          }
+                                        }
+                                      },
+                                      "genomic": {
+                                        "properties": {
+                                          "hugo_symbol": {
+                                            "type": "keyword",
+                                            "index": true
+                                          },
+                                          "protein_change": {
+                                            "type": "keyword",
+                                            "index": true
+                                          },
+                                          "variant_category": {
+                                            "type": "keyword",
+                                            "index": true
+                                          },
+                                          "wildcard_protein_change": {
+                                            "type": "keyword",
+                                            "index": true
+                                          }
                                         }
                                       }
                                     }
@@ -895,997 +1007,589 @@
                         }
                       }
                     }
-                  }
-                },
-                "match": {
-                  "properties": {
-                    "and": {
-                      "properties": {
-                        "and": {
-                          "properties": {
-                            "and": {
-                              "properties": {
-                                "clinical": {
-                                  "properties": {
-                                    "age_numerical": {
-                                      "type": "string"
-                                    },
-                                    "her2_status": {
-                                      "type": "string"
-                                    },
-                                    "oncotree_primary_diagnosis": {
-                                      "type": "string"
-                                    }
-                                  }
-                                },
-                                "genomic": {
-                                  "properties": {
-                                    "cnv_call": {
-                                      "type": "string"
-                                    },
-                                    "hugo_symbol": {
-                                      "type": "string"
-                                    },
-                                    "variant_category": {
-                                      "type": "string"
-                                    }
+                  },
+                  "match": {
+                    "properties": {
+                      "and": {
+                        "properties": {
+                          "and": {
+                            "properties": {
+                              "clinical": {
+                                "properties": {
+                                  "age_numerical": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "er_status": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "her2_status": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "oncotree_primary_diagnosis": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "pr_status": {
+                                    "type": "keyword",
+                                    "index": true
                                   }
                                 }
-                              }
-                            },
-                            "clinical": {
-                              "properties": {
-                                "age_numerical": {
-                                  "type": "string"
-                                },
-                                "er_status": {
-                                  "type": "string"
-                                },
-                                "her2_status": {
-                                  "type": "string"
-                                },
-                                "oncotree_primary_diagnosis": {
-                                  "type": "string"
-                                },
-                                "pr_status": {
-                                  "type": "string"
+                              },
+                              "genomic": {
+                                "properties": {
+                                  "cnv_call": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "display_name": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "exon": {
+                                    "type": "long"
+                                  },
+                                  "fusion_partner_hugo_symbol": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "hugo_symbol": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "protein_change": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "variant_category": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "variant_classification": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "wildcard_protein_change": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "wildtype": {
+                                    "type": "boolean"
+                                  }
                                 }
-                              }
-                            },
-                            "genomic": {
-                              "properties": {
-                                "cnv_call": {
-                                  "type": "string"
-                                },
-                                "display_name": {
-                                  "type": "string"
-                                },
-                                "exon": {
-                                  "type": "long"
-                                },
-                                "fusion_partner_hugo_symbol": {
-                                  "type": "string"
-                                },
-                                "hugo_symbol": {
-                                  "type": "string"
-                                },
-                                "protein_change": {
-                                  "type": "string"
-                                },
-                                "variant_category": {
-                                  "type": "string"
-                                },
-                                "variant_classification": {
-                                  "type": "string"
-                                },
-                                "wildcard_protein_change": {
-                                  "type": "string"
-                                },
-                                "wildtype": {
-                                  "type": "boolean"
-                                }
-                              }
-                            },
-                            "or": {
-                              "properties": {
-                                "and": {
-                                  "properties": {
-                                    "clinical": {
-                                      "properties": {
-                                        "age_numerical": {
-                                          "type": "string"
-                                        },
-                                        "oncotree_primary_diagnosis": {
-                                          "type": "string"
+                              },
+                              "or": {
+                                "properties": {
+                                  "and": {
+                                    "properties": {
+                                      "clinical": {
+                                        "properties": {
+                                          "age_numerical": {
+                                            "type": "keyword",
+                                            "index": true
+                                          },
+                                          "oncotree_primary_diagnosis": {
+                                            "type": "keyword",
+                                            "index": true
+                                          }
                                         }
                                       }
                                     }
-                                  }
-                                },
-                                "clinical": {
-                                  "properties": {
-                                    "age_numerical": {
-                                      "type": "string"
-                                    },
-                                    "er_status": {
-                                      "type": "string"
-                                    },
-                                    "her2_status": {
-                                      "type": "string"
-                                    },
-                                    "oncotree_primary_diagnosis": {
-                                      "type": "string"
-                                    },
-                                    "pr_status": {
-                                      "type": "string"
+                                  },
+                                  "clinical": {
+                                    "properties": {
+                                      "age_numerical": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "er_status": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "her2_status": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "oncotree_primary_diagnosis": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "pr_status": {
+                                        "type": "keyword",
+                                        "index": true
+                                      }
                                     }
-                                  }
-                                },
-                                "genomic": {
-                                  "properties": {
-                                    "cnv_call": {
-                                      "type": "string"
-                                    },
-                                    "display_name": {
-                                      "type": "string"
-                                    },
-                                    "exon": {
-                                      "type": "long"
-                                    },
-                                    "fusion_partner_hugo_symbol": {
-                                      "type": "string"
-                                    },
-                                    "hugo_symbol": {
-                                      "type": "string"
-                                    },
-                                    "protein_change": {
-                                      "type": "string"
-                                    },
-                                    "variant_category": {
-                                      "type": "string"
-                                    },
-                                    "variant_classification": {
-                                      "type": "string"
-                                    },
-                                    "wildcard_protein_change": {
-                                      "type": "string"
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        },
-                        "clinical": {
-                          "properties": {
-                            "age_numerical": {
-                              "type": "string"
-                            },
-                            "er_status": {
-                              "type": "string"
-                            },
-                            "her2_status": {
-                              "type": "string"
-                            },
-                            "oncotree_primary_diagnosis": {
-                              "type": "string"
-                            },
-                            "pr_status": {
-                              "type": "string"
-                            }
-                          }
-                        },
-                        "genomic": {
-                          "properties": {
-                            "cnv_call": {
-                              "type": "string"
-                            },
-                            "display_name": {
-                              "type": "string"
-                            },
-                            "exon": {
-                              "type": "long"
-                            },
-                            "fusion_partner_hugo_symbol": {
-                              "type": "string"
-                            },
-                            "hugo_symbol": {
-                              "type": "string"
-                            },
-                            "mmr_status": {
-                              "type": "string"
-                            },
-                            "ms_status": {
-                              "type": "string"
-                            },
-                            "protein_change": {
-                              "type": "string"
-                            },
-                            "variant_category": {
-                              "type": "string"
-                            },
-                            "variant_classification": {
-                              "type": "string"
-                            },
-                            "wildcard_protein_change": {
-                              "type": "string"
-                            },
-                            "wildtype": {
-                              "type": "boolean"
-                            }
-                          }
-                        },
-                        "or": {
-                          "properties": {
-                            "and": {
-                              "properties": {
-                                "clinical": {
-                                  "properties": {
-                                    "age_numerical": {
-                                      "type": "string"
-                                    },
-                                    "oncotree_primary_diagnosis": {
-                                      "type": "string"
-                                    }
-                                  }
-                                },
-                                "genomic": {
-                                  "properties": {
-                                    "cnv_call": {
-                                      "type": "string"
-                                    },
-                                    "hugo_symbol": {
-                                      "type": "string"
-                                    },
-                                    "protein_change": {
-                                      "type": "string"
-                                    },
-                                    "variant_category": {
-                                      "type": "string"
-                                    },
-                                    "wildcard_protein_change": {
-                                      "type": "string"
-                                    },
-                                    "wildtype": {
-                                      "type": "boolean"
-                                    }
-                                  }
-                                },
-                                "or": {
-                                  "properties": {
-                                    "genomic": {
-                                      "properties": {
-                                        "cnv_call": {
-                                          "type": "string"
-                                        },
-                                        "display_name": {
-                                          "type": "string"
-                                        },
-                                        "exon": {
-                                          "type": "long"
-                                        },
-                                        "hugo_symbol": {
-                                          "type": "string"
-                                        },
-                                        "protein_change": {
-                                          "type": "string"
-                                        },
-                                        "variant_category": {
-                                          "type": "string"
-                                        },
-                                        "variant_classification": {
-                                          "type": "string"
-                                        }
+                                  },
+                                  "genomic": {
+                                    "properties": {
+                                      "cnv_call": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "display_name": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "exon": {
+                                        "type": "long"
+                                      },
+                                      "fusion_partner_hugo_symbol": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "hugo_symbol": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "protein_change": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "variant_category": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "variant_classification": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "wildcard_protein_change": {
+                                        "type": "keyword",
+                                        "index": true
                                       }
                                     }
                                   }
                                 }
                               }
-                            },
-                            "clinical": {
-                              "properties": {
-                                "age_numerical": {
-                                  "type": "string"
-                                },
-                                "er_status": {
-                                  "type": "string"
-                                },
-                                "her2_status": {
-                                  "type": "string"
-                                },
-                                "oncotree_primary_diagnosis": {
-                                  "type": "string"
-                                },
-                                "pr_status": {
-                                  "type": "string"
-                                }
-                              }
-                            },
-                            "genomic": {
-                              "properties": {
-                                "cnv_call": {
-                                  "type": "string"
-                                },
-                                "display_name": {
-                                  "type": "string"
-                                },
-                                "exon": {
-                                  "type": "long"
-                                },
-                                "fusion_partner_hugo_symbol": {
-                                  "type": "string"
-                                },
-                                "hugo_symbol": {
-                                  "type": "string"
-                                },
-                                "mmr_status": {
-                                  "type": "string"
-                                },
-                                "ms_status": {
-                                  "type": "string"
-                                },
-                                "protein_change": {
-                                  "type": "string"
-                                },
-                                "variant_category": {
-                                  "type": "string"
-                                },
-                                "variant_classification": {
-                                  "type": "string"
-                                },
-                                "wildcard_protein_change": {
-                                  "type": "string"
-                                },
-                                "wildtype": {
-                                  "type": "boolean"
-                                }
+                            }
+                          },
+                          "clinical": {
+                            "properties": {
+                              "age_numerical": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "er_status": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "her2_status": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "oncotree_primary_diagnosis": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "pr_status": {
+                                "type": "keyword",
+                                "index": true
                               }
                             }
-                          }
-                        }
-                      }
-                    },
-                    "arm_code": {
-                      "type": "string"
-                    },
-                    "arm_description": {
-                      "type": "string"
-                    },
-                    "arm_internal_id": {
-                      "type": "long"
-                    },
-                    "arm_suspended": {
-                      "type": "string"
-                    },
-                    "match": {
-                      "properties": {
-                        "and": {
-                          "properties": {
-                            "or": {
-                              "properties": {
-                                "clinical": {
-                                  "properties": {
-                                    "age_numerical": {
-                                      "type": "string"
-                                    },
-                                    "oncotree_primary_diagnosis": {
-                                      "type": "string"
-                                    }
-                                  }
-                                },
-                                "genomic": {
-                                  "properties": {
-                                    "hugo_symbol": {
-                                      "type": "string"
-                                    },
-                                    "variant_category": {
-                                      "type": "string"
-                                    }
-                                  }
-                                }
+                          },
+                          "genomic": {
+                            "properties": {
+                              "cnv_call": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "display_name": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "exon": {
+                                "type": "long"
+                              },
+                              "fusion_partner_hugo_symbol": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "hugo_symbol": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "mmr_status": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "ms_status": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "protein_change": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "variant_category": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "variant_classification": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "wildcard_protein_change": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "wildtype": {
+                                "type": "boolean"
                               }
                             }
-                          }
-                        }
-                      }
-                    },
-                    "or": {
-                      "properties": {
-                        "and": {
-                          "properties": {
-                            "and": {
-                              "properties": {
-                                "clinical": {
-                                  "properties": {
-                                    "age_numerical": {
-                                      "type": "string"
-                                    },
-                                    "oncotree_primary_diagnosis": {
-                                      "type": "string"
-                                    }
-                                  }
-                                },
-                                "genomic": {
-                                  "properties": {
-                                    "cnv_call": {
-                                      "type": "string"
-                                    },
-                                    "display_name": {
-                                      "type": "string"
-                                    },
-                                    "fusion_partner_hugo_symbol": {
-                                      "type": "string"
-                                    },
-                                    "hugo_symbol": {
-                                      "type": "string"
-                                    },
-                                    "variant_category": {
-                                      "type": "string"
-                                    },
-                                    "wildtype": {
-                                      "type": "boolean"
-                                    }
-                                  }
-                                },
-                                "or": {
-                                  "properties": {
-                                    "clinical": {
-                                      "properties": {
-                                        "age_numerical": {
-                                          "type": "string"
-                                        },
-                                        "oncotree_primary_diagnosis": {
-                                          "type": "string"
-                                        }
+                          },
+                          "or": {
+                            "properties": {
+                              "and": {
+                                "properties": {
+                                  "clinical": {
+                                    "properties": {
+                                      "age_numerical": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "oncotree_primary_diagnosis": {
+                                        "type": "keyword",
+                                        "index": true
                                       }
-                                    },
-                                    "genomic": {
-                                      "properties": {
-                                        "cnv_call": {
-                                          "type": "string"
-                                        },
-                                        "hugo_symbol": {
-                                          "type": "string"
-                                        },
-                                        "variant_category": {
-                                          "type": "string"
-                                        }
+                                    }
+                                  },
+                                  "genomic": {
+                                    "properties": {
+                                      "cnv_call": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "hugo_symbol": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "protein_change": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "variant_category": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "wildcard_protein_change": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "wildtype": {
+                                        "type": "boolean"
                                       }
                                     }
                                   }
                                 }
-                              }
-                            },
-                            "clinical": {
-                              "properties": {
-                                "age_numerical": {
-                                  "type": "string"
-                                },
-                                "er_status": {
-                                  "type": "string"
-                                },
-                                "her2_status": {
-                                  "type": "string"
-                                },
-                                "oncotree_primary_diagnosis": {
-                                  "type": "string"
-                                },
-                                "pr_status": {
-                                  "type": "string"
+                              },
+                              "clinical": {
+                                "properties": {
+                                  "age_numerical": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "er_status": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "her2_status": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "oncotree_primary_diagnosis": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "pr_status": {
+                                    "type": "keyword",
+                                    "index": true
+                                  }
+                                }
+                              },
+                              "genomic": {
+                                "properties": {
+                                  "cnv_call": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "display_name": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "exon": {
+                                    "type": "long"
+                                  },
+                                  "fusion_partner_hugo_symbol": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "hugo_symbol": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "mmr_status": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "ms_status": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "protein_change": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "variant_category": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "variant_classification": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "wildcard_protein_change": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "wildtype": {
+                                    "type": "boolean"
+                                  }
                                 }
                               }
-                            },
-                            "genomic": {
-                              "properties": {
-                                "cnv_call": {
-                                  "type": "string"
-                                },
-                                "hugo_symbol": {
-                                  "type": "string"
-                                },
-                                "mmr_status": {
-                                  "type": "string"
-                                },
-                                "ms_status": {
-                                  "type": "string"
-                                },
-                                "protein_change": {
-                                  "type": "string"
-                                },
-                                "variant_category": {
-                                  "type": "string"
-                                },
-                                "wildcard_protein_change": {
-                                  "type": "string"
-                                },
-                                "wildtype": {
-                                  "type": "boolean"
-                                }
-                              }
-                            },
-                            "or": {
-                              "properties": {
-                                "and": {
-                                  "properties": {
-                                    "genomic": {
-                                      "properties": {
-                                        "cnv_call": {
-                                          "type": "string"
-                                        },
-                                        "hugo_symbol": {
-                                          "type": "string"
-                                        },
-                                        "variant_category": {
-                                          "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "or": {
+                        "properties": {
+                          "and": {
+                            "properties": {
+                              "and": {
+                                "properties": {
+                                  "clinical": {
+                                    "properties": {
+                                      "age_numerical": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "oncotree_primary_diagnosis": {
+                                        "type": "keyword",
+                                        "index": true
+                                      }
+                                    }
+                                  },
+                                  "genomic": {
+                                    "properties": {
+                                      "cnv_call": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "display_name": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "fusion_partner_hugo_symbol": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "hugo_symbol": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "variant_category": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "wildtype": {
+                                        "type": "boolean"
+                                      }
+                                    }
+                                  },
+                                  "or": {
+                                    "properties": {
+                                      "clinical": {
+                                        "properties": {
+                                          "age_numerical": {
+                                            "type": "keyword",
+                                            "index": true
+                                          },
+                                          "oncotree_primary_diagnosis": {
+                                            "type": "keyword",
+                                            "index": true
+                                          }
+                                        }
+                                      },
+                                      "genomic": {
+                                        "properties": {
+                                          "cnv_call": {
+                                            "type": "keyword",
+                                            "index": true
+                                          },
+                                          "hugo_symbol": {
+                                            "type": "keyword",
+                                            "index": true
+                                          },
+                                          "variant_category": {
+                                            "type": "keyword",
+                                            "index": true
+                                          }
                                         }
                                       }
                                     }
                                   }
-                                },
-                                "clinical": {
-                                  "properties": {
-                                    "age_numerical": {
-                                      "type": "string"
-                                    },
-                                    "er_status": {
-                                      "type": "string"
-                                    },
-                                    "her2_status": {
-                                      "type": "string"
-                                    },
-                                    "oncotree_primary_diagnosis": {
-                                      "type": "string"
-                                    },
-                                    "pr_status": {
-                                      "type": "string"
-                                    }
-                                  }
-                                },
-                                "genomic": {
-                                  "properties": {
-                                    "cnv_call": {
-                                      "type": "string"
-                                    },
-                                    "exon": {
-                                      "type": "long"
-                                    },
-                                    "hugo_symbol": {
-                                      "type": "string"
-                                    },
-                                    "mmr_status": {
-                                      "type": "string"
-                                    },
-                                    "ms_status": {
-                                      "type": "string"
-                                    },
-                                    "protein_change": {
-                                      "type": "string"
-                                    },
-                                    "variant_category": {
-                                      "type": "string"
-                                    },
-                                    "variant_classification": {
-                                      "type": "string"
-                                    }
+                                }
+                              },
+                              "clinical": {
+                                "properties": {
+                                  "age_numerical": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "er_status": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "her2_status": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "oncotree_primary_diagnosis": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "pr_status": {
+                                    "type": "keyword",
+                                    "index": true
                                   }
                                 }
-                              }
-                            }
-                          }
-                        },
-                        "clinical": {
-                          "properties": {
-                            "age_numerical": {
-                              "type": "string"
-                            },
-                            "oncotree_primary_diagnosis": {
-                              "type": "string"
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "match": {
-              "properties": {
-                "and": {
-                  "properties": {
-                    "and": {
-                      "properties": {
-                        "clinical": {
-                          "properties": {
-                            "age_numerical": {
-                              "type": "string"
-                            },
-                            "er_status": {
-                              "type": "string"
-                            },
-                            "her2_status": {
-                              "type": "string"
-                            },
-                            "oncotree_primary_diagnosis": {
-                              "type": "string"
-                            },
-                            "pr_status": {
-                              "type": "string"
-                            }
-                          }
-                        },
-                        "genomic": {
-                          "properties": {
-                            "cnv_call": {
-                              "type": "string"
-                            },
-                            "display_name": {
-                              "type": "string"
-                            },
-                            "fusion_partner_hugo_symbol": {
-                              "type": "string"
-                            },
-                            "hugo_symbol": {
-                              "type": "string"
-                            },
-                            "protein_change": {
-                              "type": "string"
-                            },
-                            "variant_category": {
-                              "type": "string"
-                            },
-                            "wildtype": {
-                              "type": "boolean"
-                            }
-                          }
-                        },
-                        "or": {
-                          "properties": {
-                            "and": {
-                              "properties": {
-                                "genomic": {
-                                  "properties": {
-                                    "cnv_call": {
-                                      "type": "string"
-                                    },
-                                    "hugo_symbol": {
-                                      "type": "string"
-                                    },
-                                    "variant_category": {
-                                      "type": "string"
-                                    },
-                                    "wildtype": {
-                                      "type": "boolean"
-                                    }
+                              },
+                              "genomic": {
+                                "properties": {
+                                  "hugo_symbol": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "mmr_status": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "ms_status": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "protein_change": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "variant_category": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "wildcard_protein_change": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "wildtype": {
+                                    "type": "boolean"
                                   }
                                 }
-                              }
-                            },
-                            "clinical": {
-                              "properties": {
-                                "age_numerical": {
-                                  "type": "string"
-                                },
-                                "er_status": {
-                                  "type": "string"
-                                },
-                                "her2_status": {
-                                  "type": "string"
-                                },
-                                "oncotree_primary_diagnosis": {
-                                  "type": "string"
-                                },
-                                "pr_status": {
-                                  "type": "string"
-                                }
-                              }
-                            },
-                            "genomic": {
-                              "properties": {
-                                "cnv_call": {
-                                  "type": "string"
-                                },
-                                "exon": {
-                                  "type": "long"
-                                },
-                                "hugo_symbol": {
-                                  "type": "string"
-                                },
-                                "protein_change": {
-                                  "type": "string"
-                                },
-                                "variant_category": {
-                                  "type": "string"
-                                },
-                                "variant_classification": {
-                                  "type": "string"
-                                },
-                                "wildcard_protein_change": {
-                                  "type": "string"
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "clinical": {
-                      "properties": {
-                        "age_numerical": {
-                          "type": "string"
-                        },
-                        "er_status": {
-                          "type": "string"
-                        },
-                        "her2_status": {
-                          "type": "string"
-                        },
-                        "oncotree_primary_diagnosis": {
-                          "type": "string"
-                        },
-                        "pr_status": {
-                          "type": "string"
-                        }
-                      }
-                    },
-                    "genomic": {
-                      "properties": {
-                        "cnv_call": {
-                          "type": "string"
-                        },
-                        "display_name": {
-                          "type": "string"
-                        },
-                        "fusion_partner_hugo_symbol": {
-                          "type": "string"
-                        },
-                        "hugo_symbol": {
-                          "type": "string"
-                        },
-                        "protein_change": {
-                          "type": "string"
-                        },
-                        "variant_category": {
-                          "type": "string"
-                        },
-                        "wildcard_protein_change": {
-                          "type": "string"
-                        },
-                        "wildtype": {
-                          "type": "boolean"
-                        }
-                      }
-                    },
-                    "or": {
-                      "properties": {
-                        "and": {
-                          "properties": {
-                            "clinical": {
-                              "properties": {
-                                "age_numerical": {
-                                  "type": "string"
-                                },
-                                "oncotree_primary_diagnosis": {
-                                  "type": "string"
-                                }
-                              }
-                            },
-                            "genomic": {
-                              "properties": {
-                                "cnv_call": {
-                                  "type": "string"
-                                },
-                                "hugo_symbol": {
-                                  "type": "string"
-                                },
-                                "protein_change": {
-                                  "type": "string"
-                                },
-                                "variant_category": {
-                                  "type": "string"
-                                },
-                                "wildcard_protein_change": {
-                                  "type": "string"
-                                },
-                                "wildtype": {
-                                  "type": "boolean"
-                                }
-                              }
-                            }
-                          }
-                        },
-                        "clinical": {
-                          "properties": {
-                            "age_numerical": {
-                              "type": "string"
-                            },
-                            "er_status": {
-                              "type": "string"
-                            },
-                            "her2_status": {
-                              "type": "string"
-                            },
-                            "oncotree_primary_diagnosis": {
-                              "type": "string"
-                            },
-                            "pr_status": {
-                              "type": "string"
-                            }
-                          }
-                        },
-                        "genomic": {
-                          "properties": {
-                            "cnv_call": {
-                              "type": "string"
-                            },
-                            "display_name": {
-                              "type": "string"
-                            },
-                            "exon": {
-                              "type": "long"
-                            },
-                            "fusion_partner_hugo_symbol": {
-                              "type": "string"
-                            },
-                            "hugo_symbol": {
-                              "type": "string"
-                            },
-                            "mmr_status": {
-                              "type": "string"
-                            },
-                            "ms_status": {
-                              "type": "string"
-                            },
-                            "protein_change": {
-                              "type": "string"
-                            },
-                            "variant_category": {
-                              "type": "string"
-                            },
-                            "variant_classification": {
-                              "type": "string"
-                            },
-                            "wildcard_protein_change": {
-                              "type": "string"
-                            },
-                            "wildtype": {
-                              "type": "boolean"
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
-                "or": {
-                  "properties": {
-                    "and": {
-                      "properties": {
-                        "and": {
-                          "properties": {
-                            "clinical": {
-                              "properties": {
-                                "age_numerical": {
-                                  "type": "string"
-                                },
-                                "oncotree_primary_diagnosis": {
-                                  "type": "string"
-                                }
-                              }
-                            },
-                            "genomic": {
-                              "properties": {
-                                "hugo_symbol": {
-                                  "type": "string"
-                                },
-                                "variant_category": {
-                                  "type": "string"
-                                },
-                                "wildcard_protein_change": {
-                                  "type": "string"
-                                }
-                              }
-                            },
-                            "or": {
-                              "properties": {
-                                "genomic": {
-                                  "properties": {
-                                    "exon": {
-                                      "type": "long"
-                                    },
-                                    "hugo_symbol": {
-                                      "type": "string"
-                                    },
-                                    "protein_change": {
-                                      "type": "string"
-                                    },
-                                    "variant_category": {
-                                      "type": "string"
-                                    },
-                                    "variant_classification": {
-                                      "type": "string"
+                              },
+                              "or": {
+                                "properties": {
+                                  "and": {
+                                    "properties": {
+                                      "genomic": {
+                                        "properties": {
+                                          "cnv_call": {
+                                            "type": "keyword",
+                                            "index": true
+                                          },
+                                          "hugo_symbol": {
+                                            "type": "keyword",
+                                            "index": true
+                                          },
+                                          "variant_category": {
+                                            "type": "keyword",
+                                            "index": true
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "clinical": {
+                                    "properties": {
+                                      "age_numerical": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "er_status": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "her2_status": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "oncotree_primary_diagnosis": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "pr_status": {
+                                        "type": "keyword",
+                                        "index": true
+                                      }
+                                    }
+                                  },
+                                  "genomic": {
+                                    "properties": {
+                                      "cnv_call": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "exon": {
+                                        "type": "long"
+                                      },
+                                      "hugo_symbol": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "mmr_status": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "ms_status": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "protein_change": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "variant_category": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "variant_classification": {
+                                        "type": "keyword",
+                                        "index": true
+                                      }
                                     }
                                   }
                                 }
                               }
                             }
-                          }
-                        },
-                        "clinical": {
-                          "properties": {
-                            "age_numerical": {
-                              "type": "string"
-                            },
-                            "oncotree_primary_diagnosis": {
-                              "type": "string"
-                            }
-                          }
-                        },
-                        "genomic": {
-                          "properties": {
-                            "cnv_call": {
-                              "type": "string"
-                            },
-                            "hugo_symbol": {
-                              "type": "string"
-                            },
-                            "protein_change": {
-                              "type": "string"
-                            },
-                            "variant_category": {
-                              "type": "string"
-                            },
-                            "wildcard_protein_change": {
-                              "type": "string"
-                            }
-                          }
-                        },
-                        "or": {
-                          "properties": {
-                            "and": {
-                              "properties": {
-                                "clinical": {
-                                  "properties": {
-                                    "age_numerical": {
-                                      "type": "string"
-                                    },
-                                    "oncotree_primary_diagnosis": {
-                                      "type": "string"
-                                    }
-                                  }
-                                }
-                              }
-                            },
-                            "clinical": {
-                              "properties": {
-                                "age_numerical": {
-                                  "type": "string"
-                                },
-                                "oncotree_primary_diagnosis": {
-                                  "type": "string"
-                                }
-                              }
-                            },
-                            "genomic": {
-                              "properties": {
-                                "cnv_call": {
-                                  "type": "string"
-                                },
-                                "hugo_symbol": {
-                                  "type": "string"
-                                },
-                                "mmr_status": {
-                                  "type": "string"
-                                },
-                                "ms_status": {
-                                  "type": "string"
-                                },
-                                "protein_change": {
-                                  "type": "string"
-                                },
-                                "variant_category": {
-                                  "type": "string"
-                                }
+                          },
+                          "clinical": {
+                            "properties": {
+                              "age_numerical": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "oncotree_primary_diagnosis": {
+                                "type": "keyword",
+                                "index": true
                               }
                             }
                           }
@@ -1894,16 +1598,494 @@
                     }
                   }
                 }
+              },
+              "match": {
+                "properties": {
+                  "and": {
+                    "properties": {
+                      "and": {
+                        "properties": {
+                          "clinical": {
+                            "properties": {
+                              "age_numerical": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "er_status": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "her2_status": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "oncotree_primary_diagnosis": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "pr_status": {
+                                "type": "keyword",
+                                "index": true
+                              }
+                            }
+                          },
+                          "genomic": {
+                            "properties": {
+                              "cnv_call": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "display_name": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "fusion_partner_hugo_symbol": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "hugo_symbol": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "protein_change": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "variant_category": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "wildtype": {
+                                "type": "boolean"
+                              }
+                            }
+                          },
+                          "or": {
+                            "properties": {
+                              "and": {
+                                "properties": {
+                                  "genomic": {
+                                    "properties": {
+                                      "cnv_call": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "hugo_symbol": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "variant_category": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "wildtype": {
+                                        "type": "boolean"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "clinical": {
+                                "properties": {
+                                  "age_numerical": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "er_status": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "her2_status": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "oncotree_primary_diagnosis": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "pr_status": {
+                                    "type": "keyword",
+                                    "index": true
+                                  }
+                                }
+                              },
+                              "genomic": {
+                                "properties": {
+                                  "cnv_call": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "exon": {
+                                    "type": "long"
+                                  },
+                                  "hugo_symbol": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "protein_change": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "variant_category": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "variant_classification": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "wildcard_protein_change": {
+                                    "type": "keyword",
+                                    "index": true
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "clinical": {
+                        "properties": {
+                          "age_numerical": {
+                            "type": "keyword",
+                            "index": true
+                          },
+                          "er_status": {
+                            "type": "keyword",
+                            "index": true
+                          },
+                          "her2_status": {
+                            "type": "keyword",
+                            "index": true
+                          },
+                          "oncotree_primary_diagnosis": {
+                            "type": "keyword",
+                            "index": true
+                          },
+                          "pr_status": {
+                            "type": "keyword",
+                            "index": true
+                          }
+                        }
+                      },
+                      "genomic": {
+                        "properties": {
+                          "cnv_call": {
+                            "type": "keyword",
+                            "index": true
+                          },
+                          "display_name": {
+                            "type": "keyword",
+                            "index": true
+                          },
+                          "fusion_partner_hugo_symbol": {
+                            "type": "keyword",
+                            "index": true
+                          },
+                          "hugo_symbol": {
+                            "type": "keyword",
+                            "index": true
+                          },
+                          "protein_change": {
+                            "type": "keyword",
+                            "index": true
+                          },
+                          "variant_category": {
+                            "type": "keyword",
+                            "index": true
+                          },
+                          "wildcard_protein_change": {
+                            "type": "keyword",
+                            "index": true
+                          },
+                          "wildtype": {
+                            "type": "boolean"
+                          }
+                        }
+                      },
+                      "or": {
+                        "properties": {
+                          "and": {
+                            "properties": {
+                              "clinical": {
+                                "properties": {
+                                  "age_numerical": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "oncotree_primary_diagnosis": {
+                                    "type": "keyword",
+                                    "index": true
+                                  }
+                                }
+                              },
+                              "genomic": {
+                                "properties": {
+                                  "hugo_symbol": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "protein_change": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "variant_category": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "wildtype": {
+                                    "type": "boolean"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "clinical": {
+                            "properties": {
+                              "age_numerical": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "er_status": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "her2_status": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "oncotree_primary_diagnosis": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "pr_status": {
+                                "type": "keyword",
+                                "index": true
+                              }
+                            }
+                          },
+                          "genomic": {
+                            "properties": {
+                              "cnv_call": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "display_name": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "exon": {
+                                "type": "long"
+                              },
+                              "fusion_partner_hugo_symbol": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "hugo_symbol": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "mmr_status": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "ms_status": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "protein_change": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "variant_category": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "variant_classification": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "wildcard_protein_change": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "wildtype": {
+                                "type": "boolean"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "or": {
+                    "properties": {
+                      "and": {
+                        "properties": {
+                          "and": {
+                            "properties": {
+                              "clinical": {
+                                "properties": {
+                                  "age_numerical": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "oncotree_primary_diagnosis": {
+                                    "type": "keyword",
+                                    "index": true
+                                  }
+                                }
+                              },
+                              "genomic": {
+                                "properties": {
+                                  "hugo_symbol": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "variant_category": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "wildcard_protein_change": {
+                                    "type": "keyword",
+                                    "index": true
+                                  }
+                                }
+                              },
+                              "or": {
+                                "properties": {
+                                  "genomic": {
+                                    "properties": {
+                                      "exon": {
+                                        "type": "long"
+                                      },
+                                      "hugo_symbol": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "protein_change": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "variant_category": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "variant_classification": {
+                                        "type": "keyword",
+                                        "index": true
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "clinical": {
+                            "properties": {
+                              "age_numerical": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "oncotree_primary_diagnosis": {
+                                "type": "keyword",
+                                "index": true
+                              }
+                            }
+                          },
+                          "genomic": {
+                            "properties": {
+                              "cnv_call": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "hugo_symbol": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "protein_change": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "variant_category": {
+                                "type": "keyword",
+                                "index": true
+                              },
+                              "wildcard_protein_change": {
+                                "type": "keyword",
+                                "index": true
+                              }
+                            }
+                          },
+                          "or": {
+                            "properties": {
+                              "and": {
+                                "properties": {
+                                  "clinical": {
+                                    "properties": {
+                                      "age_numerical": {
+                                        "type": "keyword",
+                                        "index": true
+                                      },
+                                      "oncotree_primary_diagnosis": {
+                                        "type": "keyword",
+                                        "index": true
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "clinical": {
+                                "properties": {
+                                  "age_numerical": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "oncotree_primary_diagnosis": {
+                                    "type": "keyword",
+                                    "index": true
+                                  }
+                                }
+                              },
+                              "genomic": {
+                                "properties": {
+                                  "hugo_symbol": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "mmr_status": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "ms_status": {
+                                    "type": "keyword",
+                                    "index": true
+                                  },
+                                  "variant_category": {
+                                    "type": "keyword",
+                                    "index": true
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "step_code": {
+                "type": "keyword",
+                "index": true
+              },
+              "step_internal_id": {
+                "type": "long"
+              },
+              "step_type": {
+                "type": "keyword",
+                "index": true
               }
-            },
-            "step_code": {
-              "type": "string"
-            },
-            "step_internal_id": {
-              "type": "long"
-            },
-            "step_type": {
-              "type": "string"
             }
           }
         }

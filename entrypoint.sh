@@ -2,14 +2,8 @@
 set -e
 
 function enable_site {
-
-    # enable the site.
-    a2enmod headers ssl wsgi
-    a2dissite 000-default.conf
-    a2ensite apache-flask.conf
-
-    # run the webserver.
-    /usr/sbin/apache2ctl -D FOREGROUND
+    # enable site using gunicorn
+    gunicorn wsgi:app
 }
 
 case ${1} in dev)

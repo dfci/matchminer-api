@@ -1,6 +1,6 @@
 import logging
 
-from matchminer import database
+from matchminer.elasticsearch import *
 from matchminer.matchengine_v1.engine import MatchEngine
 from matchminer.trial_search import Summary, Autocomplete
 
@@ -98,7 +98,23 @@ def insert_data_clinical(data_dict, tree_node, node_id):
 
 
 def trial_insert(items):
+    build_trial_elasticsearch_fields(items)
 
+    for item in items:
+        put_prepared_trial_in_elasticsearch(prepare_for_es(item))
+
+    return items
+
+
+def build_trial_elasticsearch_fields(items):
+    """
+    Create '_elasticsearch,' '_suggest' and '_summary' fields on trial documents.
+
+    Normalize oncotree diagnoses fields using 'normalized' collection in db
+
+    :param items:
+    :return:
+    """
     # get database connection.
     db = database.get_db()
 
@@ -143,12 +159,13 @@ def trial_insert(items):
             autocomplete.add_autocomplete()
 
         logging.info("trial inserted " + item['protocol_no'])
-    return items
+
+    logging.info("inserting trials to elasticsearch " + str([item.setdefault("protocol_no") for item in items]))
 
 
 def trial_replace(item, original):
-
-    logging.info("trial updated %s" % item['protocol_no'])
+    remove_trial_from_elasticsearch_by_es_id(item.setdefault("protocol_no"))
+    logging.info(f"trial updated {item['protocol_no']}")
     trial_insert([item])
 
 

@@ -114,9 +114,11 @@ class Summary:
 
         if 'management_group' in self.other:
             self.disease_center = self.other['management_group'][0]['value'].replace(
-                'DF/HCC TPETT', 'DF/HCC Early Drug Discovery Center (EDDC)').replace(
-                'DF/HCC EDDC', 'DF/HCC Early Drug Discovery Center (EDDC)'
+                'DF/HCC TPETT', 'DF/HCC Early Drug Discovery Center EDDC').replace(
+                'DF/HCC EDDC', 'DF/HCC Early Drug Discovery Center EDDC'
             )
+            if '(' in self.disease_center or ')' in self.disease_center:
+                self.disease_center = self.disease_center.replace('(', '').replace(')', '')
 
     def _get_misc_fields(self, item):
         """

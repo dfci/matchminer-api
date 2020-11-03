@@ -15,13 +15,6 @@ echo "SETTING UP MONGO"
 echo "*****************"
 sleep 5
 
-echo "Initialize replicaset"
-docker-compose exec mm-mongo mongo matchminer --eval "rs.initiate();"
-echo ""
-echo "DONE."
-echo ""
-sleep 2
-
 echo "Add dev user to database to bypass authentication"
 docker-compose exec mm-mongo mongo matchminer --eval 'db.user.insert({
   "_id": ObjectId("577cf6ef2b9920002cef0337"),
@@ -45,28 +38,19 @@ docker-compose exec mm-mongo mongo matchminer --eval 'db.user.insert({
   "oncore_token" : "5f3c2421-271c-41ba-ac14-899f214d49b9"
 })'
 
+echo ""
 echo "*****************"
 echo "SETTING UP ELASTICSEARCH"
 echo "*****************"
 # naively wait for elasticsearch to start up
-sleep 9
+sleep 10
 # run script to configure indexes, synonyms, etc.
-echo "Setup elasticsearch settings, analyzers, mappings, and analysis"
-cd elasticsearch
-./elasticsearch_startup.sh
-cd -
+docker-compose build mm-api
+echo "Setup elasticsearch settings, mappings"
+
+docker-compose run --rm mm-api python pymm_run.py reset-elasticsearch
 echo "DONE."
 echo ""
-
-echo "*****************"
-echo "SETTING UP MONGO-CONNECTOR"
-echo "*****************"
-# naively wait again, just in case
-sleep 5
-# it's possible mongo-connector crashed if it started up before the mongo container was ready,
-# so make sure it restarts.
-docker-compose up -d mm-connector
-echo "DONE."
 
 echo "*****************"
 echo "STARTING API"

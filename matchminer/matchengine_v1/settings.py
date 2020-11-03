@@ -6,7 +6,7 @@ import json
 import logging
 
 # logging
-logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
+logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s', )
 
 TUMOR_TREE = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data/tumor_tree.txt'))
 

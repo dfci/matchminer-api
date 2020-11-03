@@ -507,7 +507,6 @@ class TestMinimal(unittest.TestCase):
         self.curator_id = user_db.insert_one(self.curator)
 
 
-
     def setupDB(self):
 
         # drop the database.

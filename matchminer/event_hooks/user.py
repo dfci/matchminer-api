@@ -9,7 +9,7 @@ def email_user(items):
 
     # skip unless production.
     if settings.WELCOME_EMAIL != "YES":
-        logging.debug("welcome email skipped")
+        logging.info("welcome email skipped")
         return
 
     # loop over each user.

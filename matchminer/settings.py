@@ -1,10 +1,9 @@
 import os
 import logging
 import json
-import datetime as dt
 from pathlib import Path
 
-logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
+logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s', )
 
 SETTINGS_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -63,6 +62,15 @@ SWAGGER_INFO = {
     'schemes': ['http', 'https'],
 }
 
+# elasticsearch configs
+ES_URL = ""
+ES_INDEX = ""
+ES_USER = ""
+ES_PASSWORD = ""
+ES_URI = ""
+ES_MAPPING = os.path.abspath(os.path.join(os.path.dirname(__file__), '../elasticsearch/mapping.json'))
+ES_SETTINGS = os.path.abspath(os.path.join(os.path.dirname(__file__), '../elasticsearch/settings.json'))
+
 
 TUMOR_TREE = os.path.abspath(os.path.join(os.path.dirname(__file__), './data/tumor_tree.txt'))
 
@@ -109,3 +117,4 @@ match_status_mapping = {
     'Deferred': 7,
     'Deceased': 3
 }
+

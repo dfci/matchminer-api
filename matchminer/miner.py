@@ -7,9 +7,9 @@ from dateutil.relativedelta import relativedelta
 
 from matchminer.templates.emails import emails
 from matchminer import settings, database
-from src.matchenginev2.matchengine.internals.engine import MatchEngine
+from matchengine.internals.engine import MatchEngine
 
-logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
+logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s', )
 
 
 def rerun_filters(filters=None, do_update=True, datapush_id=None):

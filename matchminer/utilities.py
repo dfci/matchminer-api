@@ -4,13 +4,12 @@ from datetime import datetime
 from flask import Response, request, make_response
 
 from matchminer import database
-from matchminer.event_hooks.trial import trial_insert
+from matchminer.event_hooks.trial import trial_insert, reset_elasticsearch
 
 from .settings import *
-from mattermostdriver import Driver
 
 # logging
-logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s', )
+logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s', )
 
 
 def nocache(view):
@@ -80,15 +79,24 @@ def set_updated(otrial):
 
 
 def reannotate_trials():
+    """
+    Update trials in elasticsearch db after regenerating _summary, _suggest, and
+    _elasticsearch fields.
+
+    Use protocol_no as identifier as _id is removed during trial preparation step when
+    inserting into elasticsearch
+    :return:
+    """
+    reset_elasticsearch()
     db = database.get_db()
     trials = list(db['trial'].find())
 
-    # modify trials to be inserted in bulk later
     trial_insert(trials)
 
-    # re-insert.
     for trial in trials:
-        db['trial'].delete_one({'_id': trial['_id']})
+        db['trial'].delete_one({'protocol_no': trial['protocol_no']})
         db['trial'].insert_one(trial)
 
     logging.info("Re-annotating trials complete")
+
+

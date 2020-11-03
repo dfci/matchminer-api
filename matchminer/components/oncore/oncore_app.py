@@ -10,6 +10,7 @@ from functools import wraps, update_wrapper
 from flask import Blueprint, Response, make_response, render_template, request, redirect
 
 from matchminer.database import get_db
+from matchminer.elasticsearch import remove_trial_from_elasticsearch_by_es_id
 from matchminer.utilities import set_curated, set_updated
 from matchminer.components.oncore.oncore_utilities import OncoreSync
 from matchminer.settings import API_TOKEN, API_ADDRESS, ONCORE_ADDRESS
@@ -237,8 +238,8 @@ def trial_request(trial_id):
     else:
 
         # issue delete.
-        url = '%s/trial/%s' % (API_ADDRESS, mongo_id)
-        r = requests.delete(url, headers=headers)
+        get_db().trial.remove({"protocol_no": trial_id})
+        remove_trial_from_elasticsearch_by_es_id(trial_id)
 
         if r.status_code < 300:
             return redirect("/curate")

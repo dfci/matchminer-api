@@ -67,6 +67,14 @@ def genomic_insert(items):
 
 
 def align_matches_genomic(a):
+    """
+   Attach filter docs to genomic docs which have been matched successfully by filters.
+
+   E.g. If a filter is seeking EGFR, and a genomic document represents EGFR and
+   has been positively matched, attach the EGFR filter to the EGFR genomic doc.
+   :param genomic_docs:
+   :return:
+   """
 
     # short circuit.
     if len(a['_items']) == 0:
