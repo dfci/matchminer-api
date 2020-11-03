@@ -42,18 +42,15 @@ RUN rm -rf /tmp/build*
 
 ENV PYTHONWARNINGS="ignore:a true SSLContext object"
 
-# set the timezone.
-RUN echo "America/New_York" > /etc/timezone
-RUN dpkg-reconfigure -f noninteractive tzdata
-
 # copy the applicaiton
-COPY ./matchminer /var/www/apache-flask/api/matchminer
-COPY ./services /var/www/apache-flask/api/services
-COPY ./tcm /var/www/apache-flask/api/tcm
-COPY ./cerberus1 /var/www/apache-flask/api/cerberus1
-COPY ./pymm_run.py /var/www/apache-flask/api/pymm_run.py
-COPY ./api-swagger-documentation.json /var/www/apache-flask/api/api-swagger-documentation.json
-COPY ./email.config.json /var/www/apache-flask/api/email.config.json
+RUN mkdir /api
+
+# app
+COPY ./matchminer /api/matchminer
+COPY ./filters_config /api/filters_config
+COPY ./cerberus1 /api/cerberus1
+COPY ./pymm_run.py /api/pymm_run.py
+COPY ./elasticsearch /api/elasticsearch
 
 # gunicorn configs
 COPY ./wsgi.py /api/wsgi.py
