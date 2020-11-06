@@ -19,9 +19,5 @@ RUN pip install -r requirements.txt
 RUN mkdir -p /ext/lib/ && mv /matchminerAPI/src /ext/lib/
 ENV PYTHONPATH=/ext/lib:/ext/lib/src/oncotree/:/ext/lib/src/matchenginev2:/ext/lib/src/wincrypto
 
-
-# move github dependencies to other dir to not be overridden by volume mount
-# add to pythonpath
-RUN mkdir -p /ext/lib/ && mv /matchminerAPI/src /ext/lib/
 ENV PYTHONPATH=/ext/lib:/ext/lib/src/oncotree/:/ext/lib/src/matchenginev2:/ext/lib/src/wincrypto
 
