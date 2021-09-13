@@ -13,3 +13,8 @@ COPY ./requirements.txt /matchminerAPI/requirements.txt
 WORKDIR /matchminerAPI
 
 RUN pip install -r requirements.txt
+
+# Hack to work around https://github.com/py-bson/bson/issues/82
+RUN pip --no-input uninstall --yes bson
+RUN pip --no-input uninstall --yes pymongo
+RUN pip install pymongo
