@@ -4,6 +4,6 @@ Welcome to the documentation for the MatchMiner API! MatchMiner is a system desi
 The MatchMiner platform can be used on local instances that provide access to private data. If you are interested in the development of new features, or in setting up a local instance of the MatchMiner system, please see the documentation, or contact [matchminer@dfci.harvard.edu](https://app.gitbook.com/@matchminer/s/matchminer)
 
 # [Documentation](https://matchminer.gitbook.io/)
-[Data Model](https://app.gitbook.com/@matchminer/s/matchminer/matchminer-api/data-model)
+[Data Model](https://matchminer.gitbook.io/matchminer/matchminer-api/data-model)
 
-[Developer Setup](https://app.gitbook.com/@matchminer/s/matchminer/matchminer-api/development-setup)
+[Developer Setup](https://matchminer.gitbook.io/matchminer/matchminer-api/development-setup)
