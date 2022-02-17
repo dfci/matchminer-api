@@ -24,7 +24,9 @@ echo "*****************"
 sleep 5
 
 echo "Add dev user to database to bypass authentication"
-docker-compose exec mm-mongo mongo matchminer --eval 'db.user.insert({
+docker-compose exec mm-mongo mongo matchminer --eval 'db.user.replaceOne({
+  "_id": ObjectId("577cf6ef2b9920002cef0337")
+}, {
   "_id": ObjectId("577cf6ef2b9920002cef0337"),
   "last_name" : "Doe",
   "teams" : [
@@ -44,7 +46,7 @@ docker-compose exec mm-mongo mongo matchminer --eval 'db.user.insert({
   "user_name" : "du123",
   "token" : "fb4d6830-d3aa-481b-bcd6-270d69790e11",
   "oncore_token" : "5f3c2421-271c-41ba-ac14-899f214d49b9"
-})'
+}, { "upsert": true })'
 
 echo ""
 echo "*****************"
