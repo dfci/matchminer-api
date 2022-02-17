@@ -53,7 +53,7 @@ echo "*****************"
 echo "SETTING UP ELASTICSEARCH"
 echo "*****************"
 # naively wait for elasticsearch to start up
-sleep 10
+sleep 20
 # run script to configure indexes, synonyms, etc.
 docker-compose build mm-api
 echo "Setup elasticsearch settings, mappings"
