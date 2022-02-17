@@ -3,6 +3,14 @@
 # Set up a local development mongo/mongo-connector/elasticsearch environment.
 set -e
 
+case "$(docker-compose version)" in
+  *docker-compose\ version\ 1*)
+    # docker-compose exec sometimes breaks in v1
+    echo "Requires docker-compose version 2 or greater."
+    exit 1
+    ;;
+esac
+
 echo "*****************"
 echo "STARTING DATABASE SERVICES"
 echo "*****************"
