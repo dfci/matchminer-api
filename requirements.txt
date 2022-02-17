@@ -1,6 +1,6 @@
--e git+https://github.com/ethansiegl/oncotreenx.git#egg=Oncotree
--e git+https://github.com/dfci/matchengine-V2.git@master#egg=matchengineV2
--e git+https://github.com/crappycrypto/wincrypto.git@master#egg=wincrypto
+git+https://github.com/ethansiegl/oncotreenx.git
+git+https://github.com/dfci/matchengine-V2.git@master
+git+https://github.com/crappycrypto/wincrypto.git@master#egg=wincrypto
 Cerberus==1.2
 Eve==0.9.2
 Eve-Swagger==0.0.9
