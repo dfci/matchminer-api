@@ -8,7 +8,7 @@ Flask==1.1.4
 Flask-Cors==2.1.2
 Flask-PyMongo==2.2.0
 gspread==0.3.0
-Jinja2==2.10.1
+Jinja2==2.11.3
 MarkupSafe==2.0.1 # 2.1.0 breaks jinja
 networkx==2.3
 nose==1.3.7
