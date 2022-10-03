@@ -5,7 +5,7 @@ Cerberus==1.2
 Eve==1.1.5
 Eve-Swagger==0.2.0
 Flask==1.1.4
-Flask-Cors==2.1.2
+Flask-Cors==3.0.9
 Flask-PyMongo==2.2.0
 gspread==0.3.0
 Jinja2==2.10.1
