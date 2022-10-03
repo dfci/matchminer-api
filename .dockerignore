@@ -2,7 +2,14 @@
 .idea/*
 static/*
 tests/*
-data/*
+data/tcga
+data/tcga.clinical.pkl
+data/tcga.genomic.pkl
+data/genes.csv
+data/genes.oncopanel.csv
+data/Final_gene_map.oncopanel.v1.txt
 dev_data/*
 elasticsearch/es_data/*
 dump/*
+Dockerfile
+.dockerignore
