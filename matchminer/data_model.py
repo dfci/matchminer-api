@@ -1701,6 +1701,8 @@ patient_view_schema = {
     'num_views_details_list': {'type': 'integer', 'readonly': True},
     'view_date': {'type': 'datetime', 'readonly': True},
     'filter_label': {'type': 'string', 'nullable': True},
+    'filter_id': {'type': 'objectid', 'nullable': True, 'required': False},
+    'sample_id': {'type': 'string', 'nullable': True, 'required': False},
     'filter_protocol_no': {'type': 'string', 'nullable': True},
     'requires_manual_review': {'type': 'boolean', 'default': False},
     'from_details': {'type': 'boolean', 'required': False, 'nullable': True},

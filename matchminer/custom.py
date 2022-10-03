@@ -68,20 +68,15 @@ def proxy(path):
                         auth=HTTPBasicAuth(ES_USER, ES_PASSWORD),
                         headers=headers)
 
-        if r is not None and 200 <= r.status_code < 300:
-            logging.info(url)
-            return Response(response=json.dumps(json.loads(r.content)),
-                            status=200,
-                            mimetype="application/json")
-        else:
-            logging.error(url)
-            logging.error({"status": str(r.status_code), "content": str(r.content)})
-            raise Exception
-
+        return Response(
+           response=json.dumps(r.json()),
+           status=r.status_code,
+           mimetype="application/json"
+        )
     except Exception as e:
         msg = 'Error while fetching data from elasticsearch'
         logging.error(msg)
-        return Response(status=400, mimetype="application/json")
+        raise
 
 
 @blueprint.route('/api/info', methods=['GET'])

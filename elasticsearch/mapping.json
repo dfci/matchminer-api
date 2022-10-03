@@ -6,6 +6,7 @@
         "format": "strict_date_optional_time||epoch_millis"
       },
       "_elasticsearch": {
+        "dynamic": "strict",
         "properties": {
           "age": {
             "type": "keyword",
@@ -90,6 +91,7 @@
         "index": true
       },
       "_suggest": {
+        "dynamic": "strict",
         "properties": {
           "cancer_type_suggest": {
             "type": "completion",
@@ -185,6 +187,7 @@
         }
       },
       "_summary": {
+        "dynamic": "strict",
         "properties": {
           "accrual_goal": {
             "type": "long"
@@ -504,6 +507,10 @@
           "site": {
             "properties": {
               "coordinating_center": {
+                "type": "keyword",
+                "index": true
+              },
+              "local_site_identifier": {
                 "type": "keyword",
                 "index": true
               },

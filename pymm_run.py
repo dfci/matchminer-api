@@ -2,7 +2,6 @@
 import argparse
 from eve import Eve
 from flask import redirect
-from eve_swagger import swagger
 
 from matchminer.elasticsearch import reset_elasticsearch
 from matchminer.utilities import *
@@ -33,10 +32,8 @@ else:
 
 app.config['SAML_PATH'] = os.path.join(cur_dir, 'saml')
 app.config['SECRET_KEY'] = SAML_SECRET
-app.config['SWAGGER_INFO'] = SWAGGER_INFO
 app.register_blueprint(blueprint)
 app.register_blueprint(oncore_blueprint)
-app.register_blueprint(swagger)
 register_hooks(app)
 
 

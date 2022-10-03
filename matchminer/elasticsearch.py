@@ -101,7 +101,8 @@ def prepare_for_es(trial, op_type="index", is_bulk=True):
 def remove_trial_from_elasticsearch_by_es_id(es_id):
     if get_es_client().exists(ES_INDEX, "trial", es_id):
         logging.info("remove_trial_from_elasticsearch_by_es_id " + str(es_id))
-        r = requests.delete(ES_URI + "/trial/" + es_id)
+        r = requests.delete(ES_URI + "/trial/" + es_id, auth=HTTPBasicAuth(ES_USER, ES_PASSWORD))
+        r.raise_for_status()
         return {"status_code", r.status_code, "text", r.text}
     else:
         return dict()
@@ -131,6 +132,7 @@ def reset_elasticsearch_settings():
     with open(ES_SETTINGS) as es_settings_file_handle:
         json_payload = json.load(es_settings_file_handle)['settings']
     r = requests.put(ES_URI + "/_settings", json=json_payload, auth=HTTPBasicAuth(ES_USER, ES_PASSWORD))
+    r.raise_for_status()
     msg = {"status_code": r.status_code, "text": r.text}
     logging.info(msg)
     return msg
@@ -160,7 +162,8 @@ def reset_elasticsearch_mapping():
     json_payload["_meta"] = dict(json_payload.setdefault('_meta',
                                                          dict()),
                                  **{"tumor_type_sort_order": order})
-    r = requests.put(ES_URI + "/_mapping/trial", json=json_payload, auth=HTTPBasicAuth(ES_USER, ES_PASSWORD))
+    r = requests.put(ES_URI + "/_mapping/trial?include_type_name=true", json=json_payload, auth=HTTPBasicAuth(ES_USER, ES_PASSWORD))
+    r.raise_for_status()
     msg = {"status_code": r.status_code, "text": r.text}
     logging.info(msg)
     return msg
