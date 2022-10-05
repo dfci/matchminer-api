@@ -10,10 +10,12 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update --fix-missing && apt-get insta
     git \
     gcc
 
+ENV PIP_NO_CACHE_DIR=1
 RUN mkdir /matchminerAPI
+
+# Install requirements
 COPY ./requirements.txt /matchminerAPI/requirements.txt
 WORKDIR /matchminerAPI
-
 RUN pip install -r requirements.txt
 
 # Hack to work around https://github.com/py-bson/bson/issues/82

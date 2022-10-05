@@ -26,6 +26,7 @@ from matchminer.utilities import parse_resource_field, nocache, reannotate_trial
 from matchminer.security import auth_required
 import logging
 
+import matchengine.internals.engine
 # logging
 from wincrypto import CryptCreateHash, CryptDeriveKey, CryptHashData, CryptDecrypt, CryptEncrypt
 from wincrypto.constants import CALG_SHA1, CALG_AES_128
@@ -208,6 +209,27 @@ def reannotate_trials_api():
                     mimetype="application/json")
     return resp
 
+@blueprint.route('/api/run_matchengine', methods=['POST'])
+@nocache
+@auth_required
+def run_matchengine():
+    """
+    Runs MatchEngine to rebuild trial matches.
+    NOTE: DO NOT use this in production; use matchengine-runner instead.
+    :return:
+    """
+    with matchengine.internals.engine.MatchEngine(
+        match_on_deceased=False,
+        match_on_closed=True,
+        db_name="matchminer") as me_prod:
+        me_prod.get_matches_for_all_trials()
+        me_prod.update_all_matches()
+
+    reset_elasticsearch()
+    resp = Response(response=json.dumps({"success": True}),
+                    status=200,
+                    mimetype="application/json")
+    return resp
 
 @blueprint.route('/api/reset_elasticsearch', methods=['POST'])
 @nocache
