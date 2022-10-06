@@ -1,4 +1,4 @@
-FROM python:3.7-slim
+FROM python:3.8-slim
 
 # install ubuntu packages.
 RUN DEBIAN_FRONTEND=noninteractive apt-get update --fix-missing && apt-get install -y \
