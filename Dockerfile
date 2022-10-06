@@ -1,6 +1,6 @@
 FROM python:3.8-slim
 
-# install ubuntu packages.
+# Install packages needed to compile dependencies:
 RUN DEBIAN_FRONTEND=noninteractive apt-get update --fix-missing && apt-get install -y \
     libxml2-dev \
     libxslt1-dev \
@@ -10,10 +10,14 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update --fix-missing && apt-get insta
     git \
     gcc
 
-ENV PIP_NO_CACHE_DIR=1
+# Configure pip
+# Counterintuitively, PIP_NO_COMPILE=no is needed to turn compiling *off*
+# We do this partly because compiling is not reproducible, creating pointless diffs in images,
+# and partly to reduce image size.
+ENV PIP_NO_CACHE_DIR=1 PIP_NO_COMPILE=no
 RUN mkdir /matchminerAPI
 
-# Install requirements
+# Install requirements:
 COPY ./requirements.txt /matchminerAPI/requirements.txt
 WORKDIR /matchminerAPI
 RUN pip install -r requirements.txt
@@ -25,6 +29,14 @@ RUN pip install 'pymongo==3.10'
 
 ENV ONCOTREE_CUSTOM_DIR /matchminerAPI/data/oncotree_file.txt
 
+# Use an (anonymous) volume to hold "*.pyc" files:
+VOLUME /bytecode
+RUN mkdir -p /bytecode
+ENV PYTHONPYCACHEPREFIX=/bytecode
+
+# Expose and bind to port 80:
 EXPOSE 80
-COPY . /matchminerAPI/
 CMD gunicorn wsgi:app --bind=0.0.0.0:80
+
+# Copy over source files:
+COPY . /matchminerAPI/
