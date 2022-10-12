@@ -13,7 +13,6 @@ import re
 import random
 import string
 from matchminer.custom import blueprint
-from matchminer.bootstrap import bootstrap
 from matchminer.validation import ConsentValidatorEve
 from matchminer.settings import *
 from matchminer.events import register_hooks
@@ -485,12 +484,6 @@ class TestMinimal(unittest.TestCase):
         self.assertEqual(status, 500)
 
     def initDB(self):
-
-        # check if the clinical and genomic empty.
-        if self.connection[MONGO_DBNAME]['clinical'] == 0 or self.connection[MONGO_DBNAME]['genomic'] == 0:
-
-            # bootstrap.
-            bootstrap(self)
 
         # add testing user.
         user_db = self.db['user']
