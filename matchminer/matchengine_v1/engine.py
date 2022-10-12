@@ -121,7 +121,7 @@ class MatchEngine(object):
 
         # try to load
         try:
-            data_json = yaml.load(data)
+            data_json = yaml.safe_load(data)
             return 0, data_json
         except yaml.YAMLError as exc:
             return 1, exc

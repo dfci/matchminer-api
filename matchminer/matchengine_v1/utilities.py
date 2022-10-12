@@ -240,7 +240,7 @@ def add_trials(trial_path, db):
 
         # convert yml to json format
         with open(ymlpath) as f:
-            t = yaml.load(f.read())
+            t = yaml.safe_load(f.read())
 
             # add trial to db
             result = db.trial.insert_one(t)

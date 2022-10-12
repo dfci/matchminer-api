@@ -115,7 +115,7 @@ class TestTrialValidation(TrialValidation):
             # load yaml.
             trial_path = os.path.join(YAML_DIR, trial_name)
             with open(trial_path, "rb") as fin:
-                data_json = yaml.load(fin.read())
+                data_json = yaml.safe_load(fin.read())
 
             # fix string issue.
             data_json = _handle_exc(data_json)
@@ -134,7 +134,7 @@ class TestTrialValidation(TrialValidation):
             with open(trial_path, "rb") as fin:
 
                 # load yaml
-                data_json = yaml.load(fin.read())
+                data_json = yaml.safe_load(fin.read())
 
                 # normalize.
                 entry_insert('trial', [data_json])
@@ -264,7 +264,7 @@ class TestTrialFields(unittest.TestCase):
 
         # define test json
         with open(os.path.join(YAML_DIR, "00-001.yml")) as fin:
-            test_json = yaml.load(fin)
+            test_json = yaml.safe_load(fin)
 
         # do the mapping.
         entry_insert("trial", [test_json])

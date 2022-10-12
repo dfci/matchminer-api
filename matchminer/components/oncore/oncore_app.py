@@ -53,7 +53,7 @@ def _yamlize(trial, trial_id):
 
     # turn into yaml
     fout = io.StringIO()
-    yaml.dump(yaml.load(json.dumps(trial)), fout, default_flow_style=False)
+    yaml.dump(yaml.safe_load(json.dumps(trial)), fout, default_flow_style=False)
     output = fout.getvalue()
 
     # make downloadable response.
@@ -127,7 +127,7 @@ def index():
             # create trial.
             try:
                 # load the trial.
-                trial_new = yaml.load(file)
+                trial_new = yaml.safe_load(file)
 
             except yaml.YAMLError as exc:
 

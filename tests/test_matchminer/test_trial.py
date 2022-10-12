@@ -65,7 +65,7 @@ class TestTrial(TestMinimal):
 
         # define test json
         with open(os.path.join(YAML_DIR, "00-003.yml")) as fin:
-            test_json = yaml.load(fin)
+            test_json = yaml.safe_load(fin)
 
         # post and it should fail.
         r, status_code = self.post("trial", test_json)

@@ -18,7 +18,7 @@ class TestCustom(TestMinimal):
         super(TestCustom, self).setUp(settings_file=None, url_converters=None)
         YAML_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../', 'data/yaml'))
         with open(os.path.join(YAML_DIR, "00-003.yml")) as fin:
-            self.trial = yaml.load(fin)
+            self.trial = yaml.safe_load(fin)
 
         self.today = datetime.datetime.now().strftime('%B %d, %Y')
 
