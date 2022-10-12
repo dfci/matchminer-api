@@ -1,7 +1,7 @@
 import logging
 import datetime
 
-from matchminer.settings import EMAIL_AUTHOR_PROTECTED
+from matchminer.settings import EMAIL_AUTHOR_PROTECTED, EMAIL_IMMUNOPROFILE
 from flask import current_app as app, abort
 
 
@@ -17,7 +17,7 @@ def immunoprofile_insert(items):
     if 'clinical_id' not in doc:
         doc['clinical_id'] = clinical_doc['_id']
 
-    if doc['email']:
+    if doc['email'] and EMAIL_IMMUNOPROFILE:
         if not clinical_doc['ORD_PHYSICIAN_EMAIL']:
             msg = f"Clinical document has no physician email {doc['sample_id']}"
             logging.error(msg)
@@ -29,7 +29,7 @@ def immunoprofile_insert(items):
         """
 
         email = {
-            'email_from': "immunoprofile@ds.dfci.harvard.edu",
+            'email_from': EMAIL_IMMUNOPROFILE,
             'email_to': clinical_doc['ORD_PHYSICIAN_EMAIL'],
             'subject': f"ImmunoProfile Results - Automated Alert",
             'body': body.replace('\n', ''),
