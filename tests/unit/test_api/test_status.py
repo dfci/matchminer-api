@@ -8,8 +8,9 @@ from matchminer.miner import _count_matches_by_filter, _count_matches
 
 TEST_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../', 'data'))
 
+from tests.test_matchminer import TestMinimal
 
-class TestStatus(unittest.TestCase):
+class TestStatus(TestMinimal):
 
     match = {
         "_id": ObjectId(),
@@ -43,7 +44,7 @@ class TestStatus(unittest.TestCase):
     }
 
     def setUp(self):
-
+        super(TestStatus, self).setUp(settings_file=None, url_converters=None)
         self.db = get_db()
         self.db['status'].drop()
         self.db['match'].drop()
