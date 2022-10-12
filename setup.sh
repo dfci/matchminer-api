@@ -41,7 +41,7 @@ docker-compose exec mm-mongo mongo matchminer --eval 'db.user.replaceOne({
     "admin"
   ],
   "title" : "",
-  "email" : "fake_email@dfci.harvard.edu",
+  "email" : "fake_email@institution.edu",
   "_created" : ISODate("2018-02-22T10:15:27.000-05:00"),
   "user_name" : "du123",
   "token" : "fb4d6830-d3aa-481b-bcd6-270d69790e11",
