@@ -1,0 +1,298 @@
+HGNC ID	Approved Symbol	Approved Name	Synonyms	Entrez Gene ID
+HGNC:76	ABL1	ABL proto-oncogene 1, non-receptor tyrosine kinase	JTK7, c-ABL, p150	25
+HGNC:391	AKT1	v-akt murine thymoma viral oncogene homolog 1	RAC, PKB, PRKBA, AKT	207
+HGNC:392	AKT2	v-akt murine thymoma viral oncogene homolog 2		208
+HGNC:393	AKT3	v-akt murine thymoma viral oncogene homolog 3	PKBG, RAC-gamma, PRKBG	10000
+HGNC:427	ALK	anaplastic lymphoma receptor tyrosine kinase	CD246	238
+HGNC:430	ALOX12B	arachidonate 12-lipoxygenase, 12R type	12R-LOX	242
+HGNC:583	APC	adenomatous polyposis coli	DP2, DP3, DP2.5, PPP1R46	324
+HGNC:644	AR	androgen receptor	AIS, NR3C4, SMAX1, HUMARA	367
+HGNC:646	ARAF	A-Raf proto-oncogene, serine/threonine kinase		369
+HGNC:11110	ARID1A	AT rich interactive domain 1A (SWI-like)	B120, P270, C10rf4, BAF250, BAF250a	8289
+HGNC:18040	ARID1B	AT rich interactive domain 1B (SWI1-like)	KIAA1235, ELD/OSA1, p250R, BAF250b, DAN15, 6A3-5	57492
+HGNC:18037	ARID2	AT rich interactive domain 2 (ARID, RFX-like)	KIAA1557, DKFZp686G052, FLJ30619, BAF200	196528
+HGNC:18318	ASXL1	additional sex combs like transcriptional regulator 1	KIAA0978	171023
+HGNC:795	ATM	ATM serine/threonine kinase	TEL1, TELO1	472
+HGNC:886	ATRX	alpha thalassemia/mental retardation syndrome X-linked	XH2, XNP	546
+HGNC:11393	AURKA	aurora kinase A	BTAK, AurA, STK7, ARK1, PPP1R47, AIK	6790
+HGNC:11390	AURKB	aurora kinase B	Aik2, IPL1, AurB, AIM-1, ARK2, STK5, PPP1R48	9212
+HGNC:905	AXL	AXL receptor tyrosine kinase	UFO, JTK11, Tyro7, ARK	558
+HGNC:914	B2M	beta-2-microglobulin		567
+HGNC:950	BAP1	BRCA1 associated protein 1	hucep-6, KIAA0272, UCHL2	8314
+HGNC:990	BCL2	B-cell CLL/lymphoma 2	Bcl-2, PPP1R50	596
+HGNC:992	BCL2L1	BCL2-like 1	BCLX, BCL2L, Bcl-X, bcl-xL, bcl-xS, PPP1R52	598
+HGNC:13787	BCL2L12	BCL2-like 12 (proline rich)		83596
+HGNC:1001	BCL6	B-cell CLL/lymphoma 6	ZBTB27, LAZ3, BCL5, BCL6A	604
+HGNC:20893	BCOR	BCL6 corepressor	FLJ20285, KIAA1575	54880
+HGNC:25657	BCORL1	BCL6 corepressor-like 1	FLJ11362	63035
+HGNC:1058	BLM	Bloom syndrome, RecQ helicase-like	BS, RECQL3, RECQ2	641
+HGNC:1076	BMPR1A	bone morphogenetic protein receptor type IA	ALK3, CD292	657
+HGNC:1097	BRAF	B-Raf proto-oncogene, serine/threonine kinase	BRAF1	673
+HGNC:1100	BRCA1	breast cancer 1, early onset	RNF53, BRCC1, PPP1R53, FANCS	672
+HGNC:1101	BRCA2	breast cancer 2, early onset	FAD, FAD1, BRCC2, XRCC11	675
+HGNC:13575	BRD4	bromodomain containing 4	HUNKI, MCAP, CAP, HUNK1	23476
+HGNC:20473	BRIP1	BRCA1 interacting protein C-terminal helicase 1	OF, BACH1, FANCJ	83990
+HGNC:1149	BUB1B	BUB1 mitotic checkpoint serine/threonine kinase B	BUBR1, MAD3L, Bub1A, SSK1	701
+HGNC:29849	CADM2	cell adhesion molecule 2	NECL3, Necl-3, SynCAM2	253559
+HGNC:16393	CARD11	caspase recruitment domain family, member 11	CARMA1, BIMP3	84433
+HGNC:1541	CBL	Cbl proto-oncogene, E3 ubiquitin protein ligase	RNF55, c-Cbl	867
+HGNC:1542	CBLB	Cbl proto-oncogene B, E3 ubiquitin protein ligase	RNF56, Cbl-b	868
+HGNC:1582	CCND1	cyclin D1	U21B31	595
+HGNC:1583	CCND2	cyclin D2		894
+HGNC:1585	CCND3	cyclin D3		896
+HGNC:1589	CCNE1	cyclin E1		898
+HGNC:1688	CD58	CD58 molecule		965
+HGNC:1699	CD79B	CD79b molecule, immunoglobulin-associated beta	B29
+HGNC:17635	CD274	CD274 molecule	B7-H, B7H1, PD-L1, PDL1, B7-H1	29126
+HGNC:16783	CDC73	cell division cycle 73	parafibromin, FIHP	79577
+HGNC:1748	CDH1	cadherin 1, type 1	uvomorulin, CD324	999
+HGNC:1722	CDK1	cyclin-dependent kinase 1	CDC28A	983
+HGNC:1771	CDK2	cyclin-dependent kinase 2		1017
+HGNC:1773	CDK4	cyclin-dependent kinase 4	PSK-J3	1019
+HGNC:1774	CDK5	cyclin-dependent kinase 5	PSSALRE	1020
+HGNC:1777	CDK6	cyclin-dependent kinase 6	PLSTIRE	1021
+HGNC:1780	CDK9	cyclin-dependent kinase 9	PITALRE, C-2k, TAK	1025
+HGNC:1784	CDKN1A	cyclin-dependent kinase inhibitor 1A (p21, Cip1)	P21, CIP1, WAF1, SDI1, CAP20, p21CIP1, p21Cip1/Waf1	1026
+HGNC:1785	CDKN1B	cyclin-dependent kinase inhibitor 1B (p27, Kip1)	KIP1, P27KIP1	1027
+HGNC:1786	CDKN1C	cyclin-dependent kinase inhibitor 1C (p57, Kip2)	P57, KIP2	1028
+HGNC:1787	CDKN2A	cyclin-dependent kinase inhibitor 2A	CDK4I, p16, INK4a, MTS1, CMM2, ARF, p19, p14, INK4, p16INK4a, p19Arf, p14ARF	1029
+HGNC:1788	CDKN2B	cyclin-dependent kinase inhibitor 2B (p15, inhibits CDK4)	P15, MTS2, INK4B, TP15, CDK4I, p15INK4b	1030
+HGNC:1789	CDKN2C	cyclin-dependent kinase inhibitor 2C (p18, inhibits CDK4)	INK4C, p18	1031
+HGNC:1833	CEBPA	CCAAT/enhancer binding protein (C/EBP), alpha	C/EBP-alpha	1050
+HGNC:16627	CHEK2	checkpoint kinase 2	CDS1, CHK2, HuCds1, PP1425, bA444G7	11200
+HGNC:7067	CIITA	class II, major histocompatibility complex, transactivator	C2TA, NLRA	4261
+HGNC:2348	CREBBP	CREB binding protein	RTS, CBP, KAT3A	1387
+HGNC:2363	CRKL	v-crk avian sarcoma virus CT10 oncogene homolog-like		1399
+HGNC:14281	CRLF2	cytokine receptor-like factor 2	CRL2, TSLPR	64109
+HGNC:16062	CRTC1	CREB regulated transcription coactivator 1	KIAA0616, FLJ14027, TORC1	23373
+HGNC:27301	CRTC2	CREB regulated transcription coactivator 2	TORC2	200186
+HGNC:2433	CSF1R	colony stimulating factor 1 receptor	C-FMS, CSFR, CD115	1436
+HGNC:2439	CSF3R	colony stimulating factor 3 receptor	GCSFR	1441
+HGNC:2514	CTNNB1	catenin (cadherin-associated protein), beta 1	beta-catenin, armadillo	1499
+HGNC:2557	CUX1	cut-like homeobox 1	CDP, CDP1, CUX, CUT, Clox, CDP/Cut, CDP/Cux, Cux/CDP, CASP, GOLIM6	1523
+HGNC:2584	CYLD	cylindromatosis (turban tumor syndrome)	KIAA0849, USPL2	1540
+HGNC:2718	DDB2	damage-specific DNA binding protein 2	DDBB, UV-DDB2, FLJ34321, XPE	1643
+HGNC:2731	DDR2	discoidin domain receptor tyrosine kinase 2	TKT	4921
+HGNC:18423	DEPDC5	DEP domain containing 5	KIAA0645, DEP.5	9681
+HGNC:17098	DICER1	dicer 1, ribonuclease type III	Dicer, KIAA0928, K12H4.8-LIKE, HERNA	23405
+HGNC:20604	DIS3	DIS3 homolog, exosome endoribonuclease and 3'-5' exoribonuclease	dis3p, RRP44, EXOSC11	22894
+HGNC:2928	DMD	dystrophin	BMD, DXS142, DXS164, DXS206, DXS230, DXS239, DXS268, DXS269, DXS270, DXS272	1756
+HGNC:2978	DNMT3A	DNA (cytosine-5-)-methyltransferase 3 alpha		1788
+HGNC:3188	EED	embryonic ectoderm development	WAIT-1, HEED	8726
+HGNC:3236	EGFR	epidermal growth factor receptor	ERBB1	1956
+HGNC:3373	EP300	E1A binding protein p300	p300, KAT3B	2033
+HGNC:3387	EPHA3	EPH receptor A3	HEK, HEK4	2042
+HGNC:3389	EPHA5	EPH receptor A5	Hek7, TYRO4, CEK7, EHK1	2044
+HGNC:3390	EPHA7	EPH receptor A7	Hek11	2045
+HGNC:3430	ERBB2	erb-b2 receptor tyrosine kinase 2	NEU, HER-2, CD340, HER2	2064
+HGNC:3431	ERBB3	erb-b2 receptor tyrosine kinase 3	HER3	2065
+HGNC:3432	ERBB4	erb-b2 receptor tyrosine kinase 4	ALS19, HER4	2066
+HGNC:3434	ERCC2	excision repair cross-complementation group 2	MAG, EM9, MGC102762, MGC126218, MGC126219, TFIIH	2068
+HGNC:3435	ERCC3	excision repair cross-complementation group 3	XPB, BTF2, RAD25, TFIIH, GTF2H	2071
+HGNC:3436	ERCC4	excision repair cross-complementation group 4	RAD1, FANCQ	2072
+HGNC:3437	ERCC5	excision repair cross-complementation group 5		2073
+HGNC:3467	ESR1	estrogen receptor 1	NR3A1, Era	2099
+HGNC:3490	ETV1	ets variant 1	ER81	2115
+HGNC:3493	ETV4	ets variant 4	E1A-F, E1AF, PEA3	2118
+HGNC:3494	ETV5	ets variant 5	ERM	2119
+HGNC:3495	ETV6	ets variant 6	TEL	2120
+HGNC:3508	EWSR1	EWS RNA binding protein 1	EWS	2130
+HGNC:3512	EXT1	exostosin glycosyltransferase 1	ttv	2131
+HGNC:3513	EXT2	exostosin glycosyltransferase 2	SOTV	2132
+HGNC:3527	EZH2	enhancer of zeste 2 polycomb repressive complex 2 subunit	EZH1, ENX-1, KMT6, KMT6A	2146
+HGNC:24712	FAM46C	family with sequence similarity 46, member C	FLJ20202	54855
+HGNC:3582	FANCA	Fanconi anemia complementation group A	FAA, FA-H, FAH	2175
+HGNC:3584	FANCC	Fanconi anemia complementation group C	FAC, FA3	2176
+HGNC:3585	FANCD2	Fanconi anemia complementation group D2	FAD, FA-D2	2177
+HGNC:3586	FANCE	Fanconi anemia complementation group E	FAE	2178
+HGNC:3587	FANCF	Fanconi anemia complementation group F	FAF	2188
+HGNC:3588	FANCG	Fanconi anemia complementation group G	FAG	2189
+HGNC:11920	FAS	Fas cell surface death receptor	CD95, APO-1	355
+HGNC:16712	FBXW7	F-box and WD repeat domain containing 7, E3 ubiquitin protein ligase	AGO, FLJ11071, SEL-10, SEL10, FBW7, FBX30, CDC4, FBXW6
+HGNC:3688	FGFR1	fibroblast growth factor receptor 1	H2, H3, H4, H5, CEK, FLG, BFGFR, N-SAM, CD331	2260
+HGNC:3689	FGFR2	fibroblast growth factor receptor 2	CEK3, TK14, TK25, ECT1, K-SAM, CD332	2263
+HGNC:3690	FGFR3	fibroblast growth factor receptor 3	CEK2, JTK4, CD333	2261
+HGNC:3691	FGFR4	fibroblast growth factor receptor 4	JTK2, CD334	2264
+HGNC:3700	FH	fumarate hydratase	fumarase	2271
+HGNC:3725	FKBP9	FK506 binding protein 9	FKBP60, FKBP63	11328
+HGNC:27310	FLCN	folliculin	BHD, MGC17998, MGC23445	201163
+HGNC:3763	FLT1	fms-related tyrosine kinase 1	VEGFR1	2321
+HGNC:3765	FLT3	fms-related tyrosine kinase 3	STK1, FLK2, CD135	2322
+HGNC:3767	FLT4	fms-related tyrosine kinase 4	VEGFR3, PCL	2324
+HGNC:4010	FUS	FUS RNA binding protein	TLS, FUS1, hnRNP-P2, HNRNPP2	2521
+HGNC:4172	GATA3	GATA binding protein 3	HDR	2625
+HGNC:4173	GATA4	GATA binding protein 4		2626
+HGNC:4174	GATA6	GATA binding protein 6		2627
+HGNC:4317	GLI1	GLI family zinc finger 1		2735
+HGNC:4318	GLI2	GLI family zinc finger 2	THP2, HPE9, THP1	2736
+HGNC:4319	GLI3	GLI family zinc finger 3	PAP-A, PAPA, PAPA1, PAPB, ACLS, PPDIV	2737
+HGNC:4379	GNA11	guanine nucleotide binding protein (G protein), alpha 11 (Gq class)	FBH, FBH2, FHH2	2767
+HGNC:4390	GNAQ	guanine nucleotide binding protein (G protein), q polypeptide	G-ALPHA-q, GAQ	2776
+HGNC:4392	GNAS	GNAS complex locus	NESP55, NESP, GNASXL, GPSA, SCG6, SgVI	2778
+HGNC:4399	GNB2L1	guanine nucleotide binding protein (G protein), beta polypeptide 2-like 1	Gnb2-rs1, RACK1, H12.3	10399
+HGNC:4451	GPC3	glypican 3	OCI-5, SGBS, SGBS1, SGB, DGSX	2719
+HGNC:4637	GSTM5	glutathione S-transferase mu 5		2949
+HGNC:4764	H3F3A	H3 histone, family 3A	H3.3A	3020
+HGNC:11621	HNF1A	HNF1 homeobox A	HNF1, LFB1	6927
+HGNC:5173	HRAS	Harvey rat sarcoma viral oncogene homolog		3265
+HGNC:5362	ID3	inhibitor of DNA binding 3, dominant negative helix-loop-helix protein	HEIR-1, bHLHb25	3399
+HGNC:5382	IDH1	isocitrate dehydrogenase 1 (NADP+)		3417
+HGNC:5383	IDH2	isocitrate dehydrogenase 2 (NADP+), mitochondrial		3418
+HGNC:5465	IGF1R	insulin-like growth factor 1 receptor	JTK13, CD221, IGFIR, MGC18216, IGFR	3480
+HGNC:13176	IKZF1	IKAROS family zinc finger 1	hIk-1, LyF-1, Hs.54452, IKAROS, PPP1R92	10320
+HGNC:13178	IKZF3	IKAROS family zinc finger 3	Aiolos	22806
+HGNC:6083	INSIG1	insulin induced gene 1	CL-6, MGC1405	3638
+HGNC:6192	JAK2	Janus kinase 2	JTK10	3717
+HGNC:6193	JAK3	Janus kinase 3	L-JAK, JAKL, LJAK, JAK3_HUMAN, JAK-3	3718
+HGNC:15521	KCNIP1	Kv channel interacting protein 1	KCHIP1	30820
+HGNC:11114	KDM5C	lysine (K)-specific demethylase 5C	DXS1272E, XE169	8242
+HGNC:12637	KDM6A	lysine (K)-specific demethylase 6A		7403
+HGNC:29012	KDM6B	lysine (K)-specific demethylase 6B	KIAA0346	23135
+HGNC:6307	KDR	kinase insert domain receptor	FLK1, VEGFR, VEGFR2, CD309	3791
+HGNC:23177	KEAP1	kelch-like ECH-associated protein 1	KIAA0132, MGC10630, MGC1114, MGC20887, MGC4407, MGC9454, INrf2, KLHL19	9817
+HGNC:6342	KIT	v-kit Hardy-Zuckerman 4 feline sarcoma viral oncogene homolog	CD117, SCFR, C-Kit	3815
+HGNC:6407	KRAS	Kirsten rat sarcoma viral oncogene homolog	KRAS1	3845
+HGNC:48579	LINC00894	long intergenic non-protein coding RNA 894		100272228
+HGNC:6641	LMO1	LIM domain only 1 (rhombotin 1)	TTG1, RHOM1	4004
+HGNC:6642	LMO2	LIM domain only 2 (rhombotin-like 1)	TTG2, RHOM2, RBTN2	4005
+HGNC:6643	LMO3	LIM domain only 3 (rhombotin-like 2)	Rhom-3, DAT1	55885
+HGNC:6840	MAP2K1	mitogen-activated protein kinase kinase 1	MEK1, MAPKK1	5604
+HGNC:6844	MAP2K4	mitogen-activated protein kinase kinase 4	MEK4, JNKK1, PRKMK4, MKK4	6416
+HGNC:6848	MAP3K1	mitogen-activated protein kinase kinase kinase 1, E3 ubiquitin protein ligase	MEKK, MAPKKK1	4214
+HGNC:6871	MAPK1	mitogen-activated protein kinase 1	ERK, ERK2, p41mapk, MAPK2	5594
+HGNC:6943	MCL1	myeloid cell leukemia 1	BCL2L3, Mcl-1	4170
+HGNC:6973	MDM2	MDM2 proto-oncogene, E3 ubiquitin protein ligase	HDM2, MGC5370	4193
+HGNC:6974	MDM4	MDM4, p53 regulator	MDMX, HDMX	4194
+HGNC:3498	MECOM	MDS1 and EVI1 complex locus	MDS1-EVI1, PRDM3	2122
+HGNC:6995	MEF2B	myocyte enhancer factor 2B	RSRFR2	100271849
+HGNC:7010	MEN1	multiple endocrine neoplasia I
+HGNC:7029	MET	MET proto-oncogene, receptor tyrosine kinase	HGFR, RCCP2, DFNB97
+HGNC:7105	MITF	microphthalmia-associated transcription factor	MI, bHLHe32	4286
+HGNC:7127	MLH1	mutL homolog 1	HNPCC, FCC2, HNPCC2	4292
+HGNC:7217	MPL	MPL proto-oncogene, thrombopoietin receptor	CD110, TPOR	4352
+HGNC:7325	MSH2	mutS homolog 2	HNPCC, HNPCC1	4436
+HGNC:7329	MSH6	mutS homolog 6		2956
+HGNC:3942	MTOR	mechanistic target of rapamycin (serine/threonine kinase)	RAFT1, RAPT1, FLJ44809	2475
+HGNC:7527	MUTYH	mutY DNA glycosylase	MYH	4595
+HGNC:7545	MYB	v-myb avian myeloblastosis viral oncogene homolog	c-myb	4602
+HGNC:7547	MYBL1	v-myb avian myeloblastosis viral oncogene homolog-like 1	AMYB, A-myb	4603
+HGNC:7553	MYC	v-myc avian myelocytomatosis viral oncogene homolog	c-Myc, bHLHe39, MYCC	4609
+HGNC:7559	MYCN	v-myc avian myelocytomatosis viral oncogene neuroblastoma derived homolog	bHLHe37, N-myc, MYCNOT	4613
+HGNC:7562	MYD88	myeloid differentiation primary response 88		4615
+HGNC:7652	NBN	nibrin	ATV, AT-V2, AT-V1	4683
+HGNC:17302	NEGR1	neuronal growth regulator 1	KILON, MGC46680, Ntra, IGLON4	257194
+HGNC:7765	NF1	neurofibromin 1		4763
+HGNC:7773	NF2	neurofibromin 2 (merlin)	merlin	4771
+HGNC:7782	NFE2L2	nuclear factor, erythroid 2-like 2	NRF2	4780
+HGNC:7797	NFKBIA	nuclear factor of kappa light polypeptide gene enhancer in B-cells inhibitor, alpha	IKBA, MAD-3, IkappaBalpha	4792
+HGNC:29805	NFKBIZ	nuclear factor of kappa light polypeptide gene enhancer in B-cells inhibitor, zeta	MAIL, FLJ34463, INAP	64332
+HGNC:11825	NKX2-1	NK2 homeobox 1	TTF-1, TTF1	7080
+HGNC:7881	NOTCH1	notch 1		4851
+HGNC:7882	NOTCH2	notch 2		4853
+HGNC:7910	NPM1	nucleophosmin (nucleolar phosphoprotein B23, numatrin)	B23, NPM	4869
+HGNC:24969	NPRL2	NPR2-like, GATOR1 complex subunit	NPR2L, NPR2	10641
+HGNC:14124	NPRL3	NPR3-like, GATOR1 complex subunit	CGTHBA, RMD11, NPR3, MARE, HS-40	8131
+HGNC:7989	NRAS	neuroblastoma RAS viral (v-ras) oncogene homolog	N-ras	4893
+HGNC:8031	NTRK1	neurotrophic tyrosine kinase, receptor, type 1	TRK, TRKA, MTC	4914
+HGNC:8032	NTRK2	neurotrophic tyrosine kinase, receptor, type 2	TRKB	4915
+HGNC:8033	NTRK3	neurotrophic tyrosine kinase, receptor, type 3	TRKC	4916
+HGNC:26144	PALB2	partner and localizer of BRCA2	FLJ21816, FANCN	79728
+HGNC:8607	PARK2	parkin RBR E3 ubiquitin protein ligase	PDJ, AR-JP, parkin	5071
+HGNC:8619	PAX5	paired box 5	BSAP	5079
+HGNC:30064	PBRM1	polybromo 1	BAF180, PB1	55193
+HGNC:18731	PDCD1LG2	programmed cell death 1 ligand 2	PD-L2, Btdc, PDL2, bA574F11.2, CD273, B7-DC	80380
+HGNC:8803	PDGFRA	platelet-derived growth factor receptor, alpha polypeptide	CD140a, PDGFR2, GAS9	5156
+HGNC:8804	PDGFRB	platelet-derived growth factor receptor, beta polypeptide	JTK12, CD140b, PDGFR1	5159
+HGNC:18145	PHF6	PHD finger protein 6	KIAA1823, MGC14797, CENP-31	84295
+HGNC:9143	PHOX2B	paired-like homeobox 2b	Phox2b, NBPhox	8929
+HGNC:8972	PIK3C2B	phosphatidylinositol-4-phosphate 3-kinase, catalytic subunit type 2 beta	C2-PI3K, PI3K-C2beta	5287
+HGNC:8975	PIK3CA	phosphatidylinositol-4,5-bisphosphate 3-kinase, catalytic subunit alpha	PI3K	5290
+HGNC:8979	PIK3R1	phosphoinositide-3-kinase, regulatory subunit 1 (alpha)	GRB1, p85-ALPHA, p85	5295
+HGNC:8986	PIM1	Pim-1 proto-oncogene, serine/threonine kinase		5292
+HGNC:9121	PMS1	PMS1 homolog 1, mismatch repair system component	MLH2	5378
+HGNC:9122	PMS2	PMS1 homolog 2, mismatch repair system component	H_DJ0042M02.9, HNPCC4, MLH4	5395
+HGNC:17278	PNRC1	proline-rich nuclear receptor coactivator 1	B4-2, PRR2	10957
+HGNC:9336	PRAME	preferentially expressed antigen in melanoma	CT130	23532
+HGNC:9346	PRDM1	PR domain containing 1, with ZNF domain	PRDI-BF1	639
+HGNC:9360	PRF1	perforin 1 (pore forming protein)	PFP, P1, HPLH2	5551
+HGNC:9388	PRKAR1A	protein kinase, cAMP-dependent, regulatory, type I, alpha	CNC1	5573
+HGNC:9404	PRKCI	protein kinase C, iota	PKCI	5584
+HGNC:9412	PRKCZ	protein kinase C, zeta	PKC2	5590
+HGNC:9413	PRKDC	protein kinase, DNA-activated, catalytic polypeptide	DNPK1, p350, DNAPK, XRCC7, DNA-PKcs	5591
+HGNC:17340	PRPF8	pre-mRNA processing factor 8	PRPC8, Prp8, hPrp8, SNRNP220	10594
+HGNC:25031	PRPF40B	PRP40 homolog, pre-mRNA processing factor B	HYPC	25766
+HGNC:9558	PSMD13	proteasome 26S subunit, non-ATPase 13	p40.5, Rpn9	5719
+HGNC:9585	PTCH1	patched 1	BCNS	5727
+HGNC:9588	PTEN	phosphatase and tensin homolog	MMAC1, TEP1, PTEN1	5728
+HGNC:9611	PTK2	protein tyrosine kinase 2	FAK, FADK, FAK1, PPP1R71	5747
+HGNC:9644	PTPN11	protein tyrosine phosphatase, non-receptor type 11	BPTP3, SH-PTP2, SHP-2, PTP2C, SHP2	5781
+HGNC:9668	PTPRD	protein tyrosine phosphatase, receptor type, D	PTPD, HPTP	5789
+HGNC:21100	QKI	QKI, KH domain containing, RNA binding	QK3	9444
+HGNC:9811	RAD21	RAD21 cohesin complex component	KIAA0078, hHR21, SCC1	5885
+HGNC:9829	RAF1	Raf-1 proto-oncogene, serine/threonine kinase	Raf-1, c-Raf, CRAF	5894
+HGNC:9864	RARA	retinoic acid receptor, alpha	RAR, NR1B1	5914
+HGNC:9884	RB1	retinoblastoma 1	RB, PPP1R130	5925
+HGNC:9894	RBL2	retinoblastoma-like 2	Rb2, p130	5934
+HGNC:9949	RECQL4	RecQ helicase-like 4	RecQ4	9401
+HGNC:9954	REL	v-rel avian reticuloendotheliosis viral oncogene homolog	I-Rel, c-Rel	5966
+HGNC:9967	RET	ret proto-oncogene	PTC, CDHF12, RET51, CDHR16	5979
+HGNC:17440	RFWD2	ring finger and WD repeat domain 2, E3 ubiquitin protein ligase	FLJ10416, COP1, RNF200	64326
+HGNC:10011	RHEB	Ras homolog enriched in brain		6009
+HGNC:19974	RHPN2	rhophilin, Rho GTPase binding protein 2		85415
+HGNC:10261	ROS1	ROS proto-oncogene 1 , receptor tyrosine kinase	MCF3, ROS, c-ros-1	6098
+HGNC:10327	RPL26	ribosomal protein L26	L26	6154
+HGNC:10471	RUNX1	runt-related transcription factor 1	PEBP2A2, AMLCR1	861
+HGNC:19440	SBDS	Shwachman-Bodian-Diamond syndrome	CGI-97, FLJ10917, SDS, SWDS	51119
+HGNC:10680	SDHA	succinate dehydrogenase complex subunit A, flavoprotein (Fp)	FP, SDHF	6389
+HGNC:26034	SDHAF2	succinate dehydrogenase complex assembly factor 2	FLJ20487, SDH5	54949
+HGNC:10681	SDHB	succinate dehydrogenase complex subunit B, iron sulfur (Ip)		6390
+HGNC:10682	SDHC	succinate dehydrogenase complex subunit C	CYB560	6391
+HGNC:10683	SDHD	succinate dehydrogenase complex subunit D, integral membrane protein		6392
+HGNC:15573	SETBP1	SET binding protein 1	SEB, KIAA0437	26040
+HGNC:18420	SETD2	SET domain containing 2	HYPB, HIF-1, KIAA1732, FLJ23184, KMT3A	29072
+HGNC:12950	SF1	splicing factor 1	ZFM1, ZCCHC25	7536
+HGNC:10768	SF3B1	splicing factor 3b subunit 1	SAP155, SF3b155, PRPF10, Prp10, Hsh155	23451
+HGNC:29605	SH2B3	SH2B adaptor protein 3	LNK, IDDM20	10019
+HGNC:23503	SLITRK6	SLIT and NTRK-like family, member 6	FLJ22774	84189
+HGNC:6768	SMAD2	SMAD family member 2	MADR2, JV18-1	4087
+HGNC:6770	SMAD4	SMAD family member 4	DPC4	4089
+HGNC:11100	SMARCA4	SWI/SNF related, matrix associated, actin dependent regulator of chromatin, subfamily a, member 4	hSNF2b, BRG1, BAF190, SNF2, SWI2, SNF2-BETA, SNF2LB, FLJ39786	6597
+HGNC:11103	SMARCB1	SWI/SNF related, matrix associated, actin dependent regulator of chromatin, subfamily b, member 1	BAF47, Ini1, Snr1, hSNFS, Sfh1p, RDT, PPP1R144	6598
+HGNC:11111	SMC1A	structural maintenance of chromosomes 1A	DXS423E, KIAA0178, SB1.8, Smcb	8243
+HGNC:2468	SMC3	structural maintenance of chromosomes 3	HCAP, BAM, SMC3L1, bamacan	9126
+HGNC:11119	SMO	smoothened, frizzled class receptor	FZD11	6608
+HGNC:19383	SOCS1	suppressor of cytokine signaling 1	SOCS-1, SSI-1, JAB, TIP3, Cish1
+HGNC:11195	SOX2	SRY box 2		6657
+HGNC:11204	SOX9	SRY box 9	SRA1	6662
+HGNC:11280	SQSTM1	sequestosome 1	p62, p60, p62B, A170	8878
+HGNC:11283	SRC	SRC proto-oncogene, non-receptor tyrosine kinase	ASV, c-src	6714
+HGNC:10783	SRSF2	serine/arginine-rich splicing factor 2	SC-35, SC35, PR264, SFRS2A	6427
+HGNC:11354	STAG1	stromal antigen 1	SA-1, SCC3A, SA1	10274
+HGNC:11355	STAG2	stromal antigen 2	SA-2, SCC3B, SA2	10735
+HGNC:11364	STAT3	signal transducer and activator of transcription 3 (acute-phase response factor)	APRF	6774
+HGNC:11368	STAT6	signal transducer and activator of transcription 6, interleukin-4 induced	D12S1644, IL-4-STAT	6778
+HGNC:11389	STK11	serine/threonine kinase 11	PJS, LKB1	6794
+HGNC:16466	SUFU	suppressor of fused homolog (Drosophila)	SUFUH, SUFUXL, PRO1280	51684
+HGNC:17101	SUZ12	SUZ12 polycomb repressive complex 2 subunit	JJAZ1, KIAA0160, CHET9	23512
+HGNC:11491	SYK	spleen tyrosine kinase		6850
+HGNC:11633	TCF3	transcription factor 3	E2A, ITF1, MGC129647, MGC129648, bHLHb21, VDIR, E47	6929
+HGNC:11640	TCF7L1	transcription factor 7-like 1 (T-cell specific, HMG-box)		83439
+HGNC:11641	TCF7L2	transcription factor 7-like 2 (T-cell specific, HMG-box)	TCF-4	6934
+HGNC:11727	TERC	telomerase RNA component	TR, hTR, TRC3, SCARNA19	7012
+HGNC:11730	TERT	telomerase reverse transcriptase	TRT, TP2, TCS1, hEST2, EST2
+HGNC:25941	TET2	tet methylcytosine dioxygenase 2	FLJ20032	54790
+HGNC:11850	TLR4	toll-like receptor 4	hToll, CD284, TLR-4, ARMD10	7099
+HGNC:11896	TNFAIP3	tumor necrosis factor, alpha-induced protein 3	A20, OTUD7C	7128
+HGNC:11998	TP53	tumor protein p53	p53, LFS1	7157
+HGNC:12362	TSC1	tuberous sclerosis 1	KIAA0243, LAM, hamartin
+HGNC:12363	TSC2	tuberous sclerosis 2	tuberin, LAM, PPP1R160	7249
+HGNC:12453	U2AF1	U2 small nuclear RNA auxiliary factor 1	U2AF35, RNU2AF1, RN	7307
+HGNC:12687	VHL	von Hippel-Lindau tumor suppressor, E3 ubiquitin protein ligase	VHL1	7428
+HGNC:12791	WRN	Werner syndrome, RecQ helicase-like	RECQL2, RECQ3	7486
+HGNC:12796	WT1	Wilms tumor 1	WAGR, WIT-2, AWT1	7490
+HGNC:12814	XPA	xeroderma pigmentosum, complementation group A	XPAC, XP1	7507
+HGNC:12816	XPC	xeroderma pigmentosum, complementation group C	XPCC, RAD4	7508
+HGNC:12825	XPO1	exportin 1	CRM1, emb	7514
+HGNC:13009	ZNF217	zinc finger protein 217	ZABC1	7764
+HGNC:12945	ZNF708	zinc finger protein 708	KOX8	7562
+HGNC:23019	ZRSR2	zinc finger (CCCH type), RNA binding motif and serine/arginine rich 2	U2AF1-RS2, URP, ZC3H22	8233

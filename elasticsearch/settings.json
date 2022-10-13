@@ -1,0 +1,52 @@
+{
+  "settings": {
+    "mapping": {
+      "total_fields.limit": 2000
+    },
+    "analysis": {
+      "filter": {
+        "variant_filter": {
+          "type": "word_delimiter",
+          "split_on_numerics": "false"
+        },
+        "synonyms_expand": {
+          "type": "synonym",
+          "synonyms_path": "synonyms.txt"
+        }
+      },
+      "analyzer": {
+        "my_lowercase_analyzer": {
+          "filter": [ "lowercase" ],
+          "type": "custom",
+          "tokenizer": "keyword"
+        },
+        "variant_analyzer": {
+          "filter": [ "lowercase", "variant_filter" ],
+          "type": "custom",
+          "tokenizer": "keyword"
+        },
+        "drug_analyzer": {
+          "filter": [ "lowercase" ],
+          "type": "custom",
+          "tokenizer": "keyword"
+        },
+        "protocol_no_analyzer": {
+          "filter": [ "lowercase" ],
+          "type": "custom",
+          "tokenizer": "whitespace"
+        },
+        "synonyms_expand": {
+          "filter": [ "lowercase", "synonyms_expand" ],
+          "type": "custom",
+          "tokenizer": "keyword"
+        }
+      },
+      "tokenizer": {
+        "standard_tokenizer": {
+          "type": "standard",
+          "max_token_length": 255
+        }
+      }
+    }
+  }
+}

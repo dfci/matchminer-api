@@ -1,0 +1,168 @@
+age: age
+cancer_center_accrual_goal_upper: 10
+data_table4: Interventional
+site_list:
+  site: []
+short_title: ""
+protocol_target_accrual: 0
+staff_list:
+  protocol_staff: []
+sponsor_list:
+  sponsor: []
+protocol_type: ""
+disease_site_list:
+  disease_site:
+  - disease_site_code: '1'
+    disease_site_name: Test1
+  - disease_site_code: '2'
+    disease_site_name: Test2
+  - disease_site_code: '3'
+    disease_site_name: Test3
+  - disease_site_code: '4'
+    disease_site_name: Test4
+  - disease_site_code: '5'
+    disease_site_name: Test5
+drug_list:
+  drug:
+  - drug_name: TEST DRUG1
+  - drug_name: TEST DRUG2
+  - drug_name: TEST DRUG3
+long_title: Long title
+management_group_list:
+  management_group:
+  - is_primary: Y
+    management_group_name: Group 1
+  - is_primary: N
+    management_group_name: Group 2
+match:
+- clinical:
+    disease_status:
+    - Advanced
+    - Metastatic
+nct_id: XXX00000001
+nct_purpose: NCT Purpose
+oncology_group_list:
+  oncology_group:
+  - group_name: Group 1
+    is_primary: N
+  - group_name: Group 2
+    is_primary: N
+phase: I
+principal_investigator: PI 1
+prior_treatment_requirements:
+- Requirement 1
+- Requirement 2
+program_area_list:
+  program_area:
+  - is_primary: Y
+    program_area_name: Program 1
+protocol_id: 00001
+protocol_no: 00-002
+treatment_list:
+  step:
+  - arm:
+    - arm_code: code
+      arm_description: description
+      arm_internal_id: 11
+      arm_suspended: N
+      dose_level: []
+      match:
+      - and:
+        - or:
+          - genomic:
+              hugo_symbol: PIK3CA
+              variant_category: Mutation
+          - genomic:
+              hugo_symbol: PIK3CA
+              protein_change: p.R88Q
+              variant_category: Mutation
+          - genomic:
+              hugo_symbol: PIK3CA
+              protein_change: p.N345K
+              variant_category: Mutation
+          - genomic:
+              hugo_symbol: PIK3CA
+              protein_change: p.C420R
+              variant_category: Mutation
+          - genomic:
+              hugo_symbol: PIK3CA
+              protein_change: p.E542K
+              variant_category: Mutation
+          - genomic:
+              hugo_symbol: PIK3CA
+              protein_change: p.E545K
+              variant_category: Mutation
+          - genomic:
+              hugo_symbol: PIK3CA
+              protein_change: p.E545A
+              variant_category: Mutation
+          - genomic:
+              hugo_symbol: PIK3CA
+              protein_change: p.E545G
+              variant_category: Mutation
+          - genomic:
+              hugo_symbol: PIK3CA
+              protein_change: p.E545D
+              variant_category: Mutation
+          - genomic:
+              hugo_symbol: PIK3CA
+              protein_change: p.E546K
+              variant_category: Mutation
+          - genomic:
+              hugo_symbol: PIK3CA
+              protein_change: p.E546E
+              variant_category: Mutation
+          - genomic:
+              hugo_symbol: PIK3CA
+              protein_change: p.E546R
+              variant_category: Mutation
+          - genomic:
+              hugo_symbol: PIK3CA
+              protein_change: p.E546L
+              variant_category: Mutation
+          - genomic:
+              hugo_symbol: PIK3CA
+              protein_change: p.M1043I
+              variant_category: Mutation
+          - genomic:
+              hugo_symbol: PIK3CA
+              protein_change: p.H1047R
+              variant_category: Mutation
+          - genomic:
+              hugo_symbol: PIK3CA
+              protein_change: p.H1047L
+              variant_category: Mutation
+          - genomic:
+              hugo_symbol: PIK3CA
+              protein_change: p.H1047Y
+              variant_category: Mutation
+          - genomic:
+              hugo_symbol: PIK3CA
+              protein_change: p.H1049R
+              variant_category: Mutation
+        - clinical:
+            age_numerical: '>=18'
+            er_status: Positive
+            her2_status: Negative
+            oncotree_primary_diagnosis: Invasive Breast Carcinoma
+            pr_status: Unknown
+    - arm_code: code
+      arm_description: description
+      arm_internal_id: 111
+      arm_suspended: N
+      dose_level: []
+      match:
+      - and:
+        - genomic:
+            hugo_symbol: PIK3CA
+            variant_category: Mutation
+            wildtype: true
+        - clinical:
+            age_numerical: '>=18'
+            er_status: Positive
+            her2_status: Negative
+            oncotree_primary_diagnosis: Invasive Breast Carcinoma
+            pr_status: Unknown
+    step_code: 'code'
+    step_internal_id: 111
+    step_type: Registration

@@ -1,0 +1,123 @@
+abl1 , c-abl
+akt1
+akt3
+alk
+arid1a
+atm
+atr
+atrx
+axl
+bcl2 , bcl-2
+bcl6
+blm
+braf , braf1
+brca1
+brca2
+brip1
+btk
+ccnd1
+ccnd2
+ccnd3
+ccne1
+cdk4
+cdk6
+cdkn2a , ink4a , arf , p16ink4a , p19arf , p14arf
+cdkn2b , ink4b , p15ink4b
+cdkn2c , ink4c , p18
+chek1 , chk1
+chek2 , chk2
+daxx
+ddr2
+egfr , erbb1
+erbb2 , her-2 , her2
+erbb3 , her3
+esr1
+fanca
+fancb
+fancc
+fancd2
+fance
+fancf
+fancg
+fanci
+fancl
+fancm
+fbxw7
+fgf19
+fgfr1
+fgfr2
+fgfr3
+fgfr4
+flt3
+foxo1
+gna11
+gnaq 
+hdac2
+hras
+idh1
+idh2
+jag1
+jag2
+jak2
+kit , c-kit
+kmt2a , all-1 , mll1a
+kras , kras1
+map2k1 , mek1 , mapkk1
+map2k2 , mek2
+mcl1 , mcl-1
+mdm2
+met
+mitf
+mlh1
+mre11
+msh2
+msh6
+mtor
+myc , c-myc , mycc
+mycn , n-myc
+myd88
+nf1
+nf2 , merlin
+notch1
+notch2
+notch3
+notch4
+nras , n-ras
+ntrk1 , trka
+ntrk2 , trkb
+ntrk3 , trkc
+palb2
+pdgfra
+pdgfrb
+pik3c2b
+pik3ca
+pik3cb
+pik3r1
+plcg2
+pms2
+pole , pole1
+ptch1
+pten , pten1
+rad50
+rad51
+rad51c
+rad51d
+rad52
+raf1 , raf-1 , c-raf , craf
+rara
+rb1
+ret
+rheb
+rnf43
+ros1 , c-ros-1
+sf3b1
+smarca4 , brg1
+smo
+srsf2
+ss18
+tfe3
+tp53 , p53
+tsc1
+tsc2
+u2af1
+zrsr2
