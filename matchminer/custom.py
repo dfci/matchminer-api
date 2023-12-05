@@ -10,7 +10,6 @@ from flask_cors import CORS
 from urllib.parse import urlparse
 from bson import ObjectId
 
-from onelogin.saml2.auth import OneLogin_Saml2_Auth
 import simplejson as json
 import oncotreenx
 from requests import post, get
@@ -653,6 +652,7 @@ def init_saml_auth(req):
     json_data_file.close()
 
     # create auth object with required settings.
+    from onelogin.saml2.auth import OneLogin_Saml2_Auth
     auth = OneLogin_Saml2_Auth(req, settings_data)
 
     # return it
