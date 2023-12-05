@@ -19,7 +19,7 @@ from flask import current_app as app, Response, request, abort
 from bson.objectid import ObjectId
 
 from matchminer import database
-from matchminer.settings import ONCORE_CURATION_AUTH_TOKEN
+from matchminer.settings import ONCORE_CURATION_AUTH_TOKEN, DISABLE_ONCORE_AUTH
 
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s', )
 
@@ -128,6 +128,10 @@ def authorize_oncore_curation(request):
     :param request: {Flask request obj}
     :return: {bool} True if user is not authenticated. False if user is authenticated
     """
+
+    if DISABLE_ONCORE_AUTH:
+        logging.info("Curation UI auth disabled")
+        return False
 
     user_id = request.cookies.get('user_id')
     if user_id is None:
